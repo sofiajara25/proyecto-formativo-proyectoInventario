@@ -1,0 +1,77 @@
+:root {
+    /* ================= BRAND ================= */
+    --semantic-brand: var(--color-primary-800);
+    --semantic-brand-hover: var(--color-primary-950);
+    --semantic-brand-soft: var(--color-primary-200);
+    --semantic-brand-soft-hover: var(--color-primary-300);
+
+    /* ================= BACKGROUND ================= */
+    --semantic-background: var(--color-white);
+    --semantic-surface: var(--color-gray-200);
+    --semantic-muted: var(--color-gray-400);
+    --semantic-background-inverse: var(--color-black);
+
+    /* ================= TEXT ================= */
+    --semantic-text-primary: var(--color-gray-900);
+    --semantic-text-secondary: var(--color-gray-700);
+    --semantic-text-muted: var(--color-gray-500);
+    --semantic-text-inverse: var(--color-gray-50);
+
+    /* ================= BORDER ================= */
+    --semantic-border: var(--color-gray-400);
+    --semantic-border-strong: var(--color-gray-700);
+
+    /* ================= FOCUS ================= */
+    --semantic-focus-ring: var(--color-primary-700);
+    --semantic-focus-border: var(--color-primary-500);
+
+    /* ================= STATE ================= */
+    --semantic-success: var(--color-primary-950);
+    --semantic-warning: var(--color-tertiary-950);
+    --semantic-error: var(--color-secundary-950);
+
+    /* ================= TYPOGRAPHY ================= */
+    --semantic-font-family-primary: var(--main-font);
+    --semantic-font-family-secondary: var(--secondary-font);
+
+    --semantic-font-size-display: var(--fs-xxl);
+    --semantic-font-size-h1: var(--fs-lg);
+    --semantic-font-size-h2: var(--fs-md);
+    --semantic-font-size-h3: var(--fs-sm);
+    --semantic-font-size-body: var(--fs-xs);
+    --semantic-font-size-medium: var(--fs-xxs);
+    --semantic-font-size-small: var(--fs-xxxs);
+    --semantic-font-size-caption: var(--fs-xxxxs);
+
+    /* ============ FONT WEIGHT =============== */
+    --semantic-font-weight-heading: var(--font-weight-bold);
+    --semantic-font-weight-body: var(--font-weight-regular);
+    --semantic-font-weight-label: var(--font-weight-regular);
+
+    /* ================= BUTTONS ================= */
+    --semantic-button-primary-bg: var(--color-primary-950);
+    --semantic-button-primary-text: var(--color-white);
+    --semantic-button-primary-padding: 24px 12px;
+    --semantic-button-primary-gap: 8px;
+
+    --semantic-button-secondary-bg: var(--color-tertiary-500);
+    --semantic-button-secondary-text: var(--color-white);
+    --semantic-button-secondary-padding: 20px 10px;
+    --semantic-button-secondary-gap: 8px;
+
+    /* ================= ICONS ================= */
+    --semantic-icon-size: 64px;
+    --semantic-icon-gap: 8px;
+
+    /* ================= IMAGES ================= */
+    --semantic-image-max-ppi: 72;
+    --semantic-image-product-size: 800px;
+    --semantic-image-thumbnail-size: 150px;
+
+    /* ================= FORMS ================= */
+    --semantic-form-field-height: 56dp;
+    --semantic-form-field-padding-x: 16dp;
+    --semantic-form-field-padding-y: 8dp;
+    --semantic-form-field-icon-size: 24dp;
+    --semantic-form-field-icon-gap: 16dp;
+}
