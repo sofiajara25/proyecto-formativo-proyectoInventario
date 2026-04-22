@@ -192,19 +192,11 @@ export default function UserRegisterForm() {
                     {/* Acciones */}
                     <div className="flex items-end justify-center gap-6">
                         <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                        >
-                            Cancelar
-                        </Button>
-
-                        <Button
                             type="submit"
                             variant="primary"
                             size="sm"
                         >
-                            Guardar
+                            Crear Cuenta
                         </Button>
                     </div>
 
