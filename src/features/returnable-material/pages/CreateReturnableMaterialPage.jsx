@@ -1,6 +1,6 @@
 import ReturnableMaterialRegisterForm from "../componentes/ReturnableMaterialRegisterForm"
 
-export default function CreateUserPage() {
+export default function CreateReturnablePage() {
     return (
         <div>
             <ReturnableMaterialRegisterForm />

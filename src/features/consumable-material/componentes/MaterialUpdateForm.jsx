@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input, Button } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
 
-export default function MaterialForm() {
+export default function MaterialUpdateForm() {
     const [formData, setFormData] = useState({
         custodian: "",
         toolId: "",
@@ -67,7 +67,7 @@ export default function MaterialForm() {
                 </h1>
             </header>
             <div className="bg-white p-8 rounded-xl w-full max-w-6xl ">
-                <h1 className="text-primary text-2xl mb-6">Crear Material de Consumo</h1>
+                <h1 className="text-primary text-2xl mb-6">Actualizar Material de Consumo</h1>
                 <form
                     className="grid grid-cols-1 place-items-center gap-6"
                     onSubmit={handleSubmit}

@@ -51,7 +51,7 @@ export default function LoansRegisterForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-400 flex flex-col items-center justify-center">
       {/* Encabezado */}
-      <header className="mb-8 text-center">
+      <header className="fixed top-0 left-0 w-full py-6 text-center">
         <h1 className="text-white text-2xl font-bold">
           Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
         </h1>

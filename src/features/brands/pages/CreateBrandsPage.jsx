@@ -1,6 +1,6 @@
 import BrandRegisterForm from "../componentes/BrandRegisterForm"
 
-export default function CreateUserPage() {
+export default function CreateBrandPage() {
     return (
         <div>
             <BrandRegisterForm />

@@ -15,7 +15,7 @@
     --semantic-text-primary: var(--color-gray-900);
     --semantic-text-secondary: var(--color-gray-700);
     --semantic-text-muted: var(--color-gray-500);
-    --semantic-text-inverse: var(--color-gray-50);
+    --semantic-text-inverse: var(--color-white);
 
     /* ================= BORDER ================= */
     --semantic-border: var(--color-gray-400);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function BrandRegisterForm() {
+export default function BrandUdpateForm() {
   const [marca, setMarca] = useState("");
   const [error, setError] = useState("");
 
@@ -21,7 +21,7 @@ export default function BrandRegisterForm() {
         </h1>
     </header>
       <div className="bg- p-8 rounded-xl shadow w-80 bg-white">
-        <h2 className="text-xl font-semibold mb-6 text-center">Crear marca</h2>
+        <h2 className="text-xl font-semibold mb-6 text-center">Actualizar marca</h2>
 
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la marca</label>

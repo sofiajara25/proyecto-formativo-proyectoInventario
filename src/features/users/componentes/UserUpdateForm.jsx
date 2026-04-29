@@ -4,7 +4,7 @@ import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 
 
-export default function UserRegisterForm() {
+export default function UserUpdateForm() {
 
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
@@ -84,7 +84,7 @@ export default function UserRegisterForm() {
             </header>
             <div className="bg-white p-8 rounded-xl w-full max-w-6xl ">
                 <h1 className="text text-primary text-2xl mb-6">
-                    Crear Cuenta
+                    Actualizar Cuenta
                 </h1>
                 <form
                     className="grid grid-cols-1 place-items-center gap-6"
