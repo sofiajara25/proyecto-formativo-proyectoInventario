@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const homeSchema = z.object({
+export const loginSchema = z.object({
   email: z
     .string()
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un correo válido"),
