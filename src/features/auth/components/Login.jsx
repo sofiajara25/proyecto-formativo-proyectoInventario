@@ -22,12 +22,13 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-400">
             <div className="bg-white p-8 rounded-xl shadow w-80">
                 <h2 className="text-xl font-semibold mb-6 text-center">Iniciar sesión</h2>
 
                 <div className="mb-3">
                     <input
+                        onChange={handleSubmit}
                         type="email"
                         placeholder="Correo"
                         value={email}
@@ -39,6 +40,7 @@ export default function Login() {
 
                 <div className="mb-5">
                     <input
+                        onChange={handleSubmit}
                         type="password"
                         placeholder="Contraseña"
                         value={password}
@@ -49,7 +51,6 @@ export default function Login() {
                 </div>
 
                 <button
-                    onChange={handleSubmit}
                     onClick={() => navigate("/dashboard/home")}
                     className="w-full bg-green-500 text-white py-2 rounded-lg text-sm hover:bg-green-600"
                 >

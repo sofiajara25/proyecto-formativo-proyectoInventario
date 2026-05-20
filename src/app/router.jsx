@@ -7,7 +7,7 @@ import { HomePage, ListPage } from "@/features/home";
 
 // 👇 Importamos las 4 páginas de los formularios
 import { CreateLoansPage, ListLoansPage } from "@/features/loans";
-import { CreateMaterialPage }           from "@/features/consumable-material";
+import { CreateMaterialPage, ListConsumablePage } from "@/features/consumable-material";
 import { CreateReturnableMaterialPage } from "@/features/returnable-material";
 import { CreateBrandsPage }             from "@/features/brands";
 
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
 
        // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo",   element: <ListLoansPage/> },
-      { path: "/dashboard/list-consumo",    element: <CreateMaterialPage /> },
+      { path: "/dashboard/list-consumo",    element: <ListConsumablePage /> },
       { path: "/dashboard/list-devolutivo", element: <CreateReturnableMaterialPage /> },
       { path: "/dashboard/list-usuarios",  element: <ListUserPage/>},
       { path: "/dashboard/list-retorno",    element: <CreateBrandsPage /> },

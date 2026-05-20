@@ -8,7 +8,7 @@ const cards = [
   { titulo: "Gestinar Préstamo", ruta: "/dashboard/list-prestamo" },
   { titulo: "Gestinar Material de Devolutivo", ruta: "/dashboard/devolutivo" },
   { titulo: "Gestinar Usuarios", ruta: "/dashboard/list-usuarios" },
-  { titulo: "Gestinar Material de Consumo", ruta: "/dashboard/consumo" },
+  { titulo: "Gestinar Material de Consumo", ruta: "/dashboard/list-consumo" },
 ];
 
 export default function HomePage() {
