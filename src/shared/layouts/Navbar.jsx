@@ -27,7 +27,7 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="w-full bg-transparent border-b-2">
+        <nav className="w-full bg-gradient-to-l from-green-600 via-green-600 to-purple-600 border-b-2">
             <div className="mx-auto max-w-7xl px-4 ">
                 <div className="flex h-16 items-center justify-between">
 
@@ -57,7 +57,7 @@ export default function Navbar() {
                                     </Link>
                                 </DropdownItem>
                                 <DropdownItem>
-                                    <Link to="/dashboard" className="block w-full">
+                                    <Link to="/dashboard/list" className="block w-full">
                                         Listas
                                     </Link>
                                 </DropdownItem>
@@ -117,6 +117,7 @@ export default function Navbar() {
                         Cerrar sesión
                     </button>
                     {/* Icono de usuario */}
+
                     {/* Logo de marca */}
                     <div className="hidden sm:block items-center">
                         <Link to={"/dashboard/home"} className="text-h1 font-heading ">

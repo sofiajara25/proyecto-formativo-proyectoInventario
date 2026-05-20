@@ -5,10 +5,10 @@ import { ArrowLeft } from "lucide-react";
 import { Navbar } from "@/shared";
 
 const cards = [
-  { titulo: "Crear Préstamo", ruta: "/dashboard/prestamo" },
-  { titulo: "Crear Material de Devolutivo", ruta: "/dashboard/devolutivo" },
-  { titulo: "Crear Usuarios", ruta: "/dashboard/usuarios" },
-  { titulo: "Crear Material de Consumo", ruta: "/dashboard/consumo" },
+  { titulo: "Gestinar Préstamo", ruta: "/dashboard/list-prestamo" },
+  { titulo: "Gestinar Material de Devolutivo", ruta: "/dashboard/devolutivo" },
+  { titulo: "Gestinar Usuarios", ruta: "/dashboard/list-usuarios" },
+  { titulo: "Gestinar Material de Consumo", ruta: "/dashboard/consumo" },
 ];
 
 export default function HomePage() {
