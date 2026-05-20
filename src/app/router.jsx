@@ -10,6 +10,7 @@ import { CreateLoansPage, ListLoansPage } from "@/features/loans";
 import { CreateMaterialPage, ListConsumablePage } from "@/features/consumable-material";
 import { CreateReturnableMaterialPage } from "@/features/returnable-material";
 import { CreateBrandsPage }             from "@/features/brands";
+import { CreateReturnPage } from "@/features/returns";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +40,8 @@ const router = createBrowserRouter([
       { path: "/dashboard/consumo",    element: <CreateMaterialPage /> },
       { path: "/dashboard/devolutivo", element: <CreateReturnableMaterialPage /> },
       { path: "/dashboard/usuarios",  element: <CreateUserPage/>},
-      { path: "/dashboard/retorno",    element: <CreateBrandsPage /> },
+      { path: "/dashboard/retorno",    element: <CreateReturnPage /> },
+
 
        // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo",   element: <ListLoansPage/> },
