@@ -1,4 +1,4 @@
-import BrandRegisterForm from "../componentes/BrandRegisterForm"
+import BrandRegisterForm from "../components/BrandRegisterForm"
 
 export default function CreateBrandPage() {
     return (

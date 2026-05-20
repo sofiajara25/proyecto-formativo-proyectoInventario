@@ -1,6 +1,11 @@
 import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { CircleArrowLeft } from "lucide-react";
+
 
 export default function BrandRegisterForm() {
+  const navigate = useNavigate()
+
   const [marca, setMarca] = useState("");
   const [error, setError] = useState("");
 
@@ -16,10 +21,17 @@ export default function BrandRegisterForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-600 flex flex-col items-center justify-center">
       <header className="fixed top-0 left-0 w-full  py-6  text-center z-50">
+        {/* Botón volver */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
+        >
+          <CircleArrowLeft size={24} color="#ffffff" />
+        </button>
         <h1 className="text-white text-2xl font-bold">
-        Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
+          Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
         </h1>
-    </header>
+      </header>
       <div className="bg- p-8 rounded-xl shadow w-80 bg-white">
         <h2 className="text-xl font-semibold mb-6 text-center">Crear marca</h2>
 

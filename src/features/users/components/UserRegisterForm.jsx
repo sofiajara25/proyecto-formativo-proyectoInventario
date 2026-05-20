@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { Input, Button, Select } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
+import { Navigate, useNavigate } from "react-router-dom";
+import { CircleArrowLeft } from "lucide-react";
 
 
 export default function UserRegisterForm() {
+    const navigate = useNavigate()
 
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
@@ -78,8 +81,15 @@ export default function UserRegisterForm() {
         <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-400 flex flex-col items-center justify-center">
             {/* Encabezado */}
             <header className="fixed top-0 left-0 w-full py-6 text-center">
+                {/* Botón volver */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
+                >
+                    <CircleArrowLeft size={36} color="#ffffff" />
+                </button>
                 <h1 className="text-white text-2xl font-bold">
-                    Sistema Inventario de Infraestructura y <br/>Teleinformática CDITI SENA
+                    Sistema Inventario de Infraestructura y <br />Teleinformática CDITI SENA
                 </h1>
             </header>
             <div className="bg-white p-8 rounded-xl w-full max-w-6xl ">

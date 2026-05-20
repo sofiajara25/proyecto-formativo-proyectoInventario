@@ -1,4 +1,4 @@
-import ReturnableMaterialRegisterForm from "../componentes/ReturnableMaterialRegisterForm"
+import ReturnableMaterialRegisterForm from "../components/ReturnableMaterialRegisterForm"
 
 export default function CreateReturnablePage() {
     return (

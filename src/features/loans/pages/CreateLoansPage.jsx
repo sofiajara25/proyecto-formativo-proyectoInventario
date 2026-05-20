@@ -1,4 +1,4 @@
-import LoansRegisterForm from "../componentes/LoansRegisterForm"
+import LoansRegisterForm from "../components/LoansRegisterForm"
 export default function CreateLoansPage() {
     return (
         <div>

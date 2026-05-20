@@ -1,1 +1,1 @@
-export {default as CreateHomePage} from "./pages/CreateHomePage";
+export {default as HomePage} from "./components/Createhome";

@@ -1,4 +1,4 @@
-import MaterialRegisterForm from "../componentes/materialRegisterForm";
+import MaterialRegisterForm from "../components/MaterialRegisterForm";
 
 export default function CreateMaterialPage() {
     return (

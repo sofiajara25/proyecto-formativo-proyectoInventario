@@ -1,4 +1,4 @@
-import LoansUpdateForm from "../componentes/LoansUpdateForm"
+import LoansUpdateForm from "../components/LoansUpdateForm"
 export default function UpdateLoansPage() {
     return (
         <div>
