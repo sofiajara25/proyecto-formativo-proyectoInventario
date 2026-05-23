@@ -15,7 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 // Componente que renderiza las acciones de cada fila de usuario
 // Recibe como prop el objeto user
-export default function UserRowActions({ user }) {
+export default function BrandRowActions({ brand }) {
 
 
     // const handleEdit = () => {
@@ -30,7 +30,7 @@ export default function UserRowActions({ user }) {
     // Acción para editar el usuario
     // Redirige a la página de edición usando el id del usuario
     const handleEdit = () => {
-        navigate(`/dashboard/users/${user.id}/edit`);
+        navigate(`/dashboard/brands/${brand.id}/edit`);
     };
 
 

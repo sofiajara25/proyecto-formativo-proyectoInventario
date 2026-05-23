@@ -6,7 +6,7 @@ export const settings = [
         title: "Gestionar Marca",
         logo: Dices,
         category: "perifericos",
-        path: "/dashboard/devolutivo",
+        path: "/dashboard/list-marca",
     },
     {
         id: 2,
@@ -20,6 +20,6 @@ export const settings = [
         title: "Gestionar usuario",
         logo: UserRoundCheck,
         category: "perifericos",
-        path: "/dashboard/list-prestamo",
+        path: "/dashboard/list-usuarios",
     },
 ]
