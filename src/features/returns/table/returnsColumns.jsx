@@ -3,12 +3,12 @@ import { Switch } from "@/shared";
 
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
-import LoanRowActions from "../components/LoanRowActions";
+import ReturnRowActions from "../components/ReturnRowActions";
 
 
 // Definición de las columnas de la tabla de usuarios
 // Este arreglo suele usarse en librerías de tablas como TanStack Table
-export const loansColumns = [
+export const retornsColumns = [
 
 
     // Columna ID
@@ -18,26 +18,18 @@ export const loansColumns = [
     },
 
 
-    // Columna Nombre
+    // Columna Prestamo
     {
-        accessorKey: "user", // Campo del objeto user
-        header: "Usuario",    // Encabezado visible
+        accessorKey: "idloanid", // Campo del objeto user
+        header: "Id Prestamo",    // Encabezado visible
     },
 
 
-    // Columna Email
+    // Columna Fecha de devolucion
     {
-        accessorKey: "category",
-        header: "Categoria",
+        accessorKey: "returnDate",
+        header: "Fecha de devolución",
     },
-
-
-    // Columna Dirección
-    {
-        accessorKey: "materialName",
-        header: "Nombre del material",
-    },
-
 
     // Columna Estado (activo / inactivo)
     {
@@ -51,7 +43,7 @@ export const loansColumns = [
 
 
             // Se obtiene el objeto completo del usuario de la fila
-            const loan = row.original;
+            const refund = row.original;
 
 
             // Función que se ejecuta cuando cambia el switch
@@ -59,7 +51,7 @@ export const loansColumns = [
 
 
                 // value representa el nuevo estado del switch (true o false)
-                console.log("Actualizar estado usuario:", loan.user_id, value);
+                console.log("Actualizar estado retorno:", refund.returns_id, value);
 
 
                 // Aquí normalmente se llamaría una API para actualizar el estado
@@ -70,7 +62,7 @@ export const loansColumns = [
             return (
                 // Componente reutilizable para mostrar el switch
                 <Switch
-                    checked={loan.is_active} // Estado actual del usuario
+                    checked={refund.is_active} // Estado actual del usuario
                     onChange={handleChange}  // Función que maneja el cambio
                     className="inline-flex"
                 />
@@ -85,6 +77,6 @@ export const loansColumns = [
 
 
         // Renderiza el componente de acciones pasando el usuario completo
-        cell: ({ row }) => <LoanRowActions user={row.original} />,
+        cell: ({ row }) => <ReturnRowActions refund={row.original} />,
     },
 ];

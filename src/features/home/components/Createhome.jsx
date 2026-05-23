@@ -7,7 +7,7 @@ import { Navbar } from "@/shared";
 const cards = [
   { titulo: "Crear Préstamo", ruta: "/dashboard/prestamo" },
   { titulo: "Crear Material de Devolutivo", ruta: "/dashboard/devolutivo" },
-  { titulo: "Crear Usuarios", ruta: "/dashboard/retorno" },
+  { titulo: "Crear Retorno", ruta: "/dashboard/retorno" },
   { titulo: "Crear Material de Consumo", ruta: "/dashboard/consumo" },
 ];
 

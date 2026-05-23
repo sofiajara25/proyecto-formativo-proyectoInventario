@@ -1,6 +1,7 @@
 :root {
     /* ================= BRAND ================= */
     --semantic-brand: var(--color-primary-800);
+    --semantic-brand-2: var(--color-secundary-950);
     --semantic-brand-hover: var(--color-primary-950);
     --semantic-brand-soft: var(--color-primary-200);
     --semantic-brand-soft-hover: var(--color-primary-300);

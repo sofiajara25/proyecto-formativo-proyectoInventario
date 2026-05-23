@@ -47,7 +47,7 @@ export default function Navbar() {
                                     </IconButton>
                                 </DropdownItem>
                                 <DropdownItem>
-                                    <Link to="/dashboard/auth" className="block w-full">
+                                    <Link to="/dashboard/home" className="block w-full">
                                         Inicio
                                     </Link>
                                 </DropdownItem>
@@ -63,7 +63,7 @@ export default function Navbar() {
                                 </DropdownItem>
 
                                 <DropdownItem>
-                                    <Link to="/dashboard" className="block w-full">
+                                    <Link to="/dashboard/setting" className="block w-full">
                                         Ajustes
                                     </Link>
                                 </DropdownItem>
