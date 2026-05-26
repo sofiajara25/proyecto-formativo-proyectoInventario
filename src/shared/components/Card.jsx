@@ -1,19 +1,13 @@
-import { Link } from "react-router-dom";
-
 export default function Card({ product }) {
 
-    const { title, logo: Logo, path } = product;
+    const { title, logo } = product;
 
     return (
-        <Link to={path}>
-
-            <div
-                className="
-            flex flex-col justify-center items-center
-                w-70
-                h-70
+        <div
+            className="
+                w-full
                 text-text-inverse
-                bg-white
+                dark:bg-neutral-950/80
                 backdrop-blur-[2px]
                 shadow-lg
                 rounded-2xl
@@ -21,24 +15,21 @@ export default function Card({ product }) {
                 hover:shadow-black
                 transition-shadow duration-700
             "
+        >
+
+            <div
+                className="p-5 space-y-3 "
             >
+                {/* Título de la card */}
+                <h2 className="text-h2 font-heading place-self-center">
+                    {title}
+                </h2>
 
-                <div
-                    className="p-5 space-y-3 flex flex-col justify-center items-center"
-                >
-                    {/* Título de la card */}
-                    <h2 className="text-h2 font-heading place-self-center text-black">
-                        {title}
-                    </h2>
-
-                    {/* Renderiza el componente solo si existe */}
-                    {Logo && (
-                        <div>
-                            <Logo size={40} color="black" /> {/* aquí sí se renderiza */}
-                        </div>
-                    )}
+                <div >
+                    {logo}
                 </div>
+                
             </div>
-        </Link>
+        </div>
     )
 }

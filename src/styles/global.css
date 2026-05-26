@@ -5,7 +5,6 @@
 @theme {
     /* ======== BRAND ============ */
     --color-brand: var(--semantic-brand);
-    --color-brand-2: var(--semantic-brand-2);
     --color-brand-hover: var(--semantic-brand-hover);
     --color-brand-soft: var(--semantic-brand-soft);
     --color-brand-soft-hover: var(--semantic-brand-soft-hover);

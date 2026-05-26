@@ -1,272 +1,302 @@
 export const loans = [
     {
         id: 1,
-        user: "Sofia Jaramillo",
-        category: "Herramienta",
-        materialName: "Taladro",
-        loanDate: "2026-05-01",
-        returnDate: "2026-05-10",
-        description: "Préstamo para mantenimiento",
+        name: "Sofia Jaramillo",
+        email: "sofiajaramilloor16@gmail.com",
+        address: "Calle 42 #5-46"
     },
     {
         id: 2,
-        user: "Carlos Pérez",
-        category: "Equipo",
-        materialName: "Laptop Dell",
-        loanDate: "2026-05-02",
-        returnDate: "2026-05-12",
-        description: "Uso en proyecto académico",
+        name: "Carlos Pérez",
+        email: "carlosperez23@gmail.com",
+        address: "Carrera 10 #12-34"
     },
     {
-        id: 3,
-        user: "Mariana López",
-        category: "Consumible",
-        materialName: "Cables HDMI",
-        loanDate: "2026-05-03",
-        returnDate: "2026-05-05",
-        description: "Entrega para sala audiovisual",
+        id: 3, 
+        name: "Mariana López",
+        email: "marianalopez88@hotmail.com",
+        address: "Avenida Siempre Viva 123"
     },
     {
-        id: 4,
-        user: "Juan Rodríguez",
-        category: "Herramienta",
-        materialName: "Martillo",
-        loanDate: "2026-05-04",
-        returnDate: "2026-05-08",
-        description: "Uso en taller de carpintería",
+        id: 4, 
+        name: "Juan Rodríguez",
+        email: "juanrodriguez99@yahoo.com",
+        address: "Calle 8 #45-67"
     },
     {
-        id: 5,
-        user: "Ana Torres",
-        category: "Equipo",
-        materialName: "Impresora HP",
-        loanDate: "2026-05-05",
-        returnDate: "2026-05-15",
-        description: "Préstamo para oficina",
+        id: 5, 
+        name: "Ana Torres",
+        email: "anatorres55@gmail.com",
+        address: "Carrera 15 #20-10"
     },
     {
-        id: 6,
-        user: "Luis Gómez",
-        category: "Consumible",
-        materialName: "Resmas de papel",
-        loanDate: "2026-05-06",
-        returnDate: "2026-05-07",
-        description: "Entrega para impresión masiva",
+        id: 6, 
+        name: "Luis Gómez",
+        email: "luisgomez77@gmail.com",
+        address: "Calle 33 #7-21"
     },
     {
-        id: 7,
-        user: "Camila Martínez",
-        category: "Equipo",
-        materialName: "Proyector Epson",
-        loanDate: "2026-05-07",
-        returnDate: "2026-05-14",
-        description: "Uso en presentación",
+        id: 7, 
+        name: "Camila Martínez",
+        email: "camilamartinez12@gmail.com",
+        address: "Diagonal 45 #8-90"
     },
     {
-        id: 8,
-        user: "Andrés Ramírez",
-        category: "Herramienta",
-        materialName: "Llave inglesa",
-        loanDate: "2026-05-08",
-        returnDate: "2026-05-09",
-        description: "Reparación de tuberías",
+        id: 8, 
+        name: "Andrés Ramírez",
+        email: "andresramirez44@gmail.com",
+        address: "Transversal 9 #11-56"
     },
     {
-        id: 9,
-        user: "Valentina Herrera",
-        category: "Consumible",
-        materialName: "Cartuchos de tinta",
-        loanDate: "2026-05-09",
-        returnDate: "2026-05-11",
-        description: "Uso en impresora de oficina",
+        id: 9, 
+        name: "Valentina Herrera",
+        email: "valentinaherrera21@gmail.com",
+        address: "Calle 19 #3-22"
     },
     {
-        id: 10,
-        user: "Felipe Castro",
-        category: "Equipo",
-        materialName: "Monitor Samsung",
-        loanDate: "2026-05-10",
-        returnDate: "2026-05-20",
-        description: "Préstamo para diseño gráfico",
+        id: 10, 
+        name: "Felipe Castro",
+        email: "felipecastro33@gmail.com",
+        address: "Carrera 7 #14-78"
     },
     {
-        id: 11,
-        user: "Laura Sánchez",
-        category: "Herramienta",
-        materialName: "Destornillador",
-        loanDate: "2026-05-11",
-        returnDate: "2026-05-12",
-        description: "Uso en laboratorio",
+        id: 11, 
+        name: "Laura Sánchez",
+        email: "laurasanchez65@gmail.com",
+        address: "Calle 50 #9-12"
     },
     {
-        id: 12,
-        user: "Mateo Ríos",
-        category: "Equipo",
-        materialName: "Tablet Samsung",
-        loanDate: "2026-05-12",
-        returnDate: "2026-05-18",
-        description: "Uso en investigación",
+        id: 12, 
+        name: "Mateo Ríos",
+        email: "mateorios88@gmail.com",
+        address: "Carrera 22 #15-34"
     },
     {
-        id: 13,
-        user: "Isabella Morales",
-        category: "Consumible",
-        materialName: "Marcadores",
-        loanDate: "2026-05-13",
-        returnDate: "2026-05-14",
-        description: "Entrega para sala de clases",
+        id: 13, 
+        name: "Isabella Morales",
+        email: "isabellamorales90@gmail.com",
+        address: "Calle 60 #2-45"
     },
     {
-        id: 14,
-        user: "Sebastián Vargas",
-        category: "Equipo",
-        materialName: "Cámara Canon",
-        loanDate: "2026-05-14",
-        returnDate: "2026-05-19",
-        description: "Uso en proyecto audiovisual",
+        id: 14, 
+        name: "Sebastián Vargas",
+        email: "sebastianvargas77@gmail.com",
+        address: "Carrera 18 #6-78"
     },
     {
-        id: 15,
-        user: "Gabriela Jiménez",
-        category: "Herramienta",
-        materialName: "Sierra eléctrica",
-        loanDate: "2026-05-15",
-        returnDate: "2026-05-17",
-        description: "Uso en taller de madera",
+        id: 15, 
+        name: "Gabriela Jiménez",
+        email: "gabrielajimenez12@gmail.com",
+        address: "Calle 25 #9-67"
     },
     {
-        id: 16,
-        user: "Daniel Ortiz",
-        category: "Consumible",
-        materialName: "Guantes de seguridad",
-        loanDate: "2026-05-16",
-        returnDate: "2026-05-18",
-        description: "Entrega para personal de obra",
+        id: 16, 
+        name: "Daniel Ortiz",
+        email: "danielortiz55@gmail.com",
+        address: "Carrera 30 #11-23"
     },
     {
-        id: 17,
-        user: "Natalia Cruz",
-        category: "Equipo",
-        materialName: "Router TP-Link",
-        loanDate: "2026-05-17",
-        returnDate: "2026-05-22",
-        description: "Uso en red de oficina",
+        id: 17, 
+        name: "Natalia Cruz",
+        email: "nataliacruz34@gmail.com",
+        address: "Calle 70 #4-56"
     },
     {
-        id: 18,
-        user: "Julián Mendoza",
-        category: "Herramienta",
-        materialName: "Taladro inalámbrico",
-        loanDate: "2026-05-18",
-        returnDate: "2026-05-20",
-        description: "Uso en mantenimiento eléctrico",
+        id: 18, 
+        name: "Julián Mendoza",
+        email: "julianmendoza88@gmail.com",
+        address: "Carrera 40 #8-90"
     },
     {
-        id: 19,
-        user: "Paula Silva",
-        category: "Consumible",
-        materialName: "Alcohol industrial",
-        loanDate: "2026-05-19",
-        returnDate: "2026-05-21",
-        description: "Entrega para laboratorio",
+        id: 19, 
+        name: "Paula Silva",
+        email: "paulasilva99@gmail.com",
+        address: "Calle 12 #3-45"
     },
     {
-        id: 20,
-        user: "Diego Navarro",
-        category: "Equipo",
-        materialName: "Servidor Dell",
-        loanDate: "2026-05-20",
-        returnDate: "2026-05-30",
-        description: "Uso en pruebas de red",
+        id: 20, 
+        name: "Diego Navarro",
+        email: "diegonavarro22@gmail.com",
+        address: "Carrera 50 #7-12"
     },
     {
-        id: 21,
-        user: "Sara Patiño",
-        category: "Herramienta",
-        materialName: "Pinzas",
-        loanDate: "2026-05-21",
-        returnDate: "2026-05-22",
-        description: "Uso en laboratorio químico",
+        id: 21, 
+        name: "Sara Patiño",
+        email: "sarapatiño33@gmail.com",
+        address: "Calle 80 #5-67"
     },
     {
-        id: 22,
-        user: "Tomás Cárdenas",
-        category: "Equipo",
-        materialName: "Consola de sonido",
-        loanDate: "2026-05-22",
-        returnDate: "2026-05-28",
-        description: "Uso en evento musical",
+        id: 22, 
+        name: "Tomás Cárdenas",
+        email: "tomascardenas44@gmail.com",
+        address: "Carrera 60 #9-34"
     },
     {
-        id: 23,
-        user: "Lucía Villalba",
-        category: "Consumible",
-        materialName: "Cinta adhesiva",
-        loanDate: "2026-05-23",
-        returnDate: "2026-05-24",
-        description: "Entrega para oficina",
+        id: 23, 
+        name: "Lucía Villalba",
+        email: "luciavillalba55@gmail.com",
+        address: "Calle 90 #2-12"
     },
     {
-        id: 24,
-        user: "Martín Duarte",
-        category: "Equipo",
-        materialName: "Impresora 3D",
-        loanDate: "2026-05-24",
-        returnDate: "2026-05-29",
-        description: "Uso en prototipado",
+        id: 24, 
+        name: "Martín Duarte",
+        email: "martinduarte66@gmail.com",
+        address: "Carrera 12 #8-56"
     },
     {
-        id: 25,
-        user: "Andrea Peña",
-        category: "Herramienta",
-        materialName: "Cortadora de metal",
-        loanDate: "2026-05-25",
-        returnDate: "2026-05-27",
-        description: "Uso en taller mecánico",
+        id: 25, 
+        name: "Andrea Peña",
+        email: "andreapena77@gmail.com",
+        address: "Calle 100 #3-45"
     },
     {
-        id: 26,
-        user: "Samuel Rojas",
-        category: "Consumible",
-        materialName: "Mascarillas",
-        loanDate: "2026-05-26",
-        returnDate: "2026-05-27",
-        description: "Entrega para personal de salud",
+        id: 26, 
+        name: "Samuel Rojas",
+        email: "samuelrojas88@gmail.com",
+        address: "Carrera 70 #6-78"
     },
     {
-        id: 27,
-        user: "Mónica Álvarez",
-        category: "Equipo",
-        materialName: "Pantalla LED",
-        loanDate: "2026-05-27",
-        returnDate: "2026-06-02",
-        description: "Uso en evento corporativo",
+        id: 27, 
+        name: "Mónica Álvarez",
+        email: "monicaalvarez99@gmail.com",
+        address: "Calle 110 #7-12"
     },
     {
-        id: 28,
-        user: "Esteban León",
-        category: "Herramienta",
-        materialName: "Soldador",
-        loanDate: "2026-05-28",
-        returnDate: "2026-05-30",
-        description: "Uso en taller eléctrico",
+        id: 28, 
+        name: "Esteban León",
+        email: "estebanleon22@gmail.com",
+        address: "Carrera 80 #9-34"
     },
     {
-        id: 29,
-        user: "Carolina Mejía",
-        category: "Consumible",
-        materialName: "Pilas AA",
-        loanDate: "2026-05-29",
-        returnDate: "2026-05-30",
-        description: "Entrega para dispositivos",
+        id: 29, 
+        name: "Carolina Mejía",
+        email: "carolinamejia33@gmail.com",
+        address: "Calle 120 #5-67"
     },
     {
-        id: 30,
-        user: "Hugo Cárdenas",
-        category: "Equipo",
-        materialName: "Micrófono Shure",
-        loanDate: "2026-05-30",
-        returnDate: "2026-06-05",
-        description: "Uso en grabación de podcast",
+        id: 30, 
+        name: "Ricardo Salazar",
+        email: "ricardosalazar44@gmail.com",
+        address: "Carrera 90 #2-12"
     },
-]
+    {
+        id: 31, 
+        name: "Fernanda Díaz",
+        email: "fernandadiaz55@gmail.com",
+        address: "Calle 130 #8-56"
+    },
+    {
+        id: 32, 
+        name: "Álvaro Gutiérrez",
+        email: "alvarogutierrez66@gmail.com",
+        address: "Carrera 100 #3-45"
+    },
+    {
+        id: 33, 
+        name: "Patricia Molina",
+        email: "patriciamolina77@gmail.com",
+        address: "Calle 140 #6-78"
+    },
+    {
+        id: 34, 
+        name: "Hernán Suárez",
+        email: "hernansuarez88@gmail.com",
+        address: "Carrera 110 #7-12"
+    },
+    {
+        id: 35, 
+        name: "Claudia Restrepo",
+        email: "claudiarestrepo99@gmail.com",
+        address: "Calle 150 #9-34"
+    },
+    {
+        id: 36, 
+        name: "Óscar Beltrán",
+        email: "oscarbeltran22@gmail.com",
+        address: "Carrera 120 #5-67"
+    },
+    {
+        id: 37, 
+        name: "Verónica Parra",
+        email: "veronicaparra33@gmail.com",
+        address: "Calle 160 #2-12"
+    },
+    {
+        id: 38, 
+        name: "Mauricio Aguilar",
+        email: "mauricioaguilar44@gmail.com",
+        address: "Carrera 130 #8-56"
+    },
+    {
+        id: 39, 
+        name: "Julieta Castaño",
+        email: "julietacastano55@gmail.com",
+        address: "Calle 170 #3-45"
+    },
+    {
+        id: 40, 
+        name: "Cristian Lozano",
+        email: "cristianlozano66@gmail.com",
+        address: "Carrera 140 #6-78"
+    },
+    {
+        id: 41, 
+        name: "Elena Ramírez",
+        email: "elenaramirez77@gmail.com",
+        address: "Calle 180 #7-12"
+    },
+    {
+        id: 42, 
+        name: "Gustavo Pardo",
+        email: "gustavopardo88@gmail.com",
+        address: "Carrera 150 #9-34"
+    },
+    {
+        id: 43, 
+        name: "Adriana Cifuentes",
+        email: "adrianacifuentes99@gmail.com",
+        address: "Calle 190 #5-67"
+    },
+    {
+        id: 44, 
+        name: "Jorge Villamil",
+        email: "jorgevillamil22@gmail.com",
+        address: "Carrera 160 #2-12"
+    },
+    {
+        id: 45, 
+        name: "Daniela Correa",
+        email: "danielacorrea33@gmail.com",
+        address: "Calle 200 #8-56"
+    },
+    {
+        id: 46, 
+        name: "Santiago Pineda",
+        email: "santiagopineda44@gmail.com",
+        address: "Carrera 170 #3-45"
+    },
+    {
+        id: 47, 
+        name: "Marcela Ospina",
+        email: "marcelaospina55@gmail.com",
+        address: "Calle 210 #6-78"
+    },
+    {
+        id: 48, 
+        name: "Iván Torres",
+        email: "ivantorres66@gmail.com",
+        address: "Carrera 180 #7-12"
+    },
+    {
+        id: 49, 
+        name: "Rosa Delgado",
+        email: "rosadelgado77@gmail.com",
+        address: "Calle 220 #9-34"
+    },
+    {
+        id: 50, 
+        name: "Hugo Cárdenas",
+        email: "hugocardenas88@gmail.com",
+        address: "Carrera 190 #5-67"
+    },
+];

@@ -12,7 +12,6 @@ export {
 export { default as Navbar } from "./layouts/Navbar"
 export { IconButton } from "./components/IconButton"
 export { default as SearchField } from "./components/SearchField"
-export { default as Switch } from "./components/Switch"
-export { default as DataTable } from "./components/DataTable"
-export { default as Checkbox } from "./components/Checkbox"
-export { default as Card } from "./components/Card"
+export {default as Switch} from "./components/Switch"
+export {default as DataTable} from "./components/DataTable"
+export { default as Checkbox } from "./components/Checkbox";
