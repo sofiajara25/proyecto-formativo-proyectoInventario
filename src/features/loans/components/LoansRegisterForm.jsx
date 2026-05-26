@@ -54,21 +54,17 @@ export default function LoansRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4">
+            <div className="flex flex-col flex-1 px-10 py-8 gap-4 items-center justify-center">
 
                 {/* Título */}
-                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0 }}>
+                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, left: }}>
                     Crear Préstamo
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6" style={{ padding: "32px 36px" }}>
+                <div className="bg-white p-8 rounded-xl w-full max-w-4xl">
 
-                    <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)", margin: 0 }}>
-                        Completa los campos para registrar un nuevo préstamo
-                    </p>
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
 
                         <div className="grid grid-cols-2 gap-6">
 

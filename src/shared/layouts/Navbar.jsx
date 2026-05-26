@@ -52,7 +52,7 @@ export default function Navbar() {
                             </Link>
                         </DropdownItem>
                         <DropdownItem>
-                            <Link to="/dashboard" className="block w-full"
+                            <Link to="/dashboard/setting" className="block w-full"
                                 style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
                                 Ajustes
                             </Link>

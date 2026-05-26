@@ -9,9 +9,10 @@ import { settings } from "../data/settings";
 export default function SettinsPage() {
 
   return (
-    <div className="min-h-screen  bg-gradient-to-l from-green-600 via-green-600 to-purple-600 ">
+    <div className="min-h-screen"
+      style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}>
       <Navbar />
-      
+
       <div
         className="
                     grid

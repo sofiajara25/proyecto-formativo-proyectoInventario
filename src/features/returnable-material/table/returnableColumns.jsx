@@ -1,22 +1,29 @@
 // Componente reutilizable que muestra un switch para activar o desactivar estados
 import { Switch } from "@/shared";
-import ConsumableRowActions from "../components/ConsumableRowActions";
+import ReturnableRowAction from "../components/ReturnableRowAction";
 
-export const consumablesColumns = [
+export const returnableColumns = [
 
     {
         accessorKey: "id",
-        header: "ID",
-        size: 80,
+        header: "Id",
     },
+
     {
         accessorKey: "custodian",
         header: "Encargado",
     },
+
     {
         accessorKey: "materialName",
-        header: "Nombre del Material",
+        header: "Nombre Material",
     },
+
+    {
+        accessorKey: "quantity",
+        header: "Cantidad",
+    },
+
     {
         accessorKey: "status",
         header: "Estado",
@@ -36,7 +43,8 @@ export const consumablesColumns = [
     },
 
     {
-        id: "actions",
-        cell: ({ row }) => <ConsumableRowActions user={row.original} />,
+        accessorKey: "actions",
+        header: "Acciones",
+        cell: ({ row }) => <ReturnableRowAction returnable={row.original} />,
     },
 ];

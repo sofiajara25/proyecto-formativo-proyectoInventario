@@ -3,13 +3,13 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout } from "@/shared";
 import { Login } from "@/features/auth";
 import { CreateUserPage, ListUserPage } from "@/features/users";
-import { HomePage, ListPage } from "@/features/home";
+import { HomePage, ListPage, SettingsPage } from "@/features/home";
 
 // 👇 Importamos las 4 páginas de los formularios
 import { CreateLoansPage, ListLoansPage } from "@/features/loans";
 import { CreateMaterialPage, ListConsumablePage } from "@/features/consumable-material";
-import { CreateReturnableMaterialPage } from "@/features/returnable-material";
-import { CreateBrandsPage }             from "@/features/brands";
+import { CreateReturnableMaterialPage, ListReturMaterialPage } from "@/features/returnable-material";
+import { CreateBrandsPage, ListBrandPage, UpdateBrandPage } from "@/features/brands";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +32,7 @@ const router = createBrowserRouter([
       // Ruta del home
       { path: "/dashboard/home", element: <HomePage /> },
       { path: "/dashboard/list", element: <ListPage /> },
+      { path: "/dashboard/setting", element: <SettingsPage /> },
       
 
       // Rutas de los 4 formularios de crear
@@ -44,9 +45,10 @@ const router = createBrowserRouter([
        // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo",   element: <ListLoansPage/> },
       { path: "/dashboard/list-consumo",    element: <ListConsumablePage /> },
-      { path: "/dashboard/list-devolutivo", element: <CreateReturnableMaterialPage /> },
+      { path: "/dashboard/list-devolutivo", element: <ListReturMaterialPage /> },
       { path: "/dashboard/list-usuarios",  element: <ListUserPage/>},
       { path: "/dashboard/list-retorno",    element: <CreateBrandsPage /> },
+      { path: "/dashboard/list-marca", element: <ListBrandPage/> },
     ],
   },
 ]);

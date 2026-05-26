@@ -1,4 +1,4 @@
-import BrandUpdateForm from "../componentes/BrandUpdateForm"
+import BrandUpdateForm from "../components/BrandUpdateForm"
 
 export default function UpdateBrandPage() {
     return (
