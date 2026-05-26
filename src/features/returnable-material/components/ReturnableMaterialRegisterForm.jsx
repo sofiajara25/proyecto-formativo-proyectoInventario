@@ -80,29 +80,128 @@ export default function ReturnableMaterialRegisterForm() {
         >
           <div className="grid grid-cols-3 gap-6 mx-auto">
             {/* Fila 1 */}
-            <Input label="ID Herramienta" name="toolId" value={formData.toolId} onChange={handleChange} error={errors.toolId} />
-            <Input label="Placa SENA" name="senaPlate" value={formData.senaPlate} onChange={handleChange} error={errors.senaPlate} />
-            <Input label="Serial" name="serial" value={formData.serial} onChange={handleChange} error={errors.serial} />
+            <Input 
+            label="ID Herramienta" 
+            name="toolId" 
+            value={formData.toolId} 
+            onChange={handleChange} 
+            error={errors.toolId} 
+            />
+
+            <Input 
+            label="Placa SENA" 
+            name="senaPlate" 
+            value={formData.senaPlate} 
+            onChange={handleChange} 
+            error={errors.senaPlate}
+            />
+
+            <Input 
+            label="Serial" 
+            name="serial" 
+            value={formData.serial} 
+            onChange={handleChange} 
+            error={errors.serial} />
 
             {/* Fila 2 */}
-            <Input label="Nombre del Material" name="materialName" value={formData.materialName} onChange={handleChange} error={errors.materialName} />
-            <Input label="Modelo" name="model" value={formData.model} onChange={handleChange} error={errors.model} />
-            <Input label="Valor Unitario" name="unitValue" type="number" value={formData.unitValue} onChange={handleChange} error={errors.unitValue} />
+            <Input 
+            label="Nombre del Material" 
+            name="materialName" 
+            value={formData.materialName} 
+            onChange={handleChange} 
+            error={errors.materialName} 
+            />
+
+            <Input 
+            label="Modelo" 
+            error={errors.model} 
+            />
+
+            <Input 
+            label="Valor Unitario" 
+            name="unitValue" 
+            type="number" 
+            value={formData.unitValue} 
+            onChange={handleChange} 
+            error={errors.unitValue} 
+            />
 
             {/* Fila 3 */}
-            <Input label="Cuentadante" name="custodian" value={formData.custodian} onChange={handleChange} error={errors.custodian} />
-            <Input label="Cantidad" name="quantity" type="number" value={formData.quantity} onChange={handleChange} error={errors.quantity} />
-            <Select label="Estado" name="status" options={estados} value={formData.status} onChange={handleChange} error={errors.status} />
+            <Input 
+            label="Cuentadante" 
+            name="custodian" 
+            value={formData.custodian} 
+            onChange={handleChange} 
+            error={errors.custodian} 
+            />
+
+            <Input 
+            label="Cantidad" 
+            name="quantity" 
+            type="number" 
+            value={formData.quantity} 
+            onChange={handleChange} 
+            error={errors.quantity} 
+            />
+
+            <Select 
+            label="Estado" 
+            name="status"
+            options={estados} 
+            value={formData.status} 
+            onChange={handleChange} 
+            error={errors.status} />
 
             {/* Fila 4 */}
-            <Input label="Valor Total" name="totalValue" type="number" value={formData.totalValue} onChange={handleChange} error={errors.totalValue} />
-            <Input label="Dimensiones" name="dimensions" value={formData.dimensions} onChange={handleChange} error={errors.dimensions} />
-            <Input label="Descripción" name="description" value={formData.description} onChange={handleChange} error={errors.description} />
+            <Input 
+            label="Valor Total" 
+            name="totalValue" 
+            type="number" 
+            value={formData.totalValue} 
+            onChange={handleChange} 
+            error={errors.totalValue}
+            />
+
+            <Input 
+            label="Dimensiones" 
+            name="dimensions" 
+            value={formData.dimensions} 
+            onChange={handleChange} 
+            error={errors.dimensions} 
+            />
+
+            <Input 
+            label="Descripción" 
+            name="description" 
+            value={formData.description} 
+            onChange={handleChange} 
+            error={errors.description}
+            />
 
             {/* Fila 5 */}
-            <Input label="Ficha Técnica" name="technicalSheet" value={formData.technicalSheet} onChange={handleChange} error={errors.technicalSheet} />
-            <Input label="Ubicación" name="location" value={formData.location} onChange={handleChange} error={errors.location} />
-            <Input label="Foto" name="photo" type="file" onChange={handleChange} error={errors.photo} />
+            <Input 
+            label="Ficha Técnica" 
+            name="technicalSheet" 
+            value={formData.technicalSheet} 
+            onChange={handleChange} 
+            error={errors.technicalSheet}
+            />
+
+            <Input 
+            label="Ubicación" 
+            name="location" 
+            value={formData.location} 
+            onChange={handleChange} 
+            error={errors.location}
+            />
+            
+            <Input 
+            label="Foto" 
+            name="photo" 
+            type="file" 
+            onChange={handleChange} 
+            error={errors.photo} 
+            />
           </div>
 
           {/* Acciones */}
@@ -116,3 +215,4 @@ export default function ReturnableMaterialRegisterForm() {
     </div>
   );
 }
+

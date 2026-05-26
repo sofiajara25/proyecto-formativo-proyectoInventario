@@ -1,61 +1,85 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import logoSena from "@/assets/images/LogoSena.png";
 
 export default function Login() {
     const navigate = useNavigate();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({});
-
-    const validate = () => {
-        const e = {};
-        if (!email.includes("@")) e.email = "Correo inválido";
-        if (password.length < 6) e.password = "Mínimo 6 caracteres";
-        return e;
-    };
-
-    const handleSubmit = () => {
-        const e = validate();
-        setErrors(e);
-        if (Object.keys(e).length === 0) console.log("Login:", { email, password });
-    };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-400">
-            <div className="bg-white p-8 rounded-xl shadow w-80">
-                <h2 className="text-xl font-semibold mb-6 text-center">Iniciar sesión</h2>
+        <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(to bottom, var(--color-primary-950) 72%, var(--color-tertiary-950) 100%)" }}>
+            
+            {/* Header */}
+            <div className="flex items-center gap-4 px-10 py-5">
+                <img src={logoSena} alt="Logo SENA" className="h-14" />
+                <h1 className="text-white text-xl font-bold">
+                    Sistema Inventario de Infraestructura y Teleinformática CDITI
+                </h1>
+            </div>
 
-                <div className="mb-3">
-                    <input
-                        onChange={handleSubmit}
-                        type="email"
-                        placeholder="Correo"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 ${errors.email ? "border-red-400" : ""}`}
-                    />
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+            {/* Contenido */}
+            <div className="flex flex-1 items-center justify-center pb-16">
+                <div className="bg-white rounded-2xl p-10 w-96 flex flex-col gap-5 shadow-lg">
+                    
+                    <h2 className="text-center text-lg font-bold text-gray-800 tracking-wide">
+                        INICIAR SESIÓN
+                    </h2>
+
+                    {/* Correo */}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
+                            Correo
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            placeholder="correo@ejemplo.com"
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 outline-none focus:border-green-600 focus:bg-green-50"
+                        />
+                    </div>
+
+                    {/* Contraseña */}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
+                            Contraseña
+                        </label>
+                        <input
+                            type="password"
+                            value={password}
+                            placeholder="••••••••"
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 outline-none focus:border-green-600 focus:bg-green-50"
+                        />
+                    </div>
+
+                    {/* Olvidaste contraseña */}
+                    <p
+                        onClick={() => navigate("/auth/recovery")}
+                        className="text-right text-xs text-green-700 cursor-pointer underline"
+                    >
+                        ¿Olvidaste tu contraseña?
+                    </p>
+
+                        {/* Botones */}
+                        <button
+                        onClick={() => navigate("/dashboard/home")}
+                        className="w-full rounded-full py-3 text-sm font-bold text-white cursor-pointer hover:opacity-90 hover:scale-[1.02] transition-all"
+                        style={{ background: "var(--color-primary-950)" }}
+                    >
+                        Iniciar Sesión
+                    </button>
+
+                    <button
+                        onClick={() => navigate("/auth/register")}
+                        className="w-full rounded-full py-3 text-sm font-bold cursor-pointer border-2 hover:opacity-80 hover:scale-[1.02] transition-all"
+                        style={{ color: "var(--color-tertiary-950)", borderColor: "var(--color-tertiary-950)", background: "transparent" }}
+                    >
+                        Registrarse
+                    </button>
+
                 </div>
-
-                <div className="mb-5">
-                    <input
-                        onChange={handleSubmit}
-                        type="password"
-                        placeholder="Contraseña"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? "border-red-400" : ""}`}
-                    />
-                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                </div>
-
-                <button
-                    onClick={() => navigate("/dashboard/home")}
-                    className="w-full bg-green-500 text-white py-2 rounded-lg text-sm hover:bg-green-600"
-                >
-                    Entrar
-                </button>
             </div>
         </div>
     );

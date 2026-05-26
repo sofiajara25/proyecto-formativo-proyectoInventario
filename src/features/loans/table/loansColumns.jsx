@@ -20,22 +20,22 @@ export const loansColumns = [
 
     // Columna Nombre
     {
-        accessorKey: "user", // Campo del objeto user
-        header: "Usuario",    // Encabezado visible
+        accessorKey: "name", // Campo del objeto user
+        header: "Nombre",    // Encabezado visible
     },
 
 
     // Columna Email
     {
-        accessorKey: "category",
-        header: "Categoria",
+        accessorKey: "email",
+        header: "Email",
     },
 
 
     // Columna Dirección
     {
-        accessorKey: "materialName",
-        header: "Nombre del material",
+        accessorKey: "address",
+        header: "Dirección",
     },
 
 
@@ -85,6 +85,6 @@ export const loansColumns = [
 
 
         // Renderiza el componente de acciones pasando el usuario completo
-        cell: ({ row }) => <LoanRowActions loan={row.original} />,
+        cell: ({ row }) => <LoanRowActions user={row.original} />,
     },
 ];

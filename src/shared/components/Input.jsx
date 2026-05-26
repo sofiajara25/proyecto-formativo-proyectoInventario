@@ -2,14 +2,12 @@ export default function Input({
     label,
     type = "text",
     error,
-    className,
-    containerClassName = "w-[320px]",
     ...props
 }) {
     // Cuerpo de la función 
     return (
         // Contenedor del input que se exporta con label, cuerpo y feedback message
-        <div className={containerClassName}>
+        <div className="w-[320px]">
             {/* Label */}
 
             {label && (
@@ -73,7 +71,6 @@ export default function Input({
                         focus:ring-focus-ring
 
                         ${error ? "border-red-600" : "border border-border"}
-                        ${className}
                     `}
                     {...props}
                 />
