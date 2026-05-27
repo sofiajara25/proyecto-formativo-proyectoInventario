@@ -20,8 +20,8 @@ export default function CreateHomePage() {
           sm:grid-cols-2   /* desde pantallas pequeñas ya se ven 2 en 2 */
           gap-8
           mt-40
-          sm:mx-89
-          lg:mx-100
+          sm:mx-24
+          lg:mx-160
           md:mx-48px
           justify-items-center
           p-0

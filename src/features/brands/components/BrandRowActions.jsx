@@ -33,13 +33,11 @@ export default function BrandRowActions({ brand }) {
         navigate(`/dashboard/brands/${brand.id}/edit`);
     };
 
+        // Acción para ver el préstamo
+    const handleView = () => {
+        navigate(`/dashboard/brands/${brand.id}/view`);
+    };
 
-    // // Acción para eliminar el usuario
-    // // Actualmente solo imprime en consola el id
-    // // En una aplicación real aquí se llamaría a la API
-    // const handleDelete = () => {
-    //     console.log("Eliminar usuario", user.id);
-    // };
 
 
     return (
@@ -48,7 +46,7 @@ export default function BrandRowActions({ brand }) {
 
             {/* Botón ver */}
             <button
-                onClick={handleEdit} // Ejecuta la navegación a la página de edición
+                onClick={handleView} // Ejecuta la navegación a la página de edición
                 className="p-1 rounded hover:bg-gray-100"
             >
                 <Eye size={18} color="#083344"/> {/* Icono de editar */}

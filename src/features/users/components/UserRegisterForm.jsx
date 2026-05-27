@@ -79,23 +79,38 @@ export default function UserRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4">
+            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
 
                 {/* Título */}
-                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0 }}>
+                <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
                     Crear Cuenta
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6" style={{ padding: "32px 36px" }}>
+                <div className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl  mx-auto" style={{ padding: "32px 36px" }}>
 
                     <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)", margin: 0 }}>
                         Completa los campos para registrar un nuevo usuario
                     </p>
 
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="
+                            flex 
+                            flex-col 
+                            gap-4 
+                            lg:mx-5
+                            md:mx-2
+                        ">
 
-                        <div className="grid grid-cols-3 gap-6">
+                        <div
+                            className="
+                                grid 
+                                lg:grid-cols-3 
+                                md:grid-cols-2
+                                sm:grid-cols-1
+                                gap-6
+                            ">
 
                             {/* Fila 1 */}
                             <Input

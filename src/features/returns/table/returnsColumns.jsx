@@ -8,7 +8,7 @@ import ReturnRowActions from "../components/ReturnRowActions";
 
 // Definición de las columnas de la tabla de usuarios
 // Este arreglo suele usarse en librerías de tablas como TanStack Table
-export const retornsColumns = [
+export const returnsColumns = [
 
 
     // Columna ID

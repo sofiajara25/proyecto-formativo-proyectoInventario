@@ -1,8 +1,8 @@
 import { useState } from "react";
-    import { Input, Button, Select } from "@/shared";
-    import { loanSchema } from "../schemas/loansSchema.js";
+import { Input, Button, Select, Navbar } from "@/shared";
+import { loanSchema } from "../schemas/loansSchema.js";
 
-    export default function LoansUpdateForm() {
+export default function LoansUpdateForm() {
 
     const [formData, setFormData] = useState({
         user: "",
@@ -11,7 +11,6 @@ import { useState } from "react";
         loanDate: "",
         returnDate: "",
         description: "",
-        photo: ""
     });
 
     const [errors, setErrors] = useState({});
@@ -25,8 +24,8 @@ import { useState } from "react";
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
-        ...prev,
-        [name]: files ? files[0] : value,
+            ...prev,
+            [name]: files ? files[0] : value,
         }));
     };
 
@@ -36,13 +35,12 @@ import { useState } from "react";
         const result = loanSchema.safeParse(formData);
 
         if (!result.success) {
-        const fieldErrors = {};
-        result.error.issues.forEach((issue) => {
-            const field = issue.path[0];
-            fieldErrors[field] = issue.message;
-        });
-        setErrors(fieldErrors);
-        return;
+            const fieldErrors = {};
+            result.error.issues.forEach((issue) => {
+                fieldErrors[issue.path[0]] = issue.message;
+            });
+            setErrors(fieldErrors);
+            return;
         }
 
         setErrors({});
@@ -50,96 +48,109 @@ import { useState } from "react";
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-400 flex flex-col items-center justify-center">
-        {/* Encabezado */}
-        <header className="fixed top-0 left-0 w-full py-6 text-center ">
-            <h1 className="text-white text-2xl font-bold">
-            Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
-            </h1>
-        </header>
+        <div
+            className="min-h-screen flex flex-col"
+            style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))", fontFamily: "var(--main-font)" }}
+        >
+            <Navbar />
 
-        <div className="bg-white p-8 rounded-xl w-full max-w-5xl">
-            <h1 className="text-primary text-2xl mb-6">Actualizar Préstamo</h1>
+            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
 
-            <form
-            className="grid grid-cols-1 place-items-center gap-6"
-            onSubmit={handleSubmit}
-            >
-            <div className="grid grid-cols-2 gap-6 mx-auto">
-                <Input
-                label="Usuario"
-                name="user"
-                placeholder="Ingrese el usuario"
-                value={formData.user}
-                type="text"
-                onChange={handleChange}
-                error={errors.user}
-                />
+                {/* Título */}
+                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "540px"}}>
+                    Actualizar Préstamo
+                </h1>
 
-                <Select
-                label="Categoría"
-                name="category"
-                options={categorias}
-                value={formData.category}
-                onChange={handleChange}
-                error={errors.category}
-                />
+                {/* Card */}
+                <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-4xl mx-auto " style={{ padding: "32px 36px" }}>
 
-                <Input
-                label="Nombre del producto"
-                name="productName"
-                placeholder="Ingrese el nombre del producto"
-                value={formData.productName}
-                type="text"
-                onChange={handleChange}
-                error={errors.productName}
-                />
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
 
-                <Input
-                label="Fecha préstamo"
-                name="loanDate"
-                type="date"
-                value={formData.loanDate}
-                onChange={handleChange}
-                error={errors.loanDate}
-                />
+                        <div className="grid  gap-6 
+                                lg:grid-cols-2
+                                md:grid-cols-1
+                                sm:grid-cols-1
+                                ">
 
-                <Input
-                label="Fecha de devolución"
-                name="returnDate"
-                type="date"
-                value={formData.returnDate}
-                onChange={handleChange}
-                error={errors.returnDate}
-                />
+                            <Input
+                                label="Usuario"
+                                name="user"
+                                placeholder="Ingrese el usuario"
+                                type="text"
+                                value={formData.user}
+                                onChange={handleChange}
+                                error={errors.user}
+                            />
+                            <Select
+                                label="Categoría"
+                                name="category"
+                                options={categorias}
+                                value={formData.category}
+                                onChange={handleChange}
+                                error={errors.category}
+                            />
 
-                <Input
-                label="Descripción"
-                name="description"
-                placeholder="Ingrese la descripción"
-                value={formData.description}
-                type="text"
-                onChange={handleChange}
-                error={errors.description}
-                />
+                            <Input
+                                label="Nombre del producto"
+                                name="productName"
+                                placeholder="Ingrese el nombre del producto"
+                                type="text"
+                                value={formData.productName}
+                                onChange={handleChange}
+                                error={errors.productName}
+                            />
+                            <Input
+                                label="Fecha préstamo"
+                                name="loanDate"
+                                type="date"
+                                value={formData.loanDate}
+                                onChange={handleChange}
+                                error={errors.loanDate}
+                            />
 
-                <Input 
-                label="Foto" 
-                name="photo" 
-                type="file" 
-                onChange={handleChange} 
-                error={errors.photo} 
-                />
-                
+                            <Input
+                                label="Fecha de devolución"
+                                name="returnDate"
+                                type="date"
+                                value={formData.returnDate}
+                                onChange={handleChange}
+                                error={errors.returnDate}
+                            />
+                            <Input
+                                label="Descripción"
+                                name="description"
+                                placeholder="Ingrese la descripción"
+                                type="text"
+                                value={formData.description}
+                                onChange={handleChange}
+                                error={errors.description}
+                            />
+
+                        </div>
+
+                        {/* Acciones */}
+                        <div className="flex justify-end gap-3 pt-2">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="md"
+                                onClick={() => window.history.back()}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="md"
+                            >
+                                Actualizar Préstamo
+                            </Button>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
-
-            <div className="flex items-end justify-center gap-6">
-                <Button type="submit" variant="primary" size="sm">
-                Actualizar Préstamo
-                </Button>
-            </div>
-            </form>
-        </div>
         </div>
     );
-    }
+}

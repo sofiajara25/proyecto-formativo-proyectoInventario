@@ -37,6 +37,6 @@ export const consumablesColumns = [
 
     {
         id: "actions",
-        cell: ({ row }) => <ConsumableRowActions user={row.original} />,
+        cell: ({ row }) => <ConsumableRowActions consumable={row.original} />,
     },
 ];

@@ -30,17 +30,13 @@ export default function ConsumableRowActions({ consumable }) {
     // Acción para editar el usuario
     // Redirige a la página de edición usando el id del usuario
     const handleEdit = () => {
-        navigate(`/consumables/${consumable.id}/edit`);
+        navigate(`/dashboard/consumables/${consumable.id}/edit`);
     };
 
-
-    // // Acción para eliminar el usuario
-    // // Actualmente solo imprime en consola el id
-    // // En una aplicación real aquí se llamaría a la API
-    // const handleDelete = () => {
-    //     console.log("Eliminar usuario", user.id);
-    // };
-
+    // Acción para ver el préstamo
+    const handleView = () => {
+        navigate(`/dashboard/consumables/${consumable.id}/view`);
+    };
 
     return (
         // Contenedor de los botones de acciones
@@ -48,7 +44,7 @@ export default function ConsumableRowActions({ consumable }) {
 
             {/* Botón ver */}
             <button
-                onClick={handleEdit} // Ejecuta la navegación a la página de edición
+                onClick={handleView} // Ejecuta la navegación a la página de edición
                 className="p-1 rounded hover:bg-gray-100"
             >
                 <Eye size={18} color="#083344"/> {/* Icono de editar */}

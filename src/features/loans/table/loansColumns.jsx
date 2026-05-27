@@ -59,7 +59,7 @@ export const loansColumns = [
 
 
                 // value representa el nuevo estado del switch (true o false)
-                console.log("Actualizar estado usuario:", loan.user_id, value);
+                console.log("Actualizar estado usuario:", loan.loan_id, value);
 
 
                 // Aquí normalmente se llamaría una API para actualizar el estado
@@ -85,6 +85,6 @@ export const loansColumns = [
 
 
         // Renderiza el componente de acciones pasando el usuario completo
-        cell: ({ row }) => <LoanRowActions user={row.original} />,
+        cell: ({ row }) => <LoanRowActions loan={row.original} />,
     },
 ];

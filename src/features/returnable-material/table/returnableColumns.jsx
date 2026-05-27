@@ -45,6 +45,6 @@ export const returnableColumns = [
     {
         accessorKey: "actions",
         header: "Acciones",
-        cell: ({ row }) => <ReturnableRowAction returnable={row.original} />,
+        cell: ({ row }) => <ReturnableRowAction retornable={row.original} />,
     },
 ];

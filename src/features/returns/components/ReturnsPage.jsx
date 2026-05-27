@@ -77,7 +77,13 @@ export default function ReturnForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-600 flex flex-col items-center justify-center">
+
+    <div className="min-h-screen flex flex-col items-center justify-center"
+      style={{
+        background:
+          "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
+        fontFamily: "var(--main-font)",
+      }}>
       {/* Header */}
       <header className="fixed top-0 left-0 w-full py-6 text-center">
         <button
@@ -98,11 +104,28 @@ export default function ReturnForm() {
 
         {/* Devolucion de matreial devolutivo */}
         <div className="min-h-[500px] bg-white p-8 rounded-xl w-3xl mt-40">
+          <h2 className="lg:ml-40"
+            style={{
+              color: "var(--color-white)",
+              fontSize: "var(--fs-md)",
+              fontWeight: "var(--font-weight-bold)",
+              margin: 0,
+              marginLeft: "410px",
+            }}>
+            Crear Devolución de Material Devolutivo</h2>
+
+          <p
+            style={{
+              fontSize: "var(--fs-xxs)",
+              color: "var(--color-gray-500)",
+              margin: 0,
+            }}
+          >
+            Completa los campos para registrar un nuevo material devolutivo
+          </p>
 
           {/* Formulario Devolutivo */}
           <form onSubmit={handleSubmitDevolutivo} className="flex flex-col gap-4">
-
-            <h2 className="text-xl font-semibold mb-4 place-self-center">Crear Devolución de Material Devolutivo</h2>
 
             {/* Inputs */}
             <div className="grid grid-cols-2 gap-6 mx-auto">

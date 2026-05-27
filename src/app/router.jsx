@@ -6,10 +6,11 @@ import { CreateUserPage, ListUserPage } from "@/features/users";
 import { HomePage, ListPage, SettingsPage } from "@/features/home";
 
 // 👇 Importamos las 4 páginas de los formularios
-import { CreateLoansPage, ListLoansPage } from "@/features/loans";
-import { CreateMaterialPage, ListConsumablePage } from "@/features/consumable-material";
-import { CreateReturnableMaterialPage, ListReturMaterialPage } from "@/features/returnable-material";
-import { CreateBrandsPage, ListBrandPage, UpdateBrandPage } from "@/features/brands";
+import { CreateLoansPage, ListLoansPage, UpdateLoansPage, ViewLoanPage } from "@/features/loans";
+import { CreateMaterialPage, ListConsumablePage, UpdateMaterialPage, ViewConsumablePage } from "@/features/consumable-material";
+import { CreateReturnableMaterialPage, ListReturMaterialPage, UpdateReturnablePage, ViewReturMaterialPage} from "@/features/returnable-material";
+import { CreateBrandsPage, ListBrandPage, UpdateBrandPage, ViewBrandPage } from "@/features/brands";
+import { CreateReturnPage, UpdateReturnPage, ListReturnPage} from "@/features/returns"
 
 const router = createBrowserRouter([
   {
@@ -33,22 +34,38 @@ const router = createBrowserRouter([
       { path: "/dashboard/home", element: <HomePage /> },
       { path: "/dashboard/list", element: <ListPage /> },
       { path: "/dashboard/setting", element: <SettingsPage /> },
-      
+
 
       // Rutas de los 4 formularios de crear
-      { path: "/dashboard/prestamo",   element: <CreateLoansPage /> },
-      { path: "/dashboard/consumo",    element: <CreateMaterialPage /> },
+      { path: "/dashboard/prestamo", element: <CreateLoansPage /> },
+      { path: "/dashboard/consumo", element: <CreateMaterialPage /> },
       { path: "/dashboard/devolutivo", element: <CreateReturnableMaterialPage /> },
-      { path: "/dashboard/usuarios",  element: <CreateUserPage/>},
-      { path: "/dashboard/retorno",    element: <CreateBrandsPage /> },
+      { path: "/dashboard/usuarios", element: <CreateUserPage /> },
+      { path: "/dashboard/retorno", element: <CreateReturnPage /> },
+      { path: "/dashboard/marca", element: <CreateBrandsPage /> },
 
-       // Rutas de los 4 formularios de listas
-      { path: "/dashboard/list-prestamo",   element: <ListLoansPage/> },
-      { path: "/dashboard/list-consumo",    element: <ListConsumablePage /> },
+
+      // Rutas de los 4 formularios de listas
+      { path: "/dashboard/list-prestamo", element: <ListLoansPage /> },
+      { path: "/dashboard/list-consumo", element: <ListConsumablePage /> },
       { path: "/dashboard/list-devolutivo", element: <ListReturMaterialPage /> },
-      { path: "/dashboard/list-usuarios",  element: <ListUserPage/>},
-      { path: "/dashboard/list-retorno",    element: <CreateBrandsPage /> },
-      { path: "/dashboard/list-marca", element: <ListBrandPage/> },
+      { path: "/dashboard/list-usuarios", element: <ListUserPage /> },
+      { path: "/dashboard/list-retorno", element: <ListReturnPage /> },
+      { path: "/dashboard/list-marca", element: <ListBrandPage /> },
+
+      // Rutas de Actulizar
+      { path: "/dashboard/loans/:id/edit", element: <UpdateLoansPage /> },
+      { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
+      { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
+      { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage/> },
+
+      // Rutas de Ver
+      { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },
+      { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
+      { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
+      { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
+
+
     ],
   },
 ]);

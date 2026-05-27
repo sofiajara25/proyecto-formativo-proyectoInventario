@@ -1,52 +1,80 @@
 import DataTable from "@/shared/components/DataTable"
 import { brandsColumns } from "../table/brandsColumns";
 import { brands } from "../data/brands";
-import { Button } from "@/shared"
-import { useNavigate, Link } from "react-router-dom";
-import { CircleArrowLeft } from "lucide-react";
-// import logoSena from "@/assets/images/LogoSena.png";
-
+import { Button, Navbar } from "@/shared"
+import { useNavigate } from "react-router-dom";
+// import ReportConfigModal from "../reports/components/ReportConfigModal";
+// import { useState } from "react";
 
 export default function ListBrandPage() {
-
     const navigate = useNavigate();
+    // const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-green-600 via-green-600 to-purple-600  flex flex-col items-center justify-center">
-            {/* Header */}
-            <header className="fixed top-0 left-0 w-full  py-6  text-center z-50">
-                {/* Botón volver */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
+        <div
+            className="min-h-screen flex flex-col"
+            style={{
+                background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
+                fontFamily: "var(--main-font)"
+            }}
+        >
+            <Navbar />
+
+            <div className="flex flex-col flex-1 px-10 py-8 gap-4">
+                {/* Título */}
+                <h1
+                    style={{
+                        color: "var(--color-white)",
+                        fontSize: "var(--fs-md)",
+                        fontWeight: "var(--font-weight-bold)",
+                        margin: 0,
+                    }}
                 >
-                    <CircleArrowLeft size={36} color="#ffffff" />
-                </button>
-                {/* Logo de marca */}
-                <h1 className="text-white text-2xl font-bold">
-                    Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
-                </h1>
-            </header>
-
-            {/* Caja */}
-            <div className="mt-40 p-8 rounded-xl shadow w-full bg-white">
-                <div className="flex flex-1 justify-end gap-2">
-                    <Button variant="primary" size="md" onClick={() => navigate("/dashboard/marca")}>
-                        Crear Marca
-                    </Button>
-                </div>
-
-                <h1 className="text-xl font-semibold mb-4">
                     Marca
                 </h1>
 
+                {/* Card */}
+                <div
+                    className="bg-white rounded-2xl flex flex-col gap-4"
+                    style={{ padding: "28px 32px" }}
+                >
+                    {/* Acciones */}
+                    <div className="flex items-center justify-between">
+                        <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)", margin: 0 }}>
+                            Listado de marcas registradas
+                        </p>
+                        <div className="flex gap-3">
+                            <Button
+                                type="button"
+                                variant="primary"
+                                size="md"
+                                // onClick={() => setIsReportModalOpen(true)}
+                            >
+                                Reportar marca
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="primary"
+                                size="md"
+                                onClick={() => navigate("/dashboard/marca")}
+                            >
+                                Crear marca
+                            </Button>
+                        </div>
+                    </div>
 
-                <DataTable
-                    data={brands}
-                    columns={brandsColumns}
-                />
-
+                    {/* Tabla */}
+                    <DataTable
+                        data={brands}
+                        columns={brandsColumns}
+                    />
+                </div>
             </div>
+
+            {/* <ReportConfigModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+            /> */}
         </div>
-    )
+    );
 }

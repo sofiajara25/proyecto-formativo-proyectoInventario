@@ -1,4 +1,4 @@
-import MaterialUpdateForm from "../componentes/MaterialUpdateForm"
+import MaterialUpdateForm from "../components/MaterialUpdateForm"
 
 export default function UpdateMaterialPage() {
     return (
