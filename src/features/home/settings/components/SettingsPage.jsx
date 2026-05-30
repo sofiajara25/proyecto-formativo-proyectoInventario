@@ -1,36 +1,35 @@
 // src/features/home/pages/CreateHomePage.jsx
 
-// import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { Navbar, Card } from "@/shared";
 import { settings } from "../data/settings";
 
-
 export default function SettinsPage() {
-
   return (
-    <div className="min-h-screen"
-      style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}>
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}
+    >
       <Navbar />
-
-      <div
+      <div 
+      className="
+      flex-1
+      flex 
+      justify-center 
+      items-center 
+      px-6"
+      >
+        <div 
         className="
-                    grid
-                    justify-center
-                    items-center
-                    mt-60
-                    gap-4
-                    mx-6
-                    sm:grid-cols-1
-                    sm:mx-12
-                    lg:grid-cols-2
-                    xl:grid-cols-3
-                    justify-items-center
-                ">
-        {settings.map((product) => (
-          <Card key={product.id} product={product} />
-        ))}
-
+        grid
+        grid-cols-1 
+        sm:grid-cols-2 
+        lg:grid-cols-3 
+        gap-16"
+        >
+          {settings.map((product) => (
+            <Card key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </div>
   );

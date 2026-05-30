@@ -19,7 +19,8 @@ export default function Navbar() {
     const handleClear = () => console.log("Campo limpiado");
 
     return (
-        <nav className="w-full" style={{ fontFamily: "var(--main-font)" }}>
+        <nav className=" flex flex-col"
+            style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}>
             <div className="px-2">
                 <div className="flex h-16 items-center gap-2">
 
@@ -28,35 +29,29 @@ export default function Navbar() {
                         <Dropdown>
                             <DropdownTrigger>
                                 <IconButton ariaLabel="Menú">
-                                    <Menu />
+                                    <Menu size={24} style={{ color: "white" }} />
                                 </IconButton>
                             </DropdownTrigger>
 
                             <DropdownContent className="w-48">
                                 <DropdownItem>
-                            <Link to="/dashboard/auth" className="block w-full"
-                                style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
-                                Inicio
-                            </Link>
-                        </DropdownItem>
-                        <DropdownItem>
-                            <Link to="/dashboard" className="block w-full"
-                                style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
-                                Reportes
-                            </Link>
-                        </DropdownItem>
-                        <DropdownItem>
-                            <Link to="/dashboard/list" className="block w-full"
-                                style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
-                                Listas
-                            </Link>
-                        </DropdownItem>
-                        <DropdownItem>
-                            <Link to="/dashboard/setting" className="block w-full"
-                                style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
-                                Ajustes
-                            </Link>
-                        </DropdownItem>
+                                    <Link to="/dashboard/home" className="block w-full"
+                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
+                                        Inicio
+                                    </Link>
+                                </DropdownItem>
+                                <DropdownItem>
+                                    <Link to="/dashboard/list" className="block w-full"
+                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
+                                        Listas
+                                    </Link>
+                                </DropdownItem>
+                                <DropdownItem>
+                                    <Link to="/dashboard/setting" className="block w-full"
+                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
+                                        Ajustes
+                                    </Link>
+                                </DropdownItem>
                             </DropdownContent>
                         </Dropdown>
 
@@ -65,7 +60,7 @@ export default function Navbar() {
                             className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
                             style={{ background: "transparent", border: "none" }}
                         >
-                            <ArrowLeft size={24} style={{ color: "var(--color-gray-950)" }} />
+                            <ArrowLeft size={24} style={{ color: "white" }} />
                         </button>
                     </div>
 

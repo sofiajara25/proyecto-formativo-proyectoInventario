@@ -1,14 +1,14 @@
-// import { useState } from "react";
+import { useState } from "react";
 import DataTable from "@/shared/components/DataTable";
 import { loansColumns } from "../table/loansColumns";
 import { loans } from "../data/loans";
 import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
-// import ReportConfigModal from "../reports/components/ReportConfigModal";
+import ReportConfigModal from "../reports/components/ReportConfigModal";
 
 export default function ListLoansPage() {
     const navigate = useNavigate();
-    // const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     return (
         <div
@@ -55,7 +55,7 @@ export default function ListLoansPage() {
                                 type="button"
                                 variant="primary"
                                 size="md"
-                                // onClick={() => setIsReportModalOpen(true)}
+                                onClick={() => setIsReportModalOpen(true)}
                             >
                                 Reportar préstamo
                             </Button>
@@ -75,10 +75,10 @@ export default function ListLoansPage() {
                 </div>
             </div>
 
-            {/* <ReportConfigModal
+            <ReportConfigModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-            /> */}
+            />
         </div>
     );
 }
