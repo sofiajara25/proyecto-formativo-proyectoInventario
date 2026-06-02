@@ -1,59 +1,51 @@
-// Libreria para manipulacion y genereacion de archivos excel
+// libreria para manipulacion y generacion de archivos excel
 import * as XLSX from "xlsx";
 
-// Funcion utilitaria para generar un archivo excel a partir de datos tabulares
+// funcion utilitaria para generar un archivo excel a partir de datos tabulares
+// patron: exportacion de datos (dataset => archivo descargable)
 
-// Patron : exportacion de datos (dataset => archivo descargable)
-
-
-export function generateExcelReport ({
-    headers,                    //Array de encabezados
-    rows,                       // Array de Filas (array de arrays)
-    fileName = "loan-report.xlsx"  // Nombre del archivo de salida
+export function generateExcelReport({
+    headers,                            // array de encabezados
+    rows,                               // array de filas (array de arrays)
+    fileName = "loan-report.xlsx"       // nombre del archivo de salida
 }) {
 
+    const currentDate = new Date().toLocaleDateString();
 
-const currenDate = new Date().toLocaleDateString();
-const reportTitle = `   **********   REPORTE DE Prestamos - ${currenDate}  **********`;
+    // el titulo ocupa la misma cantidad de celdas que los headers
+    const reportTitle = [`REPORTE DE PRESTAMOS - ${currentDate}`];
+    const titleRow = new Array(headers.length).fill("");
+    titleRow[0] = reportTitle[0]; // solo la primera celda tiene el texto
 
-    //Estructura Final de la hoja
-    
-
-    // Primera fila = headers
-    //siguientes filas  = datos 
-
+    // estructura final de la hoja
     const worksheetData = [
-        [reportTitle],
-        [],
-        headers,
-        ...rows
+        titleRow,   // fila 1 - titulo
+        [],         // fila 2 - vacia
+        headers,    // fila 3 - encabezados
+        ...rows     // fila 4 en adelante - datos
     ];
 
-
-    //Convierte un array de arrays (AOA = Arrays of Arrays) en una hoja de excel
+    // convierte array de arrays en hoja de excel
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-
-    //Marge Visual
-    const range = XLSX.utils.decode_range(worksheet["!ref"] )
+    // merge del titulo abarcando todas las columnas
     worksheet["!merges"] = [{
-        s: { r: 0, c: 0},
-        e: { r: 0, c: range.e.c},
+        s: { r: 0, c: 0 },
+        e: { r: 0, c: headers.length - 1 }, // corregido: usa headers.length en vez de range.e.c
     }];
 
-    // Ancho de columna 
-    worksheet["!cols"] = headers.map(() => ({wch: 25}))
-    
-    //Altura de la fila 
-    worksheet["!rows"] = [{hpt: 25}]
+    // ancho de columnas
+    worksheet["!cols"] = headers.map(() => ({ wch: 25 }));
 
-    // Crear un nuevo libro de excel (workbook)
+    // altura de la primera fila
+    worksheet["!rows"] = [{ hpt: 25 }];
+
+    // crear libro de excel
     const workbook = XLSX.utils.book_new();
 
-    //Agrega la hoja del libro con el nombre del usuario
+    // agregar hoja al libro
     XLSX.utils.book_append_sheet(workbook, worksheet, "Prestamos");
 
-
-    //Genera y descarga el archivo excel en el cliente
-    XLSX.writeFile(workbook, fileName)
+    // genera y descarga el archivo
+    XLSX.writeFile(workbook, fileName);
 }

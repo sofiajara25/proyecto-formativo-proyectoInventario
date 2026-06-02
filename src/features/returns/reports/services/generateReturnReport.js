@@ -1,20 +1,19 @@
-import { loans } from "../../data/loans";
-import { buildReportDataset } from "../utils/buildReportsDataset";
+import { returns } from "../../data/returns";
+import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-export function generateLoanReport({
+export function generateReturnReport({
     format,
     selectedFields,
     scope,
-    name
+    returnDate
 }) {
-
     const { headers, rows } = buildReportDataset({
-        loans,
+        returns,
         selectedFields,
         scope,
-        name
+        returnDate
     });
 
     if (!rows.length) {
@@ -26,13 +25,13 @@ export function generateLoanReport({
         generateExcelReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.xlsx`
+            fileName: `returns-report-${new Date().toISOString().slice(0, 10)}.xlsx`
         });
     } else if (format.toLowerCase() === "pdf") {
         generatePdfReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.pdf`
+            fileName: `returns-report-${new Date().toISOString().slice(0, 10)}.pdf`
         });
     }
 }

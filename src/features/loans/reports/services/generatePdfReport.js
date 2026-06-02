@@ -1,53 +1,52 @@
-// Libreria para generacion de PDFs en el cliente
+// libreria para generacion de PDFs en el cliente
 import jsPDF from "jspdf";
 
-// Plugin para creacion de tablas dentro del PDF
+// plugin para creacion de tablas dentro del PDF
 import autoTable from "jspdf-autotable";
 
-// Funcion utilitaria para generar reporte en un PDF
-// Patron: exportacion de datos (dataset -> documento estructurado)
+// funcion utilitaria para generar reporte en PDF
+// patron: exportacion de datos (dataset -> documento estructurado)
+
 export function generatePdfReport({
-    headers,                            // Encabezadps de la tabla (columnas)
-    rows,                              // Datos (array de filas)
-    fileName = "loan-report.pdf",      // Nombre del archivo del salida
-})  {
-    
-    // Inicializa el documento PDF
+    headers,                            // encabezados de la tabla (columnas)
+    rows,                               // datos (array de filas)
+    fileName = "loan-report.pdf",       // nombre del archivo de salida
+}) {
+
+    // inicializa el documento PDF
     const doc = new jsPDF();
 
-    // Configuracion del titulo
+    // titulo del reporte
     doc.setFontSize(16);
-    doc.text("Reporte de prestamos", 14, 20) // Posicion (x, y)
+    doc.text("Reporte de Prestamos", 14, 20); // posicion (x, y)
 
-    // Generacion de tabla automatica
+    // generacion de tabla automatica
     autoTable(doc, {
-        startY: 30, // Posicion inicial debajo del titulo
+        startY: 30,         // posicion inicial debajo del titulo
+        head: [headers],    // encabezados (array de arrays)
+        body: rows,         // filas del reporte
 
-        head:[headers], // Encabezados (debe ser array de arrays)
-        body: rows,     // Filas del reporte
+        theme: "grid",      // estilo visual de la tabla
 
-        theme: "grid",  // Estilo visual de la tabla
-
-        // Estilos del encabezado
+        // estilos del encabezado
         headStyles: {
-            fillColor: [33, 150, 243], // Color de fondo (RGB)
-            textColor: 255, // Color del texto
+            fillColor: [33, 150, 243],  // color de fondo (RGB)
+            textColor: 255,             // color del texto
             fontSize: 11,
         },
-        
 
-        // Estilos globales de las celdas
+        // estilos globales de las celdas
         styles: {
             fontSize: 10,
         },
 
-        // Margenes del documento
+        // margenes del documento
         margin: {
             left: 14,
             right: 14,
         },
-    })
+    });
 
-    // Genera y descarga el archivo PDF
-    doc.save(fileName)
+    // genera y descarga el archivo PDF
+    doc.save(fileName);
 }

@@ -1,17 +1,16 @@
-import { loans } from "../../data/loans";
+import { brands } from "../../data/brands";
 import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-export function generateLoanReport({
+export function generateBrandReport({
     format,
     selectedFields,
     scope,
     name
 }) {
-
     const { headers, rows } = buildReportDataset({
-        loans,
+        brands,
         selectedFields,
         scope,
         name
@@ -26,13 +25,13 @@ export function generateLoanReport({
         generateExcelReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.xlsx`
+            fileName: `brands-report-${new Date().toISOString().slice(0, 10)}.xlsx`
         });
     } else if (format.toLowerCase() === "pdf") {
         generatePdfReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.pdf`
+            fileName: `brands-report-${new Date().toISOString().slice(0, 10)}.pdf`
         });
     }
 }

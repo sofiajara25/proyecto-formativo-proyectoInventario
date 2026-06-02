@@ -1,14 +1,14 @@
-// import { useState } from "react";
+import { useState } from "react";
 import DataTable from "@/shared/components/DataTable";
 import { returnableColumns } from "../table/returnableColumns";
 import { returnables } from "../data/returnables";
 import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
-// import ReportConfigModal from "../reports/components/ReportConfigModal";
+import ReportConfigModal from "../reports/components/ReportConfigModal";
 
 export default function ListReturnMaterialPage() {
     const navigate = useNavigate();
-    // const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     return (
         <div
@@ -55,7 +55,7 @@ export default function ListReturnMaterialPage() {
                                 type="button"
                                 variant="primary"
                                 size="md"
-                                // onClick={() => setIsReportModalOpen(true)}
+                                onClick={() => setIsReportModalOpen(true)}
                             >
                                 Reportar material devolutivo
                             </Button>
@@ -75,10 +75,10 @@ export default function ListReturnMaterialPage() {
                 </div>
             </div>
 
-            {/* <ReportConfigModal
+            <ReportConfigModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-            /> */}
+            />
         </div>
     );
 }

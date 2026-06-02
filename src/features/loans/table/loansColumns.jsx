@@ -17,25 +17,39 @@ export const loansColumns = [
         header: "Id",      // Título de la columna
     },
 
-
     // Columna Nombre
     {
-        accessorKey: "name", // Campo del objeto user
-        header: "Nombre",    // Encabezado visible
+        accessorKey: "user", // Campo del objeto user
+        header: "Usuario",    // Encabezado visible
     },
 
 
     // Columna Email
     {
-        accessorKey: "email",
-        header: "Email",
+        accessorKey: "category",
+        header: "Categoria",
     },
 
 
     // Columna Dirección
     {
-        accessorKey: "address",
-        header: "Dirección",
+        accessorKey: "materialName",
+        header: "Nombre del material",
+    },
+
+    {
+        accessorKey: "loanDate",
+        header: "Fecha de Préstamo",
+    },
+
+    {
+        accessorKey: "returnDate",
+        header: "Fecha de Devolución",
+    },
+
+    {
+        accessorKey: "description",
+        header: "Descripción",
     },
 
 

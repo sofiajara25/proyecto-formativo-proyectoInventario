@@ -1,20 +1,21 @@
-import { loans } from "../../data/loans";
-import { buildReportDataset } from "../utils/buildReportsDataset";
+import { consumables } from "../../data/consumables";
+import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-export function generateLoanReport({
+export function generateConsumableReport({
     format,
     selectedFields,
     scope,
-    name
+    senaPlate,
+    filterStatus
 }) {
-
     const { headers, rows } = buildReportDataset({
-        loans,
+        consumables,
         selectedFields,
         scope,
-        name
+        senaPlate,
+        filterStatus,
     });
 
     if (!rows.length) {
@@ -26,13 +27,13 @@ export function generateLoanReport({
         generateExcelReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.xlsx`
+            fileName: `consumables-report-${new Date().toISOString().slice(0, 10)}.xlsx`
         });
     } else if (format.toLowerCase() === "pdf") {
         generatePdfReport({
             headers,
             rows,
-            fileName: `loans-report-${new Date().toISOString().slice(0, 10)}.pdf`
+            fileName: `consumables-report-${new Date().toISOString().slice(0, 10)}.pdf`
         });
     }
 }

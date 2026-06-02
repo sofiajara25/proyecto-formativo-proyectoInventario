@@ -3,12 +3,12 @@ import { brandsColumns } from "../table/brandsColumns";
 import { brands } from "../data/brands";
 import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
-// import ReportConfigModal from "../reports/components/ReportConfigModal";
-// import { useState } from "react";
+import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { useState } from "react";
 
 export default function ListBrandPage() {
     const navigate = useNavigate();
-    // const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     return (
         <div
@@ -48,7 +48,7 @@ export default function ListBrandPage() {
                                 type="button"
                                 variant="primary"
                                 size="md"
-                                // onClick={() => setIsReportModalOpen(true)}
+                                onClick={() => setIsReportModalOpen(true)}
                             >
                                 Reportar marca
                             </Button>
@@ -71,10 +71,10 @@ export default function ListBrandPage() {
                 </div>
             </div>
 
-            {/* <ReportConfigModal
+            <ReportConfigModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-            /> */}
+            />
         </div>
     );
 }

@@ -1,14 +1,14 @@
-// import { useState } from "react";
+import { useState } from "react";
 import DataTable from "@/shared/components/DataTable"
 import { consumablesColumns } from "../table/consumablesColumns"
 import { consumables } from "../data/consumables";
 import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
-// import ReportConfigModal from "../reports/components/ReportConfigModal";
+import ReportConfigModal from "../reports/components/ReportConfigModal";
 
 export default function ListConsumablePage() {
     const navigate = useNavigate();
-    // const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     return (
         <div
@@ -54,7 +54,7 @@ export default function ListConsumablePage() {
                                 type="button"
                                 variant="primary"
                                 size="md"
-                                // onClick={() => setIsReportModalOpen(true)}
+                                onClick={() => setIsReportModalOpen(true)}
                             >
                                 Reportar material de consumo
                             </Button>
@@ -77,10 +77,10 @@ export default function ListConsumablePage() {
                 </div>
             </div>
 
-            {/* <ReportConfigModal
+            <ReportConfigModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-            /> */}
+            />
         </div>
     );
 }
