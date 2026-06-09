@@ -30,7 +30,12 @@ export default function UserRowActions({ user }) {
     // Acción para editar el usuario
     // Redirige a la página de edición usando el id del usuario
     const handleEdit = () => {
-        navigate(`/users/${user.id}/edit`);
+        navigate(`/dashboard/users/${user.id}/edit`);
+    };
+
+    // Acción para ver el préstamo
+    const handleView = () => {
+        navigate(`/dashboard/users/${user.id}/view`);
     };
 
 
@@ -48,7 +53,7 @@ export default function UserRowActions({ user }) {
 
             {/* Botón ver */}
             <button
-                onClick={handleEdit} // Ejecuta la navegación a la página de edición
+                onClick={handleView} // Ejecuta la navegación a la página de edición
                 className="p-1 rounded hover:bg-gray-100"
             >
                 <Eye size={18} color="#083344"/> {/* Icono de editar */}

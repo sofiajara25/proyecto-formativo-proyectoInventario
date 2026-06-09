@@ -1,6 +1,6 @@
 // Importamos la instancia de la aplicación Express ya configurada.
 // app.js debe encargarse de middlewares, rutas y configuración general.
-import app from "./app.js";
+import app from "./app.js"
 
 
 // Importamos dotenv para cargar variables de entorno desde el archivo .env

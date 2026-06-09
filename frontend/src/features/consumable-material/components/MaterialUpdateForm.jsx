@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { Input, Button, Navbar } from "@/shared";
+import { Input, Button, Navbar, FileInput } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
+import { useNavigate } from "react-router-dom";
+import { createConsumableMaterial } from "../services/consumableMaterialService";
 
-export default function MaterialUpdateForm () {
+export default function MaterialRegisterForm() {
+    const navigate = useNavigate();
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const [formData, setFormData] = useState({
-        custodian: "",
+        accountant: "",
         toolId: "",
         senaPlate: "",
         materialName: "",
@@ -15,6 +21,7 @@ export default function MaterialUpdateForm () {
         totalValue: "",
         status: "",
         description: "",
+        photo: [],
     });
 
     const [errors, setErrors] = useState({});
@@ -27,8 +34,10 @@ export default function MaterialUpdateForm () {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validación con Zod
         const result = materialSchema.safeParse(formData);
 
         if (!result.success) {
@@ -41,9 +50,47 @@ export default function MaterialUpdateForm () {
             return;
         }
 
+        // Si pasa la validación
         setErrors({});
-        console.log("Material válido:", result.data);
+        setIsSubmitting(true);
+
+        try {
+            // Llamamos al servicio frontend que consume la API
+            // result.data contiene los datos ya validados por Zod
+            const payload = {
+                ...result.data,
+                photo: result.data.photo?.[0]?.name ?? null,
+            };
+            const response = await createConsumableMaterial(payload);
+
+            // Log informativo para desarrollo
+            console.log("Material actualizando:", response);
+
+            // Feedback básico al usuario
+            alert("Material actualizo correctamente");
+
+            // Navegamos a la vista anterior
+            // navigate(-1) equivale a "volver atrás"
+            navigate(-1);
+        } catch (error) {
+            // Capturamos errores de red o errores lanzados por el service
+            console.error("Error:", error.message);
+
+            // Mostramos el mensaje de error al usuario
+            alert(error.message);
+        } finally {
+            // Pase lo que pase, desactivamos el estado de envío
+            setIsSubmitting(false);
+        }
     };
+
+    let label;
+    // 😂 lógica fuera del JSX
+    if (isSubmitting) {
+        label = "Actualizando...";
+    } else {
+        label = "Actualizar Material de Consumo";
+    }
 
     return (
         <div
@@ -82,7 +129,7 @@ export default function MaterialUpdateForm () {
                             margin: 0,
                         }}
                     >
-                        Completa los campos para registrar un nuevo material
+                        Completa los campos para actualizar un nuevo material
                     </p>
 
                     <form
@@ -91,15 +138,15 @@ export default function MaterialUpdateForm () {
                     >
                         <div className="grid grid-cols-3 gap-6 mx-auto">
                             <Input
-                                label="Custodian"
-                                name="custodian"
-                                value={formData.custodian}
+                                label="Cuentadante"
+                                name="accountant"
+                                value={formData.accountant}
                                 onChange={handleChange}
-                                error={errors.custodian}
+                                error={errors.accountant}
                             />
 
                             <Input
-                                label="Tool ID"
+                                label="ID de herramienta"
                                 name="toolId"
                                 value={formData.toolId}
                                 onChange={handleChange}
@@ -107,7 +154,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="SENA Plate"
+                                label="Placa SENA"
                                 name="senaPlate"
                                 value={formData.senaPlate}
                                 onChange={handleChange}
@@ -115,7 +162,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Material Name"
+                                label="Nombre del material"
                                 name="materialName"
                                 value={formData.materialName}
                                 onChange={handleChange}
@@ -123,7 +170,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Entry Date"
+                                label="Fecha de ingreso"
                                 type="date"
                                 name="entryDate"
                                 value={formData.entryDate}
@@ -132,7 +179,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Quantity"
+                                label="Cantidad"
                                 type="number"
                                 name="quantity"
                                 value={formData.quantity}
@@ -141,7 +188,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Location"
+                                label="Ubicación"
                                 name="location"
                                 value={formData.location}
                                 onChange={handleChange}
@@ -149,7 +196,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Unit Value"
+                                label="Valor unitario"
                                 type="number"
                                 name="unitValue"
                                 value={formData.unitValue}
@@ -158,7 +205,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Total Value"
+                                label="Valor total"
                                 type="number"
                                 name="totalValue"
                                 value={formData.totalValue}
@@ -167,7 +214,7 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Status"
+                                label="Estado"
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
@@ -175,18 +222,44 @@ export default function MaterialUpdateForm () {
                             />
 
                             <Input
-                                label="Description"
+                                label="Descripción"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 error={errors.description}
                             />
+
+                            {/* Contenedor del input */}
+                            <div>
+                                <h4>
+                                    Foto
+                                </h4>
+                                <FileInput
+                                    value={formData.photo}
+                                    onChange={(files) =>
+                                        setFormData((prev) => ({ ...prev, photo: files }))
+                                    }
+                                    multiple={true}
+                                />
+                                {errors.photo && (
+                                    <span className="text-red-500 text-sm">{errors.photo}</span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Acciones */}
                         <div className="flex justify-end gap-3 pt-2 w-full">
-                            <Button type="submit" variant="primary" size="md">
-                                Crear Material
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="md"
+                                onClick={() => navigate(-1)}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                                {label}
+                                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
                             </Button>
                         </div>
                     </form>

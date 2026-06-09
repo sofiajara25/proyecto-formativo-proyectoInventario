@@ -1,27 +1,30 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
+import { createReturnableMaterial } from "../services/returnableMaterialService";
 
 export default function ReturnableMaterialRegisterForm() {
   const navigate = useNavigate();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
-    toolId: "",
-    senaPlate: "",
-    serial: "",
+    materialToolId: "",
+    materialSenaPlate: "",
+    materialSerial: "",
     materialName: "",
-    model: "",
-    unitValue: "",
-    custodian: "",
-    quantity: "",
-    status: "",
-    totalValue: "",
-    dimensions: "",
-    description: "",
-    technicalSheet: "",
-    location: "",
-    photo: null,
+    materialModel: "",
+    materialUnitValue: "",
+    materialCustodian: "",
+    materialQuantity: "",
+    materialStatus: "",
+    materialTotalValue: "",
+    materialDimensions: "",
+    materialDescription: "",
+    materialTechnicalSheet: "",
+    materialLocation: "",
+    photo: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -39,16 +42,20 @@ export default function ReturnableMaterialRegisterForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Convertimos valores numéricos antes de validar
     const parsedData = {
       ...formData,
-      unitValue: Number(formData.unitValue),
-      quantity: Number(formData.quantity),
-      totalValue: Number(formData.totalValue),
+      materialUnitValue: Number(formData.materialUnitValue),
+      materialQuantity: Number(formData.materialQuantity),
+      materialTotalValue: Number(formData.materialTotalValue),
     };
 
+    // Validación con Zod
     const result = returnablematerialSchema.safeParse(parsedData);
 
     if (!result.success) {
@@ -60,9 +67,49 @@ export default function ReturnableMaterialRegisterForm() {
       return;
     }
 
+    // Si pasa la validación
     setErrors({});
-    console.log("Material devolutivo válido:", result.data);
+    setIsSubmitting(true);
+
+    try {
+      // Llamamos al servicio frontend que consume la API
+      // result.data contiene los datos ya validados por Zod
+      const payload = {
+        ...result.data,
+        photo: result.data.photo?.[0]?.name ?? null,
+      };
+      const response = await createReturnableMaterial(payload);
+
+      // Log informativo para desarrollo
+      console.log("Material creado:", response);
+
+      // Feedback básico al usuario
+      alert("Material creado correctamente");
+
+      // Navegamos a la vista anterior
+      // navigate(-1) equivale a "volver atrás"
+      navigate(-1);
+    } catch (error) {
+      // Capturamos errores de red o errores lanzados por el service
+      console.error("Error:", error.message);
+
+      // Mostramos el mensaje de error al usuario
+      alert(error.message);
+    } finally {
+      // Pase lo que pase, desactivamos el estado de envío
+      setIsSubmitting(false);
+    }
   };
+
+  // =======================================================
+
+  let label;
+  // 😂 lógica fuera del JSX
+  if (isSubmitting) {
+    label = "Creando...";
+  } else {
+    label = "Crear Material Devolutivo";
+  }
 
   return (
     <div
@@ -113,24 +160,24 @@ export default function ReturnableMaterialRegisterForm() {
               {/* Fila 1 */}
               <Input
                 label="ID Herramienta"
-                name="toolId"
-                value={formData.toolId}
+                name="materialToolId"
+                value={formData.materialToolId}
                 onChange={handleChange}
-                error={errors.toolId}
+                error={errors.materialToolId}
               />
               <Input
                 label="Placa SENA"
-                name="senaPlate"
-                value={formData.senaPlate}
+                name="materialSenaPlate"
+                value={formData.materialSenaPlate}
                 onChange={handleChange}
-                error={errors.senaPlate}
+                error={errors.materialSenaPlate}
               />
               <Input
                 label="Serial"
-                name="serial"
-                value={formData.serial}
+                name="materialSerial"
+                value={formData.materialSerial}
                 onChange={handleChange}
-                error={errors.serial}
+                error={errors.materialSerial}
               />
 
               {/* Fila 2 */}
@@ -143,91 +190,100 @@ export default function ReturnableMaterialRegisterForm() {
               />
               <Input
                 label="Modelo"
-                name="model"
-                value={formData.model}
+                name="materialModel"
+                value={formData.materialModel}
                 onChange={handleChange}
-                error={errors.model}
+                error={errors.materialModel}
               />
               <Input
                 label="Valor Unitario"
-                name="unitValue"
+                name="materialUnitValue"
                 type="number"
-                value={formData.unitValue}
+                value={formData.materialUnitValue}
                 onChange={handleChange}
-                error={errors.unitValue}
+                error={errors.materialUnitValue}
               />
 
               {/* Fila 3 */}
               <Input
                 label="Cuentadante"
-                name="custodian"
-                value={formData.custodian}
+                name="materialCustodian"
+                value={formData.materialCustodian}
                 onChange={handleChange}
-                error={errors.custodian}
+                error={errors.materialCustodian}
               />
               <Input
                 label="Cantidad"
-                name="quantity"
+                name="materialQuantity"
                 type="number"
-                value={formData.quantity}
+                value={formData.materialQuantity}
                 onChange={handleChange}
-                error={errors.quantity}
+                error={errors.materialQuantity}
               />
               <Select
                 label="Estado"
-                name="status"
+                name="materialStatus"
                 options={estados}
-                value={formData.status}
+                value={formData.materialStatus}
                 onChange={handleChange}
-                error={errors.status}
+                error={errors.materialStatus}
               />
 
               {/* Fila 4 */}
               <Input
                 label="Valor Total"
-                name="totalValue"
+                name="materialTotalValue"
                 type="number"
-                value={formData.totalValue}
+                value={formData.materialTotalValue}
                 onChange={handleChange}
-                error={errors.totalValue}
+                error={errors.materialTotalValue}
               />
               <Input
                 label="Dimensiones"
-                name="dimensions"
-                value={formData.dimensions}
+                name="materialDimensions"
+                value={formData.materialDimensions}
                 onChange={handleChange}
-                error={errors.dimensions}
+                error={errors.materialDimensions}
               />
               <Input
                 label="Descripción"
-                name="description"
-                value={formData.description}
+                name="materialDescription"
+                value={formData.materialDescription}
                 onChange={handleChange}
-                error={errors.description}
+                error={errors.materialDescription}
               />
 
               {/* Fila 5 */}
               <Input
                 label="Ficha Técnica"
-                name="technicalSheet"
-                value={formData.technicalSheet}
+                name="materialTechnicalSheet"
+                value={formData.materialTechnicalSheet}
                 onChange={handleChange}
-                error={errors.technicalSheet}
+                error={errors.materialTechnicalSheet}
               />
               <Input
                 label="Ubicación"
-                name="location"
-                value={formData.location}
+                name="materialLocation"
+                value={formData.materialLocation}
                 onChange={handleChange}
-                error={errors.location}
+                error={errors.materialLocation}
               />
-              <Input
-                label="Foto"
-                name="photo"
-                type="file"
-                onChange={handleChange}
-                error={errors.photo}
-              />
+              {/* Contenedor del input */}
+              <div>
+                <h4>
+                  Foto
+                </h4>
+                <FileInput
+                  value={formData.photo}
+                  onChange={(files) =>
+                    setFormData((prev) => ({ ...prev, photo: files }))
+                  }
+                  multiple={true}
+                />
+                {errors.photo && (
+                  <span className="text-red-500 text-sm">{errors.photo}</span>
+                )}
+              </div>
             </div>
 
             {/* Acciones */}
@@ -240,8 +296,9 @@ export default function ReturnableMaterialRegisterForm() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" variant="primary" size="md">
-                Crear Material Devolutivo
+              <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                {label}
+                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
               </Button>
             </div>
           </form>

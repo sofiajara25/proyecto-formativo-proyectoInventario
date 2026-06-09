@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fileSchema } from "@/shared";
 
 export const userSchema = z.object({
 
@@ -45,4 +46,14 @@ export const userSchema = z.object({
         .string()
         .min(1, "Debe seleccionar un estado"),
 
+    userPassword: z
+        .string()
+        .min(8, "Contraseña debe tener mínimo 8 caracteres ")
+        .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
+        .regex(/[a-z]/, "Debe contener al menos una minúscula")
+        .regex(/[0-9]/, "Debe contener al menos un número")
+        .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
+
+
+    userPhoto: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
 })

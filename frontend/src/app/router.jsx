@@ -2,7 +2,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout } from "@/shared";
 import { Login } from "@/features/auth";
-import { CreateUserPage, ListUserPage } from "@/features/users";
+import { CreateUserPage, ListUserPage, UpdateUserPage } from "@/features/users";
 
 import { HomePage, ListPage, SettingsPage } from "@/features/home";
 
@@ -59,6 +59,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
       { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
       { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage/> },
+      {path: "/dashboard/users/:id/edit", element: <UpdateUserPage/>},
 
       // Rutas de Ver
       { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },

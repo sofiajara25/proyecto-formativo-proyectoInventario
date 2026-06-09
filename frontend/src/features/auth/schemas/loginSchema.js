@@ -1,11 +1,7 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un correo válido"),
+  userEmail: z.email("Debe ingresar un email valido"),
 
-  password: z
-    .string()
-    .min(6, "La contraseña debe tener mínimo 6 caracteres"),
+  userPassword: z.string().min(2, "La contraseña es obligatoria"),
 });

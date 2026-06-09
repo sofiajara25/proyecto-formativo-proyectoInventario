@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Select, Navbar } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 import { useNavigate } from "react-router-dom";
+import { createUser } from "../services/userService.js"
 
 export default function UserRegisterForm() {
     const navigate = useNavigate();
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
         userName: "",
@@ -19,6 +21,8 @@ export default function UserRegisterForm() {
         userAddress: "",
         userPhone: "",
         userStatus: "",
+        userPassword: "",
+        userPhoto: [],
     });
     const [errors, setErrors] = useState({});
 
@@ -49,28 +53,83 @@ export default function UserRegisterForm() {
         }));
     };
 
-    //=========================
-    //      Handle Submit
-    //* Función que se ejecuta cuando se envía el formulario
-    //==========================
-
-    const handleSubmit = (e) => {
+    //============== HANDLE SUBMIT ==============
+    const handleSubmit = async (e) => {
+        // Evita que el formulario recargue la página
         e.preventDefault();
 
+        // Validamos los datos del formulario contra el esquema Zod
+        // safeParse NO lanza excepción, retorna un objeto controlado
         const result = userSchema.safeParse(formData);
 
+        // Verificar en consola si el esquema está funcionando 
+        console.log(result);
+
+        // Si la validación falla
         if (!result.success) {
+            // Objeto donde almacenaremos los errores por campo
             const fieldErrors = {};
+
+            // Recorremos cada error generado por Zod
             result.error.issues.forEach((issue) => {
+                // issue.path[0] corresponde al nombre del campo
+                // issue.message contiene el mensaje de error definido en el schema
                 fieldErrors[issue.path[0]] = issue.message;
             });
+
+            // Actualizamos el estado de errores para mostrarlos en la UI
             setErrors(fieldErrors);
+
+            // Cortamos la ejecución: NO se envía nada al backend
+
             return;
         }
 
+        // Si la validación pasa, limpiamos errores previos
         setErrors({});
-        console.log("Usuario válido:", result.data);
+
+        // Activamos estado de envío (útil para deshabilitar el botón)
+        setIsSubmitting(true);
+
+        try {
+            // Llamamos al servicio frontend que consume la API
+            // result.data contiene los datos ya validados por Zod
+            const payload = {
+                ...result.data,
+                userPhoto: result.data.userPhoto?.[0]?.name ?? null,
+            };
+            const response = await createUser(payload);
+
+            // Log informativo para desarrollo
+            console.log("Usuario creado:", response);
+
+            // Feedback básico al usuario
+            alert("Usuario creado correctamente");
+
+            // Navegamos a la vista anterior
+            // navigate(-1) equivale a "volver atrás"
+            navigate(-1);
+        } catch (error) {
+            // Capturamos errores de red o errores lanzados por el service
+            console.error("Error:", error.message);
+
+            // Mostramos el mensaje de error al usuario
+            alert(error.message);
+        } finally {
+            // Pase lo que pase, desactivamos el estado de envío
+            setIsSubmitting(false);
+        }
     };
+
+    // =======================================================
+
+    let label;
+    // 😂 lógica fuera del JSX
+    if (isSubmitting) {
+        label = "Creando...";
+    } else {
+        label = "Crear";
+    }
 
     return (
         <div
@@ -204,7 +263,32 @@ export default function UserRegisterForm() {
                                 onChange={handleChange}
                                 error={errors.userStatus}
                             />
+                            <Input
+                                label="Contraseña"
+                                name="userPassword"
+                                placeholder="Ingrese su contraseña"
+                                type="password"
+                                value={formData.userPassword}
+                                onChange={handleChange}
+                                error={errors.userPassword}
+                            />
 
+                            {/* Contenedor del input */}
+                            <div>
+                                <h4>
+                                    Foto
+                                </h4>
+                                <FileInput
+                                    value={formData.userPhoto}
+                                    onChange={(files) =>
+                                        setFormData((prev) => ({ ...prev, userPhoto: files }))
+                                    }
+                                    multiple={true}
+                                />
+                                {errors.userPhoto && (
+                                    <span className="text-red-500 text-sm">{errors.userPhoto}</span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Acciones */}
@@ -217,12 +301,9 @@ export default function UserRegisterForm() {
                             >
                                 Cancelar
                             </Button>
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                size="md"
-                            >
-                                Crear Cuenta
+                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                                {label}
+                                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
                             </Button>
                         </div>
 

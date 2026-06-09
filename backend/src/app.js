@@ -9,7 +9,7 @@ import cors from "cors";
 // Importamos las rutas del feature users
 // Cada feature expone su propio router independiente
 import userRoutes from "./features/users/user.routes.js";
-import authRoutes from "./features/auth/auth.routes.js";
+// import authRoutes from "./features/auth/auth.routes.js";
 import consumibleMaterialRoutes from "./features/consumable-material/consumableMaterial.routes.js"
 import returnableMaterialRoutes from "./features/returnable-material/returnableMaterial.routes.js"
 
@@ -33,7 +33,7 @@ app.use(express.json());
 // Todas las rutas del feature users quedarán bajo el prefijo /api/users
 // Ejemplo final: POST http://localhost:4000/api/users
 app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use("/api/consumableMaterial", consumibleMaterialRoutes);
 app.use("/api/returnableMaterial", returnableMaterialRoutes);
 

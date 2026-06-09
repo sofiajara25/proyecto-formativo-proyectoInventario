@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
+import { createReturnableMaterial } from "../services/returnableMaterialService";
 
 export default function ReturnableMaterialRegisterForm() {
   const navigate = useNavigate();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     toolId: "",
@@ -21,7 +24,7 @@ export default function ReturnableMaterialRegisterForm() {
     description: "",
     technicalSheet: "",
     location: "",
-    photo: null,
+    photo: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -39,9 +42,12 @@ export default function ReturnableMaterialRegisterForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Convertimos valores numéricos antes de validar
     const parsedData = {
       ...formData,
       unitValue: Number(formData.unitValue),
@@ -49,6 +55,7 @@ export default function ReturnableMaterialRegisterForm() {
       totalValue: Number(formData.totalValue),
     };
 
+    // Validación con Zod
     const result = returnablematerialSchema.safeParse(parsedData);
 
     if (!result.success) {
@@ -60,9 +67,49 @@ export default function ReturnableMaterialRegisterForm() {
       return;
     }
 
+    // Si pasa la validación
     setErrors({});
-    console.log("Material devolutivo válido:", result.data);
+    setIsSubmitting(true);
+
+    try {
+      // Llamamos al servicio frontend que consume la API
+      // result.data contiene los datos ya validados por Zod
+      const payload = {
+        ...result.data,
+        photo: result.data.photo?.[0]?.name ?? null,
+      };
+      const response = await createReturnableMaterial(payload);
+
+      // Log informativo para desarrollo
+      console.log("Material actualizado:", response);
+
+      // Feedback básico al usuario
+      alert("Material actualizado correctamente");
+
+      // Navegamos a la vista anterior
+      // navigate(-1) equivale a "volver atrás"
+      navigate(-1);
+    } catch (error) {
+      // Capturamos errores de red o errores lanzados por el service
+      console.error("Error:", error.message);
+
+      // Mostramos el mensaje de error al usuario
+      alert(error.message);
+    } finally {
+      // Pase lo que pase, desactivamos el estado de envío
+      setIsSubmitting(false);
+    }
   };
+
+  // =======================================================
+
+  let label;
+  // 😂 lógica fuera del JSX
+  if (isSubmitting) {
+    label = "Actualizando...";
+  } else {
+    label = "Actualizar Material Devolutivo";
+  }
 
   return (
     <div
@@ -102,7 +149,7 @@ export default function ReturnableMaterialRegisterForm() {
               margin: 0,
             }}
           >
-            Completa los campos para registrar un nuevo material devolutivo
+            Completa los campos para actualizar un nuevo material devolutivo
           </p>
 
           <form
@@ -221,13 +268,22 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.location}
               />
-              <Input
-                label="Foto"
-                name="photo"
-                type="file"
-                onChange={handleChange}
-                error={errors.photo}
-              />
+              {/* Contenedor del input */}
+              <div>
+                <h4>
+                  Foto
+                </h4>
+                <FileInput
+                  value={formData.photo}
+                  onChange={(files) =>
+                    setFormData((prev) => ({ ...prev, photo: files }))
+                  }
+                  multiple={true}
+                />
+                {errors.photo && (
+                  <span className="text-red-500 text-sm">{errors.photo}</span>
+                )}
+              </div>
             </div>
 
             {/* Acciones */}
@@ -240,8 +296,9 @@ export default function ReturnableMaterialRegisterForm() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" variant="primary" size="md">
-                Actualizar Material Devolutivo
+              <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                {label}
+                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
               </Button>
             </div>
           </form>
