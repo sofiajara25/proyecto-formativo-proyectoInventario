@@ -7,7 +7,7 @@ export const authRepository = {
     // Busca un usuario para correr electronico y devuelve solo los campos necesarios para validar el inicio de sesion 
     async findByEmail(userEmail) {
         const query = `
-            SELECT id, user_email, password, status
+            SELECT id, user_email, password, user_status
             FROM users
             WHERE user_email = $1
             LIMIT 1;

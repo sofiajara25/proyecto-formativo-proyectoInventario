@@ -2,7 +2,6 @@
 // Este pool es una instancia compartida configurada en la capa de infraestructura.
 import { pool } from "../../config/db.js";
 
-
 // Exportamos el repositorio de usuarios.
 // El repository encapsula todas las consultas SQL relacionadas con users.
 export const consumableMaterialRepository = {

@@ -31,7 +31,7 @@ export default function ListReturnPage() {
                         margin: 0,
                     }}
                 >
-                    Materiales Devolutivos
+                    Retorno del material
                 </h1>
 
                 {/* Card */}
@@ -48,7 +48,7 @@ export default function ListReturnPage() {
                                 margin: 0,
                             }}
                         >
-                            Listado de materiales devolutivos registrados
+                            Listado de retorno de material registrados
                         </p>
                         <div className="flex gap-3">
                             <Button
@@ -57,7 +57,7 @@ export default function ListReturnPage() {
                                 size="md"
                                 onClick={() => setIsReportModalOpen(true)}
                             >
-                                Reportar material devolutivo
+                                Reportar retorno
                             </Button>
                             <Button
                                 type="button"
@@ -65,7 +65,7 @@ export default function ListReturnPage() {
                                 size="md"
                                 onClick={() => navigate("/dashboard/retorno")}
                             >
-                                Crear material devolutivo
+                                Crear retorno
                             </Button>
                         </div>
                     </div>

@@ -10,9 +10,15 @@ import {
 } from "@/shared";
 import logoSena from "@/assets/images/LogoSena.png";
 import { useState } from "react";
+import { logout } from "../../features/auth/services/logoutSevice";
 
 export default function Navbar() {
     const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/auth");
+    };
     const [search, setSearch] = useState("");
 
     const handleSearch = (value) => console.log("Buscar:", value);
@@ -81,7 +87,7 @@ export default function Navbar() {
                     {/* Derecha: cerrar sesión + logo */}
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate("/auth")}
+                            onClick={handleLogout}
                             className="cursor-pointer rounded-lg px-4 py-2"
                             style={{
                                 background: "var(--color-tertiary-950)",

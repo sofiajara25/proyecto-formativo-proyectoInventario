@@ -1,15 +1,88 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoSena from "@/assets/images/LogoSena.png";
+import { login } from "../services/authService";
+import { loginSchema } from "../schemas/loginSchema"
+import {
+    Input,
+    Button,
+} from "@/shared";
+
 
 export default function Login() {
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+
+    const [formData, setFormData] = useState({
+        userEmail: "",
+        userPassword: "",
+    });
+    const [errors, setErrors] = useState({});
+
+    // ======================================
+    //            Handle Genérico
+    // ======================================
+    /**
+     * Función que se ejecuta cada vez que cambia el valor de un input del formulario
+     */
+    const handleChange = (e) => {
+        // Se obtiene el nombre del campo y su valor
+        const { name, value, type, checked } = e.target;
+
+        setFormData((prev) => ({
+            // Se copian todos los valores anteriores del estado
+            ...prev,
+
+            // Se actualiza unicamente lo que cambió
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
+
+    // ======================================
+    //            Handle Submit
+    // ======================================
+    /**
+     * Función que se ejecuta cuando se envía el formulario
+     */
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const result = loginSchema.safeParse(formData);
+
+        if (!result.success) {
+            // Objeto donde se almacenarán
+            const fieldErrors = {};
+
+            // Zod devuelve los errores en un arreglo llamado issues
+            // Se recorren para asociar cada error a su campo correspondiente
+            result.error.issues.forEach((issue) => {
+                // contiene la ruta del campo que falló
+                // Se guarda el mensaje de error en el objeto
+                fieldErrors[issue.path[0]] = issue.message;
+            });
+
+            setErrors(fieldErrors);
+            // Se detiene la ejecución porque el formulario tiene errores
+            return;
+        }
+
+        setErrors({});
+
+        try {
+            const data = await login(result.data);
+
+            sessionStorage.setItem("token", data.token); // clave 
+
+            // navigate("/"); // o dashboard
+            navigate("/dashboard/home");
+        } catch (error) {
+            alert(error.message);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(to bottom, var(--color-primary-950) 72%, var(--color-tertiary-950) 100%)" }}>
-            
+
             {/* Header */}
             <div className="flex items-center gap-4 px-10 py-5">
                 <img src={logoSena} alt="Logo SENA" className="h-14" />
@@ -20,67 +93,52 @@ export default function Login() {
 
             {/* Contenido */}
             <div className="flex flex-1 items-center justify-center pb-16">
-                <div className="bg-white rounded-2xl p-10 w-96 flex flex-col gap-5 shadow-lg">
-                    
-                    <h2 className="text-center text-lg font-bold text-gray-800 tracking-wide">
-                        INICIAR SESIÓN
-                    </h2>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
+                    <div className="bg-white rounded-2xl p-10 w-96 flex flex-col gap-5 shadow-lg">
+                        <h2 className="text-center text-lg font-bold text-gray-800 tracking-wide">
+                            INICIAR SESIÓN
+                        </h2>
 
-                    {/* Correo */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
-                            Correo
-                        </label>
-                        <input
+                        <Input
+                            label="Email"
+                            name="userEmail"
+                            placeholder="Ingrese el correo"
                             type="email"
-                            value={email}
-                            placeholder="correo@ejemplo.com"
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 outline-none focus:border-green-600 focus:bg-green-50"
+                            value={formData.userEmail}
+                            onChange={handleChange}
+                            error={errors.userEmail}
                         />
-                    </div>
 
-                    {/* Contraseña */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">
-                            Contraseña
-                        </label>
-                        <input
+                        <Input
+                            label="Contreseña"
+                            name="userPassword"
+                            placeholder="Ingrese su contraseña"
                             type="password"
-                            value={password}
-                            placeholder="••••••••"
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 outline-none focus:border-green-600 focus:bg-green-50"
+                            value={formData.userPassword}
+                            onChange={handleChange}
+                            error={errors.userPassword}
                         />
+                        {/* Olvidaste contraseña */}
+                        <p
+                            onClick={() => navigate("/auth/recovery")}
+                            className="text-right text-xs text-green-700 cursor-pointer underline"
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-center gap-12">
+                            <Button variant="secondary" size="sm" >
+                                Cancelar
+                            </Button>
+
+                            <Button variant="primary" size="md" type="submit">
+                                Iniciar
+                            </Button>
+                        </div>
                     </div>
-
-                    {/* Olvidaste contraseña */}
-                    <p
-                        onClick={() => navigate("/auth/recovery")}
-                        className="text-right text-xs text-green-700 cursor-pointer underline"
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </p>
-
-                        {/* Botones */}
-                        <button
-                        onClick={() => navigate("/dashboard/home")}
-                        className="w-full rounded-full py-3 text-sm font-bold text-white cursor-pointer hover:opacity-90 hover:scale-[1.02] transition-all"
-                        style={{ background: "var(--color-primary-950)" }}
-                    >
-                        Iniciar Sesión
-                    </button>
-
-                    <button
-                        onClick={() => navigate("/auth/register")}
-                        className="w-full rounded-full py-3 text-sm font-bold cursor-pointer border-2 hover:opacity-80 hover:scale-[1.02] transition-all"
-                        style={{ color: "var(--color-tertiary-950)", borderColor: "var(--color-tertiary-950)", background: "transparent" }}
-                    >
-                        Registrarse
-                    </button>
-
-                </div>
+                </form>
             </div>
-        </div>
+        </div >
     );
 }

@@ -1,17 +1,23 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput } from "@/shared";
 import { loanSchema } from "../schemas/loansSchema.js";
+import { createLoan } from "../services/loanService.js";
+import { useNavigate } from "react-router-dom";
 
 export default function LoansRegisterForm() {
 
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        user: "",
-        category: "",
-        productName: "",
+        loanUser: "",
+        loanCategory: "",
+        loanProductName: "",
         loanDate: "",
-        returnDate: "",
-        description: "",
+        loanReturnDate: "",
+        loanDescription: "",
+        photo: [],
     });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [errors, setErrors] = useState({});
 
@@ -29,23 +35,58 @@ export default function LoansRegisterForm() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validación con Zod
         const result = loanSchema.safeParse(formData);
 
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
-                fieldErrors[issue.path[0]] = issue.message;
+                const field = issue.path[0];
+                fieldErrors[field] = issue.message;
             });
             setErrors(fieldErrors);
             return;
         }
 
         setErrors({});
-        console.log("Préstamo válido:", result.data);
+        setIsSubmitting(true);
+
+        try {
+
+            const payload = {
+                ...result.data,
+                photo: result.data.photo?.[0]?.name ?? null,
+            };
+            // Payload validado
+
+            // Aquí llamas al servicio que consume la API
+            const response = await createLoan(payload);
+
+            console.log("Préstamo creado:", response);
+            alert("Préstamo creado correctamente");
+
+            // Volver atrás
+            window.history.back();
+        } catch (error) {
+            console.error("Error:", error.message);
+            alert(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    let label;
+    // 😂 lógica fuera del JSX
+    if (isSubmitting) {
+        label = "Creando...";
+    } else {
+        label = "Crear prestamo";
+    }
+
+
 
     return (
         <div
@@ -57,47 +98,47 @@ export default function LoansRegisterForm() {
             <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
 
                 {/* Título */}
-                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "540px"}}>
+                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "70px" }}>
                     Crear Préstamo
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-4xl mx-auto " style={{ padding: "32px 36px" }}>
+                <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto " style={{ padding: "32px 36px" }}>
 
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
 
                         <div className="grid  gap-6 
-                                lg:grid-cols-2
-                                md:grid-cols-1
+                                lg:grid-cols-3
+                                md:grid-cols-2
                                 sm:grid-cols-1
                                 ">
 
                             <Input
                                 label="Usuario"
-                                name="user"
+                                name="loanUser"
                                 placeholder="Ingrese el usuario"
                                 type="text"
-                                value={formData.user}
+                                value={formData.loanUser}
                                 onChange={handleChange}
-                                error={errors.user}
+                                error={errors.loanUser}
                             />
                             <Select
                                 label="Categoría"
-                                name="category"
+                                name="loanCategory"
                                 options={categorias}
-                                value={formData.category}
+                                value={formData.loanCategory}
                                 onChange={handleChange}
-                                error={errors.category}
+                                error={errors.loanCategory}
                             />
 
                             <Input
                                 label="Nombre del producto"
-                                name="productName"
+                                name="loanProductName"
                                 placeholder="Ingrese el nombre del producto"
                                 type="text"
-                                value={formData.productName}
+                                value={formData.loanProductName}
                                 onChange={handleChange}
-                                error={errors.productName}
+                                error={errors.loanProductName}
                             />
                             <Input
                                 label="Fecha préstamo"
@@ -110,40 +151,53 @@ export default function LoansRegisterForm() {
 
                             <Input
                                 label="Fecha de devolución"
-                                name="returnDate"
+                                name="loanReturnDate"
                                 type="date"
-                                value={formData.returnDate}
+                                value={formData.loanReturnDate}
                                 onChange={handleChange}
-                                error={errors.returnDate}
+                                error={errors.loanReturnDate}
                             />
                             <Input
                                 label="Descripción"
-                                name="description"
+                                name="loanDescription"
                                 placeholder="Ingrese la descripción"
                                 type="text"
-                                value={formData.description}
+                                value={formData.loanDescription}
                                 onChange={handleChange}
-                                error={errors.description}
+                                error={errors.loanDescription}
                             />
+                            {/* Contenedor del input */}
+                            <div>
+                                <h4>
+                                    Foto
+                                </h4>
+                                <FileInput
+                                    value={formData.photo}
+                                    onChange={(files) =>
+                                        setFormData((prev) => ({ ...prev, photo: files }))
+                                    }
+                                    multiple={true}
+                                />
+                                {errors.photo && (
+                                    <span className="text-red-500 text-sm">{errors.photo}</span>
+                                )}
+                            </div>
 
                         </div>
 
                         {/* Acciones */}
-                        <div className="flex justify-end gap-3 pt-2">
+                        <div className="flex justify-end gap-3 pt-2 w-full">
                             <Button
                                 type="button"
                                 variant="secondary"
                                 size="md"
-                                onClick={() => window.history.back()}
+                                onClick={() => navigate(-1)}
                             >
                                 Cancelar
                             </Button>
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                size="md"
-                            >
-                                Crear Préstamo
+                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                                {label}
+                                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
                             </Button>
                         </div>
 

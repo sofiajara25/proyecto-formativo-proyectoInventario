@@ -21,3 +21,6 @@ export { default as FileInput } from "./components/FileInput";
 
 // schemas
 export { fileSchema } from "./schemas/fileSchema"
+
+// auth
+export {default as ProtectedRoute} from "./auth/ProtectedRoute"

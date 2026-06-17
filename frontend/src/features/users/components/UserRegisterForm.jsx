@@ -94,11 +94,7 @@ export default function UserRegisterForm() {
         try {
             // Llamamos al servicio frontend que consume la API
             // result.data contiene los datos ya validados por Zod
-            const payload = {
-                ...result.data,
-                userPhoto: result.data.userPhoto?.[0]?.name ?? null,
-            };
-            const response = await createUser(payload);
+            const response = await createUser(result.data);
 
             // Log informativo para desarrollo
             console.log("Usuario creado:", response);

@@ -22,7 +22,7 @@ export const authService = {
             throw new Error("Credenciales invalidas");
         }
 
-        if (user.status !== "Activo") {
+        if (user.user_status !== "Activo") {
             throw new Error("Usuario inactivo");
         }
 
