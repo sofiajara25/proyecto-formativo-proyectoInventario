@@ -1,295 +1,231 @@
 import { useState } from "react";
 import { Input, Button, Select, Checkbox } from "@/shared";
-// import {  } from "../schemas/returnSchema";
 import { consumibleSchema, devolutivoSchema } from "../schemas/returnSchema";
 import { useNavigate } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
 
 export default function ReturnForm() {
   const navigate = useNavigate();
-
-  // Estados para cada formulario
-  const [devolutivoData, setDevolutivoData] = useState({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Un solo estado compartido: los campos no se pierden ni se reinician
+  // al cambiar entre Devolutivo y Consumible.
+  const [formData, setFormData] = useState({
+    materialType: "",
     loanId: "",
     returnDate: "",
-    description: "",
-  });
-  const [consumibleData, setConsumibleData] = useState({
-    loanId: "",
-    returnDate: "",
-    observations: "",
-    quantity: "",
-
-    // Flags booleanos
+    returnDescription: "",
+    returnQuantity: "",
     isAvailable: true,
     isMaintenance: false,
     isLow: false,
   });
 
-  const [errorsDevolutivo, setErrorsDevolutivo] = useState({});
-  const [errorsConsumible, setErrorsConsumible] = useState({});
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (e, setData) => {
-    // Se obtiene el nombre del campo y su valor
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setData((prev) => ({
-      // Se copian todos los valores anteriores del estado
+    setFormData((prev) => ({
       ...prev,
-
-      // Se actualiza unicamente lo que cambió
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : type === "number"
+            ? Number(value)
+            : value,
     }));
   };
 
-  // Submit Devolutivo
-  const handleSubmitDevolutivo = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = devolutivoSchema.safeParse(devolutivoData);
+
+    // Escogemos el schema según el tipo
+    const schema =
+      formData.materialType === "devolutivo"
+        ? devolutivoSchema
+        : consumibleSchema;
+
+    // Validamos directamente el formData
+    const result = schema.safeParse(formData);
 
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
-      setErrorsDevolutivo(fieldErrors);
+      setErrors(fieldErrors);
       return;
     }
-    setErrorsDevolutivo({});
-    console.log("Devolutivo válido:", result.data);
-  };
 
-  // Submit Consumible
-  const handleSubmitConsumible = (e) => {
-    e.preventDefault();
-    const result = consumibleSchema.safeParse(consumibleData);
+    // Si pasa la validación
+    setErrors({});
+    console.log("Devolución válida:", result.data);
 
-    if (!result.success) {
-      const fieldErrors = {};
-      result.error.issues.forEach((issue) => {
-        fieldErrors[issue.path[0]] = issue.message;
+    try {
+      // Aquí ya puedes enviar al backend
+      const response = await fetch("http://localhost:5000/api/returns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.data),
       });
-      setErrorsConsumible(fieldErrors);
-      return;
+
+      const data = await response.json();
+      console.log("Respuesta del backend:", data);
+      alert("Devolución creada correctamente");
+      navigate(-1);
+    } catch (err) {
+      console.error("Error creando devolución:", err);
+      alert("Error al crear devolución");
     }
-    setErrorsConsumible({});
-    console.log("Consumible válido:", result.data);
   };
+  let label;
+  // 😂 lógica fuera del JSX
+  if (isSubmitting) {
+    label = "Creando...";
+  } else {
+    label = "Crear";
+  }
+
 
   return (
-
-    <div className="min-h-screen flex flex-col items-center justify-center"
+    <div
+      className="min-h-screen flex flex-col items-center py-10 px-4"
       style={{
         background:
           "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
         fontFamily: "var(--main-font)",
-      }}>
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full py-6 text-center">
+      }}
+    >
+      <header className="w-full max-w-6xl flex items-center mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer"
         >
           <CircleArrowLeft size={36} color="#ffffff" />
         </button>
-        <h1 className="text-white text-2xl font-bold">
-          Sistema Inventario de Infraestructura y <br /> Teleinformática CDITI SENA
-        </h1>
-      </header>
 
-
-      {/* Contenedor de dos formularios */}
-
-      <div className="grid grid-cols-2 gap-22">
-
-        {/* Devolucion de matreial devolutivo */}
-        <div className="min-h-[500px] bg-white p-8 rounded-xl w-3xl mt-40">
-          <h2 className="lg:ml-40"
-            style={{
-              color: "var(--color-white)",
-              fontSize: "var(--fs-md)",
-              fontWeight: "var(--font-weight-bold)",
-              margin: 0,
-              marginLeft: "410px",
-            }}>
-            Crear Devolución de Material Devolutivo</h2>
-
-          <p
-            style={{
-              fontSize: "var(--fs-xxs)",
-              color: "var(--color-gray-500)",
-              margin: 0,
-            }}
-          >
-            Completa los campos para registrar un nuevo material devolutivo
-          </p>
-
-          {/* Formulario Devolutivo */}
-          <form onSubmit={handleSubmitDevolutivo} className="flex flex-col gap-4">
-
-            {/* Inputs */}
-            <div className="grid grid-cols-2 gap-6 mx-auto">
-              <Input
-                label="ID del Préstamo"
-                name="loanId"
-                value={devolutivoData.loanId}
-                onChange={(e) => handleChange(e, setDevolutivoData)}
-                error={errorsDevolutivo.loanId}
-              />
-              <Input
-                label="Fecha de Devolución"
-                name="returnDate"
-                type="date"
-                value={devolutivoData.returnDate}
-                onChange={(e) => handleChange(e, setDevolutivoData)}
-                error={errorsDevolutivo.returnDate}
-              />
-              <Input
-                label="Descripción del Material"
-                name="description"
-                value={devolutivoData.description}
-                onChange={(e) => handleChange(e, setDevolutivoData)}
-                error={errorsDevolutivo.description}
-                containerClassName="w-[686px]"
-              />
-            </div>
-            {/* Checkbox */}
-            <div className="flex flex-col items-center justify-center gap-8 mt-8">
-              <h2>Estado del material</h2>
-
-              <div className="flex flex-2 gap-40 items-center justify-center mt-4">
-                <Checkbox
-                  id="isAvailable"
-                  name="isAvailable"
-                  label="Disponible"
-                  checked={consumibleData.isAvailable}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-green-600"
-                />
-                <Checkbox
-                  id="isMaintenance"
-                  name="isMaintenance"
-                  label="Mantenimiento"
-                  checked={consumibleData.isMaintenance}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-brand-2"
-                />
-                <Checkbox
-                  id="isLow"
-                  name="isLow"
-                  label="Baja"
-                  checked={consumibleData.isLow}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-black"
-                />
-              </div>
-            </div>
-
-            {/* Boton */}
-            <div className="flex items-end justify-center gap-6 mt-6">
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-              >
-                Crear devolucion
-              </Button>
-            </div>
-          </form>
+        <div className="flex-1 text-center">
+          <h1 className="text-white text-2xl font-medium tracking-tight">
+            Sistema Inventario de Infraestructura y
+            <br />
+            Teleinformática CDITI SENA
+          </h1>
         </div>
 
-        {/*####################################################################*/}
+        <div className="w-10" />
+      </header>
 
-        {/* Crear Devolución de Material Consumible */}
+      <div className="w-full max-w-4xl bg-white rounded-[28px] p-10 shadow-[0_1px_2px_rgba(0,0,0,0.3),0_2px_6px_2px_rgba(0,0,0,0.15)]">
+        <h2 className="text-3xl font-medium text-center text-gray-900">
+          Crear Devolución de Material
+        </h2>
 
-        <div className="min-h-[500px] bg-white p-8 rounded-xl w-3xl mt-40">
+        <p className="text-sm text-gray-500 text-center mt-2 mb-10">
+          Selecciona el tipo de material y completa los campos
+        </p>
 
-          <h2 className="text-xl font-semibold mb-4 place-self-center">Crear Devolución de Material Consumible</h2>
+        <div className="w-full md:w-80 mx-auto mb-10">
+          <Select
+            label="Tipo de Material"
+            name="materialType"
+            value={formData.materialType}
+            onChange={handleChange}
+            options={[
+              { id: "devolutivo", label: "Devolutivo" },
+              { id: "consumible", label: "Consumible" },
+            ]}
+            error={errors.materialType}
+          />
+        </div>
 
-          {/* Formulario Consumible */}
-          <form className="grid grid-cols-1 place-items-center gap-6 mt-10"
-            onSubmit={handleSubmitConsumible}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              label="ID del Préstamo"
+              name="loanId"
+              value={formData.loanId}
+              onChange={handleChange}
+              error={errors.loanId}
+            />
 
-            {/* Inputs */}
-            <div className="grid grid-cols-2 gap-6 mx-auto">
-              <Input
-                label="ID del Préstamo"
-                name="loanId"
-                value={consumibleData.loanId}
-                onChange={(e) => handleChange(e, setConsumibleData)}
-                error={errorsConsumible.loanId}
+            <Input
+              label="Fecha de Devolución"
+              name="returnDate"
+              type="date"
+              value={formData.returnDate}
+              onChange={handleChange}
+              error={errors.returnDate}
+            />
+
+            <Input
+              label="Descripción / Observaciones"
+              name="returnDescription"
+              value={formData.returnDescription}
+              onChange={handleChange}
+              error={errors.returnDescription || errors.observations}
+            />
+
+            <Input
+              label="Cantidad Devuelta"
+              name="returnQuantity"
+              type="number"
+              value={formData.returnQuantity}
+              onChange={handleChange}
+              error={errors.returnQuantity}
+            />
+          </div>
+
+          <div className="flex flex-col items-center gap-5">
+            <h3 className="text-lg font-medium text-gray-800">
+              Estado del material
+            </h3>
+
+            <div className="flex flex-wrap justify-center gap-6">
+              <Checkbox
+                id="isAvailable"
+                name="isAvailable"
+                label="Disponible"
+                checked={formData.isAvailable}
+                onChange={handleChange}
               />
-              <Input
-                label="Fecha de Devolución"
-                name="returnDate"
-                type="date"
-                value={consumibleData.returnDate}
-                onChange={(e) => handleChange(e, setConsumibleData)}
-                error={errorsConsumible.returnDate}
+
+
+              <Checkbox
+                id="isMaintenance"
+                name="isMaintenance"
+                label="Mantenimiento"
+                checked={formData.isMaintenance}
+                onChange={handleChange}
               />
-              <Input
-                label="Observaciones"
-                name="observations"
-                value={consumibleData.observations}
-                onChange={(e) => handleChange(e, setConsumibleData)}
-                error={errorsConsumible.observations}
+
+              <Checkbox
+                id="isLow"
+                name="isLow"
+                label="Baja"
+                checked={formData.isLow}
+                onChange={handleChange}
               />
-              <Input
-                label="Cantidad Devuelta"
-                name="quantity"
-                type="number"
-                value={consumibleData.quantity}
-                onChange={(e) => handleChange(e, setConsumibleData)}
-                error={errorsConsumible.quantity}
-              />
+
             </div>
+          </div>
 
-            {/* Checkbox */}
-            <div className="flex flex-col items-center justify-center gap-8 mt-8">
-              <h2>Estado del material</h2>
-
-              <div className="flex flex-2 gap-40 items-center justify-center mt-4">
-                <Checkbox
-                  id="isAvailable"
-                  name="isAvailable"
-                  label="Disponible"
-                  checked={consumibleData.isAvailable}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-green-600"
-                />
-                <Checkbox
-                  id="isMaintenance"
-                  name="isMaintenance"
-                  label="Mantenimiento"
-                  checked={consumibleData.isMaintenance}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-brand-2"
-                />
-                <Checkbox
-                  id="isLow"
-                  name="isLow"
-                  label="Baja"
-                  checked={consumibleData.isLow}
-                  onChange={(e) => handleChange(e, setConsumibleData)}
-                  className="accent-black"
-                />
-              </div>
-            </div>
-
-            {/* Boton */}
-            <div className="flex items-end justify-center gap-6 mt-6">
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-              >
-                Crear devolucion
-              </Button>
-            </div>
-          </form>
-        </div >
+          {/* Acciones */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </Button>
+            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+              {label}
+              {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
+            </Button>
+          </div>
+        </form>
       </div>
-
     </div>
   );
 }

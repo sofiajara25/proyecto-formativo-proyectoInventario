@@ -17,5 +17,6 @@ export const authController = {
                 error: err.message,
             });
         }
+        console.log("BODY LOGIN:", req.body);
     }
 }

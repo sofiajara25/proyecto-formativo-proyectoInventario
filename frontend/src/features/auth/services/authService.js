@@ -10,7 +10,7 @@ export async function login(userData) {
         },
 
         body: JSON.stringify({
-            email: userData.userEmail,
+            user_email: userData.userEmail,
             password: userData.userPassword,
         }),
     });

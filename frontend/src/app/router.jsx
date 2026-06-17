@@ -3,8 +3,9 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout, ProtectedRoute } from "@/shared";
 import { Login } from "@/features/auth";
 import { CreateUserPage, ListUserPage, UpdateUserPage } from "@/features/users";
-
 import { HomePage, ListPage, SettingsPage } from "@/features/home";
+import { AccessPage } from "@/features/access";
+
 
 // 👇 Importamos las 4 páginas de los formularios
 import { CreateLoansPage, ListLoansPage, UpdateLoansPage, ViewLoanPage } from "@/features/loans";
@@ -69,7 +70,9 @@ const router = createBrowserRouter([
       { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
       { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
 
-
+      {path: "/dashboard/access",
+         element: <AccessPage />,
+      },
     ],
   },
 ]);

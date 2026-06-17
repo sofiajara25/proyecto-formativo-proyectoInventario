@@ -13,7 +13,8 @@ import authRoutes from "./features/auth/auth.routes.js";
 import consumibleMaterialRoutes from "./features/consumable-material/consumableMaterial.routes.js";
 import returnableMaterialRoutes from "./features/returnable-material/returnableMaterial.routes.js";
 import brandRoutes from "./features/brands/brand.routes.js";
-import loanRoutes from "./features/loans/loan.routes.js"
+import loanRoutes from "./features/loans/loan.routes.js";
+import returnsRoutes from "./features/returns/returns.routes.js"
 
 
 // Creamos la instancia principal de la aplicación Express
@@ -40,6 +41,7 @@ app.use("/api/consumableMaterial", consumibleMaterialRoutes);
 app.use("/api/returnableMaterial", returnableMaterialRoutes);
 app.use("/api/brand", brandRoutes);
 app.use("/api/loan", loanRoutes);
+app.use("/api/returns", returnsRoutes);
 
 // Exportamos la aplicación configurada
 // El arranque del servidor se hace en server.js

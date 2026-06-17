@@ -3,16 +3,15 @@
 import { pool } from "../../config/db.js";
 
 export const accessRepository = {
-    async isSuperUser(userId) {
+    async getUserType(userId) {
         const query = `
-        SELECT user_status
-        FROM users
-        WHERE id = $1;
+            SELECT user_type
+            FROM users
+            WHERE id = $1
+            LIMIT 1;
         `;
-
         const result = await pool.query(query, [userId]);
-
-        return result.rows[0]?.user_status ?? false;
+        return result.rows[0]?.user_type ?? null;
     },
 
     async getUserPermissions(userId) {

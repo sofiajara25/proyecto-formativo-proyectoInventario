@@ -1,1 +1,0 @@
-export {default as CreateBrandsPage} from "./pages/CreateBrandsPage";
