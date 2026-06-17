@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { Check, X,  } from "lucide-react";
+import { Check, X, } from "lucide-react";
 
 // Componente reutilizable para representar un switch de estado (activo/inactivo)
 export default function Switch({
@@ -37,7 +37,7 @@ export default function Switch({
         // enviando el nuevo valor al componente padre
         if (onChange) {
             onChange(newValue);
-        } 
+        }
     };
 
     //clase de tamaño del contenedor del switch
@@ -60,21 +60,17 @@ export default function Switch({
         <button
             onClick={handleToggle}  //Evento que cambia el estado
             disabled={disabled}     // Permite deshabilitar el botón
+            // Posicionamiento base del switch
+            // Forma rendondeada del contenedor
+            // Tamaño dinámico según la prop "size"
+            //  Color dependiendo del estado 
+            // 
             className={`
-                
-                //Posicionamiento base del switch
                 relative items-center
-
-                // Forma rendondeada del contenedor
                 rounded-full transition-colors
-
-                //Tamaño dinámico según la prop "size"
                 ${sizes[size]}
-
-                // Color dependiendo del estado 
                 ${isActive ? "bg-green-500" : "bg-gray-300"}
 
-                // Estilo cuando está deshabilitado
                 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
 
                 ${className}
@@ -99,7 +95,7 @@ export default function Switch({
 
                     // Posición dependiendo del estado
                     ${isActive ? "translate-x-full" : "translate-x-0"}
-                `} 
+                `}
             >
                 {/* 
                     Icono que cambia dependiendo del estado
@@ -107,9 +103,9 @@ export default function Switch({
                     inactivo
                 */}
                 {isActive ? (
-                    <Check size={12} className="text-green-600"/>
+                    <Check size={12} className="text-green-600" />
                 ) : (
-                    <X size={12} className="text-gray-500"/>
+                    <X size={12} className="text-gray-500" />
                 )}
             </span>
         </button>

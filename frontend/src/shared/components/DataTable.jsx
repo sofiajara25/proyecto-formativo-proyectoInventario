@@ -7,13 +7,13 @@ import {
     getFilteredRowModel     // Modelo de filas filtradas
 } from "@tanstack/react-table"
 
-
 // Hook de React para manejar estado
 import { useState } from "react"
 
 
 // Botón reutilizable del sistema de componentes
-import { Button } from "@/shared"
+import { Button, SearchField } from "@/shared"
+import Input from "./Input"
 
 
 // Componente reutilizable de tabla
@@ -90,7 +90,7 @@ export default function DataTable({ data, columns }) {
 
                 {/* ================== BUSCADOR ================== */}
                 {/* Filtra todas las columnas de la tabla */}
-                <input
+                <SearchField
                     type="text"
                     placeholder="Buscar..."
                     value={globalFilter ?? ""}

@@ -69,7 +69,7 @@ export default function BrandRegisterForm() {
     <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))", fontFamily: "var(--main-font)" }}>
       <Navbar />
       <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
-        <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", marginLeft: "680px" }}>
+        <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", marginLeft: "450px" }}>
           Crear Marca
         </h1>
         <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-sm mx-auto shadow justify-center items-center" style={{ padding: "32px 36px" }}>

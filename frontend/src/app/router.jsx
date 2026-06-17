@@ -2,7 +2,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout, ProtectedRoute } from "@/shared";
 import { Login } from "@/features/auth";
-import { CreateUserPage, ListUserPage, UpdateUserPage } from "@/features/users";
+import { CreateUserPage, ListUserPage, UpdateUserPage, ViewUserPage } from "@/features/users";
 import { HomePage, ListPage, SettingsPage } from "@/features/home";
 import { AccessPage } from "@/features/access";
 
@@ -66,6 +66,7 @@ const router = createBrowserRouter([
 
       // Rutas de Ver
       { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },
+      { path: "/dashboard/users/:id/view", element: <ViewUserPage /> },
       { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
       { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
       { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },

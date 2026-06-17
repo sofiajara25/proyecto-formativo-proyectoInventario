@@ -38,6 +38,7 @@ export default function Button({
   return (
 
     <button
+      type={type}
       className={`
             relative
             inline-flex items-center justify-center
@@ -45,7 +46,6 @@ export default function Button({
             transition-colors
             ${variants[variant]}
             ${sizes[size]}
-            ${type}
             `}
       {...props}
     >

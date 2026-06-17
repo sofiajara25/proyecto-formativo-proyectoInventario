@@ -105,13 +105,12 @@ export default function MaterialRegisterForm() {
 
             <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
                 {/* Título */}
-                <h1
+                <h1  className="lg:pl-[60px]"
                     style={{
                         color: "var(--color-white)",
                         fontSize: "var(--fs-md)",
                         fontWeight: "var(--font-weight-bold)",
                         margin: 0,
-                        marginLeft: "400px"
                     }}
                 >
                     Actualizar Material de Consumo

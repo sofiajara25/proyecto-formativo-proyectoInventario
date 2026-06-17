@@ -1,47 +1,16 @@
 import { z } from "zod";
 
-// 📦 Schema para Material Devolutivo
-export const devolutivoSchema = z.object({
-  loanId: z
+export const returnSchema = z.object({
+  materialType: z.enum(["devolutivo", "consumible"]), // 👈 acepta ambos
+  loanId: z.string().min(1, "El ID del préstamo es obligatorio"),
+  returnDate: z.string().min(1, "La fecha de devolución es obligatoria"),
+  returnDescription: z
     .string()
-    .min(1, "Debe ingresar el ID del préstamo"),
-
-  returnDate: z
-    .string()
-    .min(1, "La fecha de devolución es requerida"),
-
-  description: z
-    .string()
-    .min(5, "La descripción debe tener mínimo 5 caracteres")
-    .max(200, "La descripción es demasiado larga"),
-
-  status: z
-    .string()
-    .min(1, "Debe seleccionar un estado del material"),
-});
-
-// 📦 Schema para Material Consumible
-export const consumibleSchema = z.object({
-  loanId: z
-    .string()
-    .min(1, "Debe ingresar el ID del préstamo"),
-
-  returnDate: z
-    .string()
-    .min(1, "La fecha de devolución es requerida"),
-
-  observations: z
-    .string()
-    .min(5, "Las observaciones deben tener mínimo 5 caracteres")
-    .max(200, "Las observaciones son demasiado largas"),
-
-  quantity: z
-    .number({
-      invalid_type_error: "La cantidad devuelta debe ser un número",
-    })
-    .min(1, "Debe ingresar al menos 1 unidad"),
-
-  status: z
-    .string()
-    .min(1, "Debe seleccionar un estado del material"),
+    .min(3, "La descripción debe tener al menos 3 caracteres"),
+  returnQuantity: z
+    .number()
+    .min(0, "La cantidad devuelta no puede ser negativa"), // 👈 siempre presente
+  isAvailable: z.boolean(),
+  isMaintenance: z.boolean(),
+  isLow: z.boolean(),
 });

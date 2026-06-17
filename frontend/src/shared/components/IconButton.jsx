@@ -65,11 +65,11 @@ export const IconButton = React.forwardRef(function IconButton(
             {...props}
         >
             <span
-                styles={{
+                style={{
                     width:`${iconSize}px`,
                     height: `${iconSize}px`
                 }}
-                className="Flex items-center justify-center"
+                className="flex items-center justify-center"
             >
                 {children}
             </span>

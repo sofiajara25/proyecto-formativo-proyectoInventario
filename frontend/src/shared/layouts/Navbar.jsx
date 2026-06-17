@@ -58,11 +58,6 @@ export default function Navbar() {
                                         Ajustes
                                     </Link>
                                 </DropdownItem>
-                                    <DropdownItem>
-                                    <Link to="/dashboard/access" className="block w-full">
-                                        Gestion de permisos
-                                    </Link>
-                                </DropdownItem>
                             </DropdownContent>
                         </Dropdown>
 

@@ -13,7 +13,7 @@ export default function Input({
                 <label
                     className={`
                         block
-                        text-[8px]
+                        text-[10px]
                         mb-1
                         place-self-start
                         ${error ? "text-red-800" : "text-text-primary"}

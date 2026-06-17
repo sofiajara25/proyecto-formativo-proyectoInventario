@@ -13,7 +13,7 @@ export const settings = [
         title: "Grupos de usuarios",
         logo: Users2,
         category: "perifericos",
-        path: "/dashboard/list-retorno",
+        path: "/dashboard/access",
     },
     {
         id: 3,

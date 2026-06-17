@@ -125,13 +125,12 @@ export default function ReturnableMaterialRegisterForm() {
       <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
         {/* Título */}
         <h1
-          className="lg:ml-40"
+          className="lg:pl-[70px]"
           style={{
             color: "var(--color-white)",
             fontSize: "var(--fs-md)",
             fontWeight: "var(--font-weight-bold)",
             margin: 0,
-            marginLeft: "410px",
           }}
         >
           Actualizar Material Devolutivo

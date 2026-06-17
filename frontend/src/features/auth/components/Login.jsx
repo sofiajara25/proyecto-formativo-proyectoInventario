@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoSena from "@/assets/images/LogoSena.png";
+import logoSena from "@/assets/images/logoSena.png";
 import { login } from "../services/authService";
 import { loginSchema } from "../schemas/loginSchema"
 import {
@@ -119,12 +119,12 @@ export default function Login() {
                             error={errors.userPassword}
                         />
                         {/* Olvidaste contraseña */}
-                        <p
+                        <a
                             onClick={() => navigate("/auth/recovery")}
                             className="text-right text-xs text-green-700 cursor-pointer underline"
                         >
                             ¿Olvidaste tu contraseña?
-                        </p>
+                        </a>
 
                         {/* Actions */}
                         <div className="flex items-center justify-center gap-12">

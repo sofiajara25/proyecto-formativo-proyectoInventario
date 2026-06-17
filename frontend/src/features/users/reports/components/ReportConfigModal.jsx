@@ -30,6 +30,9 @@ export default function ReportConfigModal({ isOpen, onClose }) {
 
     return (
         <div
+            role='dialog'
+            aria-modal='true'
+            aria-label='Configurar reporte'
             className="fixed inset-0 z-50 flex items-center justify-center"
             style={{ background: "rgba(0,0,0,0.5)" }}
             onClick={onClose}

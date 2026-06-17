@@ -7,13 +7,9 @@ export default function PermissionModule({ groupPermissions }) {
     );
 
   return (
-    <div className="space-y-6 
-                style={{
-                    background:
-                        linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))
-                }}">
+    <div className="space-y-6">
       {/* Material devolutivo */}
-      <section className="border rounded-lg p-6">
+      <section className="border rounded-lg p-6 bg-white">
         <h2 className="text-lg font-semibold mb-4">Material devolutivo</h2>
         <div className="flex flex-wrap gap-6">
           <Checkbox
@@ -62,7 +58,7 @@ export default function PermissionModule({ groupPermissions }) {
       </section>
 
       {/* Material de consumo */}
-      <section className="border rounded-lg p-6">
+      <section className="border rounded-lg p-6 bg-white">
         <h2 className="text-lg font-semibold mb-4">Material de consumo</h2>
         <div className="flex flex-wrap gap-6">
           <Checkbox
@@ -111,7 +107,7 @@ export default function PermissionModule({ groupPermissions }) {
       </section>
 
       {/* Préstamos */}
-      <section className="border rounded-lg p-6">
+      <section className="border rounded-lg p-6 bg-white">
         <h2 className="text-lg font-semibold mb-4">Préstamos</h2>
         <div className="flex flex-wrap gap-6">
           <Checkbox
@@ -160,7 +156,7 @@ export default function PermissionModule({ groupPermissions }) {
       </section>
 
       {/* Retornos */}
-      <section className="border rounded-lg p-6">
+      <section className="border rounded-lg p-6 bg-white">
         <h2 className="text-lg font-semibold mb-4">Retornos</h2>
         <div className="flex flex-wrap gap-6">
           <Checkbox
@@ -198,11 +194,18 @@ export default function PermissionModule({ groupPermissions }) {
             checked={hasPermission("modify_return")}
             onChange={() => {}}
           />
+          <Checkbox
+            id="state_return"
+            name="state_return"
+            label="Habilitar/Deshabilitar retornos"
+            checked={hasPermission("state_return")}
+            onChange={() => {}}
+          />
         </div>
       </section>
 
       {/* Marca */}
-      <section className="border rounded-lg p-6">
+      <section className="border rounded-lg p-6 bg-white">
         <h2 className="text-lg font-semibold mb-4">Marca</h2>
         <div className="flex flex-wrap gap-6">
           <Checkbox

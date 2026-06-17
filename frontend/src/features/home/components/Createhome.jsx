@@ -61,9 +61,13 @@ export default function ListasrMainPage() {
                   transition: "border-color 0.2s, transform 0.15s",
                   fontFamily: "var(--main-font)",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-secundary-950)";
-                  e.currentTarget.style.transform = "scale(1.02)";
+                className='
+                border-[2.5px] border-transparent
+                hover:border-yellow-400
+                hover:scale-[1.02]
+                transition-all duration-150
+                '
+
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "transparent";

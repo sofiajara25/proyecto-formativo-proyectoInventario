@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:4000/api/access";
+const API_URL = "http://localhost:5000/api/access";
 
 export async function hasPermission(permissionCode) {
     const token = sessionStorage.getItem("token");

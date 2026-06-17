@@ -24,7 +24,7 @@ export default function HomePage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 2000);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 

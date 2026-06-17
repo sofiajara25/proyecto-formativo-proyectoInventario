@@ -69,8 +69,8 @@
     --semantic-image-thumbnail-size: 150px;
 
     /* ================= FORMS ================= */
-    --semantic-form-field-height: 56dp;
-    --semantic-form-field-padding-x: 16dp;
+    --semantic-form-field-height: 56px;
+    --semantic-form-field-padding-x: 16px;
     --semantic-form-field-padding-y: 8dp;
     --semantic-form-field-icon-size: 24dp;
     --semantic-form-field-icon-gap: 16dp;

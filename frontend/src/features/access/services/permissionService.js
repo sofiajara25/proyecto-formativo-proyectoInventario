@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:4000/api/groups";
+const API_URL = "http://localhost:5000/api/groups";
 
 export async function getGroupsPermissions(group_id) {
     const response = await fetch(`${API_URL}/${group_id}/permissions`);
