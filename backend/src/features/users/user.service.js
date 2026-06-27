@@ -21,6 +21,34 @@ export const userService = {
     };
 
     return await userRepository.create(userData);
+  },
+
+  async getAllUsers() {
+    return await userRepository.findAll();
+  },
+
+  async getUserById(id) {
+    return await userRepository.findById(id);
+  },
+
+  async updateUser(id, userData) {
+    const dataToUpdate = { ...userData };
+
+    if (dataToUpdate.userPassword) {
+      dataToUpdate.userPassword = await bcrypt.hash(dataToUpdate.userPassword, 10);
+    } else {
+      delete dataToUpdate.userPassword;
+    }
+
+    return await userRepository.update(id, dataToUpdate);
+  },
+
+  async getUsers() {
+    return await userRepository.findAll();
   }
+
 };
+
+
+
 

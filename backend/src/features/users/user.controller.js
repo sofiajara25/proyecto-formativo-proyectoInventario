@@ -24,7 +24,13 @@ export const userController = {
     try {
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-      const user = await userService.createUser(req.body);
+      // ruta del archivo subido
+      const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+      // pasamos todos los datos al service
+      const user = await userService.createUser({
+        ...req.body,
+        userPhoto: photoPath,
+      });
 
 
       // Respuesta HTTP en caso de éxito
@@ -55,4 +61,57 @@ export const userController = {
       });
     }
   },
+
+  async list(req, res) {
+    try {
+      const users = await userService.getAllUsers();
+      res.status(200).json(users);
+    } catch (err) {
+      console.error("ERROR BACKEND:", err);
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async getById(req, res) {
+    try {
+      const user = await userService.getUserById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+      res.status(200).json(user);
+    } catch (err) {
+      console.error("ERROR BACKEND:", err);
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+
+      // ruta de la nueva foto si se subió
+      const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+
+      const updatedUser = await userService.updateUser(id, {
+        ...req.body,
+        userPhoto: photoPath,
+      });
+
+      res.status(200).json(updatedUser);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async getAll(req, res) {
+    try {
+      const users = await userService.getUsers();
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+
 };
+
+

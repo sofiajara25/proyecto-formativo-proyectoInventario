@@ -42,6 +42,25 @@ export async function createLoan(loanData) {
 
     // Si la petición fue exitosa, retornamos la respuesta parseada como JSON
     return response.json();
+};
+
+export async function getLoans() {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener prestamo");
+    return response.json();
 }
+
+export async function getLoanById(id) {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener préstamo");
+    return response.json();
+}
+
 
 

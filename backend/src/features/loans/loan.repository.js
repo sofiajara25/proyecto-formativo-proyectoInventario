@@ -65,4 +65,14 @@ export const loanRepository = {
         // En este caso contiene el id del usuario recién creado
         return result.rows[0];
     },
+
+    async findAll() {
+        const result = await pool.query("SELECT * FROM loans");
+        return result.rows;
+    },
+
+    async findById(id) {
+        const result = await pool.query("SELECT * FROM loans WHERE id = $1", [id]);
+        return result.rows[0]; // debe incluir user_photo
+    },
 };

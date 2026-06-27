@@ -2,12 +2,17 @@ import { useState, useEffect } from "react";
 import { Input, Button, Select, Navbar, FileInput } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
-import { useNavigate } from "react-router-dom";
-import { createUser } from "../services/userService.js"
+import { useNavigate, useParams } from "react-router-dom";
+import { getUserById, updateUser } from "../services/userService";
+import { z } from "zod";
+
+const updateUserSchema = userSchema.extend({
+    userPassword: z.union([userSchema.shape.userPassword, z.literal("")]),
+});
 
 export default function UserUpdateForm() {
     const navigate = useNavigate();
-
+    const { id } = useParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
@@ -36,91 +41,78 @@ export default function UserUpdateForm() {
         { value: "inactivo", label: "Inactivo" },
     ];
 
+    // Cargar datos actuales
+    useEffect(() => {
+        getUserById(id).then((data) => {
+            setFormData({
+                userName: data.user_name || "",
+                userDocumentType: data.document_type || "",
+                userDocumentNumber: data.document_number || "",
+                userType: data.user_type || "",
+                userStartDate: data.start_date?.slice(0, 10) || "",
+                userEndDate: data.end_date?.slice(0, 10) || "",
+                userEmail: data.user_email || "",
+                userAddress: data.user_address || "",
+                userPhone: data.user_phone || "",
+                userStatus: data.user_status || "",
+                userPassword: "",
+                userPhoto: [],
+            });
+        });
+    }, [id]);
     useEffect(() => {
         getDocumentType().then(setDocumentType);
     }, []);
+
 
     //=========================
     //      Handle Genérico
     //* Función que se ejecuta cada vez que cambia el valor de un input del formulario
     //==========================
 
+    // Manejar cambios
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        const { name, value, files } = e.target;
+        if (files) {
+            setFormData({ ...formData, userPhoto: Array.from(files) });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
-
     //============== HANDLE SUBMIT ==============
     const handleSubmit = async (e) => {
-        // Evita que el formulario recargue la página
         e.preventDefault();
 
-        // Validamos los datos del formulario contra el esquema Zod
-        // safeParse NO lanza excepción, retorna un objeto controlado
-        const result = userSchema.safeParse(formData);
-
-        // Verificar en consola si el esquema está funcionando 
+        // Validamos los datos contra el esquema Zod
+        const result = updateUserSchema.safeParse(formData);
         console.log(result);
 
-        // Si la validación falla
         if (!result.success) {
-            // Objeto donde almacenaremos los errores por campo
             const fieldErrors = {};
-
-            // Recorremos cada error generado por Zod
             result.error.issues.forEach((issue) => {
-                // issue.path[0] corresponde al nombre del campo
-                // issue.message contiene el mensaje de error definido en el schema
                 fieldErrors[issue.path[0]] = issue.message;
             });
-
-            // Actualizamos el estado de errores para mostrarlos en la UI
             setErrors(fieldErrors);
-
-            // Cortamos la ejecución: NO se envía nada al backend
-
             return;
         }
 
-        // Si la validación pasa, limpiamos errores previos
         setErrors({});
-
-        // Activamos estado de envío (útil para deshabilitar el botón)
         setIsSubmitting(true);
 
         try {
-            // Llamamos al servicio frontend que consume la API
-            // result.data contiene los datos ya validados por Zod
-            const payload = {
-                ...result.data,
-                userPhoto: result.data.userPhoto?.[0]?.name ?? null,
-            };
-            const response = await createUser(payload);
+            // Llamamos al servicio de actualización
+            const response = await updateUser(id, result.data);
 
-            // Log informativo para desarrollo
-            console.log("Usuario creado:", response);
+            console.log("Usuario actualizado:", response);
+            alert("Usuario actualizado correctamente");
 
-            // Feedback básico al usuario
-            alert("Usuario creado correctamente");
-
-            // Navegamos a la vista anterior
-            // navigate(-1) equivale a "volver atrás"
-            navigate(-1);
         } catch (error) {
-            // Capturamos errores de red o errores lanzados por el service
             console.error("Error:", error.message);
-
-            // Mostramos el mensaje de error al usuario
             alert(error.message);
         } finally {
-            // Pase lo que pase, desactivamos el estado de envío
             setIsSubmitting(false);
         }
     };
-
     // =======================================================
 
     let label;

@@ -1,55 +1,59 @@
 /**
  * Componente Botón
  *
- * Botón reutilizable con variantes visuales y tamaños controlados, área intectiva mínima de 48px
+ * Botón reutilizable con variantes visuales y tamaños controlados, área interactiva mínima de 48px
  */
 
 export default function Button({
-  variant = "primary", //Define el estilo visual
-  size = "md", //Define tamaño visual
-  type = "button", //Tipos de botón (button, submit, reset)
-  children, //Contenido interno del botón(texto, ícono)
-  ...props //Propiedades adicionales(onClick, disable, etc)
+  variant = "primary", // Define el estilo visual: "primary" (verde) | "secondary" (morado)
+  size = "md",         // Define tamaño visual: "sm" | "md"
+  type = "button",     // Tipos de botón (button, submit, reset)
+  children,            // Contenido interno del botón (texto, ícono)
+  ...props             // Propiedades adicionales (onClick, disabled, etc)
 }) {
   const variants = {
+    // Verde — color primario del proyecto
     primary: `
-    bg-brand text-white
-    hover:bg-brand-hover
-    font-semibold
-    rounded-lg
-    transition-colors`,
-    secondary:
-      "bg-background border border-border text-text-primary hover:bg-surface-muted hover:text-text-inverse",
+      text-body
+      text-white font-body rounded-lg
+      transition-colors duration-150   bg-button-primary-bg hover:bg-button-primary-hover
+    `,
+    // Morado — color terciario del proyecto
+    secondary: `
+      text-body
+      text-white font-label rounded-lg
+      transition-colors duration-150 bg-button-secondary-bg hover:bg-button-secondary-hover
+    `,
   };
+
 
   const sizes = {
     sm: `
-        h-9 px-3
-        before:absolute before:content['']
-        before:-inset-y-[6px]  before:-inset-x-[0px]
+      h-9 px-4
+      before:absolute before:content-['']
+      before:-inset-y-[6px] before:inset-x-0
     `,
     md: `
-        h-10 px-4
-        before:absolute before:content['']
-        before:-inset-y-[5px]  before:-inset-x-[0px]
-    `
-  }
+      h-10 px-4
+      before:absolute before:content-['']
+      before:-inset-y-[5px] before:inset-x-0
+    `,
+  };
 
   return (
-
     <button
       type={type}
       className={`
-            relative
-            inline-flex items-center justify-center
-            rounded-md
-            transition-colors
-            ${variants[variant]}
-            ${sizes[size]}
-            `}
+        relative
+        inline-flex items-center justify-center
+        rounded-lg
+        transition-colors duration-150
+        ${variants[variant]}
+        ${sizes[size]}
+      `}
       {...props}
     >
       {children}
     </button>
-  )
+  );
 }

@@ -25,6 +25,32 @@ router.post(
     upload.array("userPhoto"),
     userController.create);
 
+// Obtener todos los usuarios
+router.get(
+    "/",
+    authenticateToken,
+    userController.list
+);
+
+// Obtener un usuario por ID
+router.get(
+    "/:id",
+    authenticateToken,
+    userController.getById
+);
+
+router.get(
+    "/:id",
+    authenticateToken,
+    userController.getById
+);
+
+router.put(
+    "/:id",
+    authenticateToken,
+    upload.single("userPhoto"),
+    userController.update);
+
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

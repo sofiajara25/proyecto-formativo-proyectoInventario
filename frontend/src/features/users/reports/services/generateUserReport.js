@@ -1,14 +1,17 @@
-import { users } from "../../data/users";
+import { getUsers } from "../../services/userService";
 import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-export function generateUserReport({
+export async function generateUserReport({
     format,
     selectedFields,
     scope,
     documentNumber
 }) {
+    const users = await getUsers();
+
+    // Construir dataset con los campos seleccionados
     const { headers, rows } = buildReportDataset({
         users,
         selectedFields,

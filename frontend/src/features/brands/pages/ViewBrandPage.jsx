@@ -1,15 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar } from "@/shared";
-import { Tag } from "lucide-react"; // ícono para marcas
-import { brands } from "../data/brands";
+import { Navbar, Button } from "@/shared";
+import { Tag } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getBrandById } from "../service/brandService";
 
 export default function ViewBrandPage() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const [brand, setBrand] = useState(null);
 
-    const brand = brands.find((b) => b.id === Number(id));
+    useEffect(() => {
+        getBrandById(id)
+            .then(setBrand)
+            .catch((err) => console.error("Error cargando marca:", err));
+    }, [id]);
 
-    if (!brand)
+    if (!brand) {
         return (
             <div
                 className="min-h-screen flex items-center justify-center"
@@ -18,16 +24,12 @@ export default function ViewBrandPage() {
                         "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
                 }}
             >
-                <p
-                    style={{
-                        color: "var(--color-white)",
-                        fontSize: "var(--fs-sm)",
-                    }}
-                >
+                <p style={{ color: "var(--color-white)", fontSize: "var(--fs-sm)" }}>
                     Marca no encontrada.
                 </p>
             </div>
         );
+    }
 
     return (
         <div
@@ -37,22 +39,13 @@ export default function ViewBrandPage() {
                     "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
                 fontFamily: "var(--main-font)",
             }}
-            onClick={() => navigate("/dashboard/list-marca")}
         >
             <Navbar />
 
-            <div
-                className="flex flex-1 items-center justify-center px-10 py-8"
-                onClick={() => navigate("/dashboard/list-marca")}
-            >
+            <div className="flex flex-1 items-center justify-center px-10 py-8">
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6"
-                    style={{
-                        padding: "36px 40px",
-                        width: "100%",
-                        maxWidth: "680px",
-                    }}
-                    onClick={(e) => e.stopPropagation()}
+                    style={{ padding: "36px 40px", width: "100%", maxWidth: "680px" }}
                 >
                     {/* Header */}
                     <div className="flex items-center gap-6">
@@ -77,7 +70,7 @@ export default function ViewBrandPage() {
                                     margin: 0,
                                 }}
                             >
-                                {brand.name}
+                                {brand.marca}
                             </p>
                         </div>
                     </div>
@@ -107,7 +100,7 @@ export default function ViewBrandPage() {
                                     margin: 0,
                                 }}
                             >
-                                {brand.name}
+                                {brand.marca}
                             </p>
                         </div>
                     </div>
@@ -117,26 +110,14 @@ export default function ViewBrandPage() {
 
                     {/* Acciones */}
                     <div className="flex justify-end">
-                        <button
+                        <Button
                             onClick={() => navigate(`/dashboard/brands/${brand.id}/edit`)}
-                            className="rounded-full px-6 py-2 cursor-pointer transition-all"
-                            style={{
-                                background: "var(--color-primary-950)",
-                                color: "var(--color-white)",
-                                fontSize: "var(--fs-xxs)",
-                                fontWeight: "var(--font-weight-bold)",
-                                border: "none",
-                                fontFamily: "var(--main-font)",
-                            }}
-                            onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = "var(--color-primary-700)")
-                            }
-                            onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = "var(--color-primary-950)")
-                            }
+                            type="button"
+                            variant="primary"
+                            size="md"
                         >
                             Editar
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
-const API_URL = "http://localhost:5000/api/brand";
+const API_URL = "http://localhost:5000/api/brands";
 
 
 // Función para crear un usuario en el backend
@@ -42,6 +42,38 @@ export async function createBrand(brandData) {
 
     // Si la petición fue exitosa, retornamos la respuesta parseada como JSON
     return response.json();
+};
+
+// Obtener todas las marcas (para la lista)
+export async function getBrands() {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error("Error al obtener marcas");
+    return response.json();
+};
+
+export async function getBrandById(id) {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`http://localhost:5000/api/brands/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener marca");
+    return response.json();
+};
+
+export async function updateBrand(id, brandData) {
+    const response = await fetch(`http://localhost:5000/api/brands/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(brandData),
+    });
+    if (!response.ok) throw new Error("Error al actualizar marca");
+    return response.json();
 }
+
+
 
 

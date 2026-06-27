@@ -48,20 +48,24 @@
     --text-caption: var(--semantic-font-size-caption);
 
     /* ========== FONT WEIGHT ============= */
-    --font-heading: var(--semantic-font-weight-heading);
-    --font-body: var(--semantic-font-weight-body);
-    --font-label: var(--semantic-font-weight-label);
+    --font-weight-heading: var(--semantic-font-weight-heading);
+    /* → font-weight-heading */
+    --font-weight-body: var(--semantic-font-weight-body);
+    /* → font-weight-body */
+    --font-weight-label: var(--semantic-font-weight-label);
 
     /* ========== BUTTONS ============= */
-    --button-primary-bg: var(--semantic-button-primary-bg);
+    --color-button-primary-bg: var(--semantic-button-primary-bg);
     --button-primary-text: var(--semantic-button-primary-text);
     --button-primary-padding: var(--semantic-button-primary-padding);
     --button-primary-gap: var(--semantic-button-primary-gap);
+    --color-button-primary-hover: var(--semantic-button-primary-hover);
 
-    --button-secondary-bg: var(--semantic-button-secondary-bg);
+    --color-button-secondary-bg: var(--semantic-button-secondary-bg);
     --button-secondary-text: var(--semantic-button-secondary-text);
     --button-secondary-padding: var(--semantic-button-secondary-padding);
     --button-secondary-gap: var(--semantic-button-secondary-gap);
+    --color-button-secondary-hover: var(--semantic-button-secondary-hover);
 
     /* ========== ICONS ============= */
     --icon-size: var(--semantic-icon-size);

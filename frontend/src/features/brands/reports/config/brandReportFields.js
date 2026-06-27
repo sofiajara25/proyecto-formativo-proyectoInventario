@@ -1,7 +1,7 @@
+// src/features/brands/reportFields/brandReportFields.js
 export const brandReportFields = [
     {
-        key: "name",
-        label: "Nombre",
-        default: true,
+        key: "marca",
+        label: "Nombre de la Marca"
     }
-]
+];

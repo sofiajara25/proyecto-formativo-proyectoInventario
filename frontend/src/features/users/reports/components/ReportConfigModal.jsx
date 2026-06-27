@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { userReportFields } from "../config/userReportFields";
+import { userReportFields } from "../config/UserReportFields";
 import { generateUserReport } from "../services/generateUserReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
 
@@ -8,6 +8,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
     const [format, setFormat] = useState("pdf");
     const [scope, setScope] = useState("all");
     const [documentNumber, setDocumentNumber] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
     const [selectedFields, setSelectedFields] = useState(
         () => userReportFields.filter((f) => f.default),
     );
@@ -23,9 +24,18 @@ export default function ReportConfigModal({ isOpen, onClose }) {
         }
     };
 
-    const handleGenerateReport = () => {
-        generateUserReport({ format, selectedFields, scope, documentNumber });
-        onClose();
+    const handleGenerateReport = async () => {
+        setIsGenerating(true);
+
+        try {
+            await generateUserReport({ format, selectedFields, scope, documentNumber });
+            onClose();
+        } catch (error) {
+            console.error("Error generando reporte:", error);
+            alert(error.message || "Error generando reporte");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -120,8 +130,9 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                         type="button"
                         variant="primary"
                         onClick={handleGenerateReport}
+                        disabled={isGenerating}
                     >
-                        Generar reporte
+                        {isGenerating ? "Generando..." : "Generar reporte"}
                     </Button>
                 </div>
 

@@ -21,7 +21,7 @@ export default function ListasrMainPage() {
     >
       <Navbar />
       <div className="flex-1 flex justify-center items-center px-6">
-        <div className="grid grid-cols-2 gap-8" style={{ width: "600px" }}>
+        <div className="grid grid-cols-2 gap-4 sm:gap-8" style={{ width: "600px" }}>
           {cards.map((card) => {
             const Icon = card.icon;
             return (

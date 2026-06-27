@@ -3,7 +3,6 @@
 // pero el repository NO debe conocer el service.
 import { brandRepository } from "./brand.repository.js";
 
-import bcrypt from "bcrypt";
 
 // Exportamos el servicio de usuarios.
 // El service representa la capa de lógica de negocio de la aplicación.
@@ -27,4 +26,17 @@ export const brandService = {
         // Delegamos al repository
         return await brandRepository.create(brandData);
     },
+
+    async getAllBrands() {
+        return await brandRepository.findAll();
+    },
+
+    async getBrandById(id) {
+        return await brandRepository.findById(id);
+    },
+
+    async updateBrand(id, data) {
+        return await brandRepository.update(id, data);
+    }
+
 };

@@ -1,14 +1,11 @@
-import { brands } from "../../data/brands";
+// import { brands } from "../../data/brands";
 import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { getBrands } from "../../service/brandService"
+export async function generateBrandReport({ format, selectedFields, scope, name }) {
+    const brands = await getBrands(); // traer desde backend
 
-export function generateBrandReport({
-    format,
-    selectedFields,
-    scope,
-    name
-}) {
     const { headers, rows } = buildReportDataset({
         brands,
         selectedFields,
@@ -27,7 +24,7 @@ export function generateBrandReport({
             rows,
             fileName: `brands-report-${new Date().toISOString().slice(0, 10)}.xlsx`
         });
-    } else if (format.toLowerCase() === "pdf") {
+    } else {
         generatePdfReport({
             headers,
             rows,

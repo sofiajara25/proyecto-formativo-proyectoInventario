@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input, Button, Navbar, FileInput } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
-import { useNavigate } from "react-router-dom";
-import { createConsumableMaterial } from "../services/consumableMaterialService";
+import { useNavigate, useParams } from "react-router-dom";
+import { getConsumableById, updateConsumable } from "../services/consumableMaterialService";
+
 
 export default function MaterialRegisterForm() {
     const navigate = useNavigate();
@@ -10,21 +11,43 @@ export default function MaterialRegisterForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
-        accountant: "",
-        toolId: "",
-        senaPlate: "",
+        materialAccountant: "",
+        materialToolId: "",
+        materialSenaPlate: "",
         materialName: "",
-        entryDate: "",
-        quantity: "",
-        location: "",
-        unitValue: "",
-        totalValue: "",
-        status: "",
-        description: "",
+        materialEntryDate: "",
+        materialQuantity: "",
+        materialLocation: "",
+        materialUnitValue: "",
+        materialTotalValue: "",
+        materialStatus: "",
+        materialDescription: "",
         photo: [],
     });
 
     const [errors, setErrors] = useState({});
+
+    const { id } = useParams();
+
+    useEffect(() => {
+        getConsumableById(id)
+            .then((data) => setFormData({
+                materialAccountant: data.accountant,
+                materialToolId: data.tool_id,
+                materialSenaPlate: data.sena_plate,
+                materialName: data.material_name,
+                materialEntryDate: data.entry_date?.slice(0, 10) || "",
+                materialQuantity: data.quantity,
+                materialLocation: data.location,
+                materialUnitValue: data.unit_value,
+                materialTotalValue: data.total_value,
+                materialStatus: data.status,
+                materialDescription: data.description,
+                photo: [],
+            }))
+            .catch((err) => console.error("Error cargando material:", err));
+    }, [id]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -37,8 +60,15 @@ export default function MaterialRegisterForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const parsedData = {
+            ...formData,
+            materialQuantity: Number(formData.materialQuantity),
+            materialUnitValue: Number(formData.materialUnitValue),
+            materialTotalValue: Number(formData.materialTotalValue),
+        };
+
         // Validación con Zod
-        const result = materialSchema.safeParse(formData);
+        const result = materialSchema.safeParse(parsedData);
 
         if (!result.success) {
             const fieldErrors = {};
@@ -55,33 +85,19 @@ export default function MaterialRegisterForm() {
         setIsSubmitting(true);
 
         try {
-            // Llamamos al servicio frontend que consume la API
-            // result.data contiene los datos ya validados por Zod
             const payload = {
                 ...result.data,
                 photo: result.data.photo?.[0]?.name ?? null,
             };
-            const response = await createConsumableMaterial(payload);
-
-            // Log informativo para desarrollo
-            console.log("Material actualizando:", response);
-
-            // Feedback básico al usuario
-            alert("Material actualizo correctamente");
-
-            // Navegamos a la vista anterior
-            // navigate(-1) equivale a "volver atrás"
-            navigate(-1);
+            await updateConsumable(id, payload);   // 👈 aquí usas update
+            alert("Material actualizado correctamente")
         } catch (error) {
-            // Capturamos errores de red o errores lanzados por el service
             console.error("Error:", error.message);
-
-            // Mostramos el mensaje de error al usuario
             alert(error.message);
         } finally {
-            // Pase lo que pase, desactivamos el estado de envío
             setIsSubmitting(false);
         }
+
     };
 
     let label;
@@ -105,7 +121,7 @@ export default function MaterialRegisterForm() {
 
             <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
                 {/* Título */}
-                <h1  className="lg:pl-[60px]"
+                <h1 className="lg:pl-[60px]"
                     style={{
                         color: "var(--color-white)",
                         fontSize: "var(--fs-md)",
@@ -138,26 +154,26 @@ export default function MaterialRegisterForm() {
                         <div className="grid grid-cols-3 gap-6 mx-auto">
                             <Input
                                 label="Cuentadante"
-                                name="accountant"
-                                value={formData.accountant}
+                                name="materialAccountant"
+                                value={formData.materialAccountant}
                                 onChange={handleChange}
-                                error={errors.accountant}
+                                error={errors.materialAccountant}
                             />
 
                             <Input
                                 label="ID de herramienta"
-                                name="toolId"
-                                value={formData.toolId}
+                                name="materialToolId"
+                                value={formData.materialToolId}
                                 onChange={handleChange}
-                                error={errors.toolId}
+                                error={errors.materialToolId}
                             />
 
                             <Input
                                 label="Placa SENA"
-                                name="senaPlate"
-                                value={formData.senaPlate}
+                                name="materialSenaPlate"
+                                value={formData.materialSenaPlate}
                                 onChange={handleChange}
-                                error={errors.senaPlate}
+                                error={errors.materialSenaPlate}
                             />
 
                             <Input
@@ -171,61 +187,61 @@ export default function MaterialRegisterForm() {
                             <Input
                                 label="Fecha de ingreso"
                                 type="date"
-                                name="entryDate"
-                                value={formData.entryDate}
+                                name="materialEntryDate"
+                                value={formData.materialEntryDate}
                                 onChange={handleChange}
-                                error={errors.entryDate}
+                                error={errors.materialEntryDate}
                             />
 
                             <Input
                                 label="Cantidad"
                                 type="number"
-                                name="quantity"
-                                value={formData.quantity}
+                                name="materialQuantity"
+                                value={formData.materialQuantity}
                                 onChange={handleChange}
-                                error={errors.quantity}
+                                error={errors.materialQuantity}
                             />
 
                             <Input
                                 label="Ubicación"
-                                name="location"
-                                value={formData.location}
+                                name="materialLocation"
+                                value={formData.materialLocation}
                                 onChange={handleChange}
-                                error={errors.location}
+                                error={errors.materialLocation}
                             />
 
                             <Input
                                 label="Valor unitario"
                                 type="number"
-                                name="unitValue"
-                                value={formData.unitValue}
+                                name="materialUnitValue"
+                                value={formData.materialUnitValue}
                                 onChange={handleChange}
-                                error={errors.unitValue}
+                                error={errors.materialUnitValue}
                             />
 
                             <Input
                                 label="Valor total"
                                 type="number"
-                                name="totalValue"
-                                value={formData.totalValue}
+                                name="materialTotalValue"
+                                value={formData.materialTotalValue}
                                 onChange={handleChange}
-                                error={errors.totalValue}
+                                error={errors.materialTotalValue}
                             />
 
                             <Input
                                 label="Estado"
-                                name="status"
-                                value={formData.status}
+                                name="materialStatus"
+                                value={formData.materialStatus}
                                 onChange={handleChange}
-                                error={errors.status}
+                                error={errors.materialStatus}
                             />
 
                             <Input
                                 label="Descripción"
-                                name="description"
-                                value={formData.description}
+                                name="materialDescription"
+                                value={formData.materialDescription}
                                 onChange={handleChange}
-                                error={errors.description}
+                                error={errors.materialDescription}
                             />
 
                             {/* Contenedor del input */}

@@ -1,6 +1,7 @@
 // Importamos Express, el framework base para construir el servidor HTTP
 import express from "express";
 
+import path from "path";
 
 // Importamos el middleware CORS
 // Permite controlar qué orígenes pueden comunicarse con el backend
@@ -40,11 +41,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/consumableMaterial", consumibleMaterialRoutes);
 app.use("/api/returnableMaterial", returnableMaterialRoutes);
-app.use("/api/brand", brandRoutes);
+app.use("/api/brands", brandRoutes);
 app.use("/api/loan", loanRoutes);
 app.use("/api/returns", returnsRoutes);
 app.use("/api/groups", groupsRoutes);
-
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // Exportamos la aplicación configurada
 // El arranque del servidor se hace en server.js
 export default app;

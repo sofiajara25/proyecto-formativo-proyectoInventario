@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DataTable from "@/shared/components/DataTable";
 import { loansColumns } from "../table/loansColumns";
-import { loans } from "../data/loans";
+// import { loans } from "../data/loans";
 import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { getLoans } from "../services/loanService";
 
 export default function ListLoansPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [loans, setLoans] = useState([]);
+
+    useEffect(() => {
+            getLoans()
+                .then((data) => {
+                    console.log("Prestamo desde backend:", data);
+                    setLoans(data);
+                })
+                .catch((err) => console.error("Error cargando prestamo:", err));
+        }, []);
 
     return (
         <div

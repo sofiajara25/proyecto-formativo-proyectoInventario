@@ -1,15 +1,18 @@
-import { consumables } from "../../data/consumables";
+import { getConsumables } from "../../services/consumableMaterialService"; // ahora usa datos reales del backend
 import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-export function generateConsumableReport({
+export async function generateConsumableReport({
     format,
     selectedFields,
     scope,
     senaPlate,
     filterStatus
 }) {
+    // Traer datos reales del backend
+    const consumables = await getConsumables();
+
     const { headers, rows } = buildReportDataset({
         consumables,
         selectedFields,
@@ -23,17 +26,19 @@ export function generateConsumableReport({
         return;
     }
 
+    const date = new Date().toISOString().slice(0, 10);
+
     if (format.toLowerCase() === "excel") {
         generateExcelReport({
             headers,
             rows,
-            fileName: `consumables-report-${new Date().toISOString().slice(0, 10)}.xlsx`
+            fileName: `consumables-report-${date}.xlsx`,
         });
-    } else if (format.toLowerCase() === "pdf") {
+    } else {
         generatePdfReport({
             headers,
             rows,
-            fileName: `consumables-report-${new Date().toISOString().slice(0, 10)}.pdf`
+            fileName: `consumables-report-${date}.pdf`,
         });
     }
 }

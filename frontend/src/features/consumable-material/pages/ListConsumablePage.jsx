@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DataTable from "@/shared/components/DataTable"
 import { consumablesColumns } from "../table/consumablesColumns"
-import { consumables } from "../data/consumables";
+// import { consumables } from "../data/consumables";
 import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { getConsumables } from "../services/consumableMaterialService";
 
 export default function ListConsumablePage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [consumables, setConsumables] = useState([]);
+
+    useEffect(() => {
+        getConsumables()
+            .then(setConsumables)
+            .catch((err) => console.error("Error cargando consumibles:", err));
+    }, []);
 
     return (
         <div

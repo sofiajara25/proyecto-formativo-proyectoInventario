@@ -28,4 +28,17 @@ export const consumableMaterialService = {
         // Delegamos al repository
         return await consumableMaterialRepository.create(materialData);
     },
+
+    async getAllConsumables() {
+        return await consumableMaterialRepository.findAll();
+    },
+
+    async getConsumableById(id) {
+        return await consumableMaterialRepository.findById(id);
+    },
+
+    async updateConsumable(id, data) {
+        return await consumableMaterialRepository.update(id, data);
+    }
+
 };

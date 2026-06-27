@@ -120,8 +120,8 @@ export default function Login() {
                         />
                         {/* Olvidaste contraseña */}
                         <a
-                            onClick={() => navigate("/auth/recovery")}
-                            className="text-right text-xs text-green-700 cursor-pointer underline"
+                            onClick={() => navigate("recovery")}
+                            className="text-right text-xs text-green-700 cursor-pointer underline place-self-center"
                         >
                             ¿Olvidaste tu contraseña?
                         </a>

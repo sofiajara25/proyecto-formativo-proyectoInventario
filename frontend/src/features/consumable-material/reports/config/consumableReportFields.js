@@ -1,22 +1,33 @@
 export const consumableReportFields = [
     {
-        key: "materialName",
-        label: "Material",
+        key: "accountant",
+        label: "Cuentadante",
         default: true,
     },
     {
-        key: "custodian",
-        label: "Custodio",
+        key: "tool_id",
+        label: "ID Herramienta",
         default: true,
     },
+    {
+        key: "sena_plate",
+        label: "Placa SENA",
+        default: true,
+    },
+    {
+        key: "material_name",
+        label: "Nombre del material",
+        default: true,
+    },
+    {
+        key: "entry_date",
+        label: "Fecha de ingreso",
+        default: true,
+    },
+    
     {
         key: "quantity",
         label: "Cantidad",
-        default: true,
-    },
-    {
-        key: "status",
-        label: "Estado",
         default: true,
     },
     {
@@ -24,9 +35,24 @@ export const consumableReportFields = [
         label: "Ubicación",
         default: true,
     },
+     {
+        key: "unit_value",
+        label: "Valor Unitario",
+        default: false,
+    },
     {
-        key: "totalValue",
+        key: "total_value",
         label: "Valor Total",
         default: false,
+    },
+    {
+        key: "status",
+        label: "Estado",
+        default: true,
+    },
+    {
+        key: "description",
+        label: "Descripción",
+        default: true,
     },
 ]

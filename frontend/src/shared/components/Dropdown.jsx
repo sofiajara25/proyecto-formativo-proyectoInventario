@@ -1,6 +1,6 @@
 import {
-    createContext,  // Define un contenedor de datos
-    useContext,     // Consume el estado en cualquier subcomponente(Button, menú, Item)
+    createContext,
+    useContext,
     useEffect,
     useRef,
     useState,
@@ -48,7 +48,7 @@ export function Dropdown({
     // Escape key o tecla escape 
     useEffect(() => {
         const handleEscape = (e) => {
-            if (e.key == "Escape") setOpen(false)
+            if (e.key === "Escape") setOpen(false)
         }
 
         document.addEventListener("keydown", handleEscape)
@@ -82,7 +82,7 @@ export function DropdownTrigger({ children }) {
 }
 
 // Content
-export function DropdownContent({ children, className = " " }) {
+export function DropdownContent({ children, className = "" }) {
     const { open } = useContext(DropdownContext)
 
     if (!open) return null
@@ -92,6 +92,8 @@ export function DropdownContent({ children, className = " " }) {
             role="menu"
             className={`
                 absolute
+                right-0
+                top-full
                 mt-1
                 min-w-48
                 border
@@ -105,7 +107,8 @@ export function DropdownContent({ children, className = " " }) {
                 rounded-2xl
                 overflow-hidden
                 hover:shadow-black
-                transition-shadow duration-700
+                transition-shadow
+                duration-700
                 ${className}
             `}
         >
@@ -126,20 +129,19 @@ export function DropdownItem({
         onClick?.(e)
         setOpen(false)
     }
+
     return (
-        <button 
+        <button
             role="menuitem"
             onClick={handleClick}
             className={`
                 w-full text-left px-3 py-2 rounded-lg
                 hover:bg-gray-500 focus:bg-gray-100
                 transition-colors
-                ${className}    
+                ${className}
             `}
         >
             {children}
         </button>
     )
 }
-
-

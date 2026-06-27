@@ -7,6 +7,7 @@ import {
     DropdownItem,
     DropdownContent,
     SearchField,
+    Button
 } from "@/shared";
 import logoSena from "@/assets/images/LogoSena.png";
 import { useState } from "react";
@@ -31,7 +32,45 @@ export default function Navbar() {
                 <div className="flex h-16 items-center gap-2">
 
                     {/* Izquierda: menú + volver */}
+                        <IconButton
+                            onClick={() => navigate(-1)}
+                            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
+                            style={{ background: "transparent", border: "none" }}
+                        >
+                            <ArrowLeft size={24} style={{ color: "white" }} />
+                        </IconButton>
+
                     <div className="flex items-center gap-1 text-text-inverse">
+                        <div className="hidden sm:block">
+                            <Link to="/dashboard/home">
+                                <img src={logoSena} alt="logo" className="h-12 w-auto relative left-60" />
+                            </Link>
+                        </div>
+
+                    </div>
+
+                    {/* Centro: buscador */}
+                    <div className="flex-1 flex justify-center">
+                        <SearchField
+                            value={search}
+                            onChange={setSearch}
+                            onSubmit={handleSearch}
+                            onClear={handleClear}
+                            placeholder="Buscar productos..."
+                            size="sm"
+                            variant="filled"
+                            className="w-full max-w-lg border-0"
+                        />
+                    </div>
+
+                    {/* Derecha: cerrar sesión + logo */}
+                    <div className="flex items-center gap-4">
+                        <Button
+                            onClick={handleLogout}
+                            variant="secondary" size="sm"
+                        >
+                            Cerrar sesión
+                        </Button>
                         <Dropdown>
                             <DropdownTrigger>
                                 <IconButton ariaLabel="Menú">
@@ -39,9 +78,9 @@ export default function Navbar() {
                                 </IconButton>
                             </DropdownTrigger>
 
-                            <DropdownContent className="w-48">
+                            <DropdownContent className="w-17 ">
                                 <DropdownItem>
-                                    <Link to="/dashboard/home" className="block w-full"
+                                    <Link to="/dashboard/home" className="block w-full "
                                         style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
                                         Inicio
                                     </Link>
@@ -61,51 +100,6 @@ export default function Navbar() {
                             </DropdownContent>
                         </Dropdown>
 
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer"
-                            style={{ background: "transparent", border: "none" }}
-                        >
-                            <ArrowLeft size={24} style={{ color: "white" }} />
-                        </button>
-                    </div>
-
-                    {/* Centro: buscador */}
-                    <div className="flex-1 flex justify-center">
-                        <SearchField
-                            value={search}
-                            onChange={setSearch}
-                            onSubmit={handleSearch}
-                            onClear={handleClear}
-                            placeholder="Buscar productos..."
-                            size="sm"
-                            variant="filled"
-                            className="w-full max-w-lg border-0"
-                        />
-                    </div>
-
-                    {/* Derecha: cerrar sesión + logo */}
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleLogout}
-                            className="cursor-pointer rounded-lg px-4 py-2"
-                            style={{
-                                background: "var(--color-tertiary-950)",
-                                color: "var(--color-white)",
-                                fontSize: "var(--fs-xxs)",
-                                fontWeight: "var(--font-weight-regular)",
-                                border: "none",
-                                fontFamily: "var(--main-font)",
-                            }}
-                        >
-                            Cerrar sesión
-                        </button>
-
-                        <div className="hidden sm:block">
-                            <Link to="/dashboard/home">
-                                <img src={logoSena} alt="logo" className="h-12 w-auto" />
-                            </Link>
-                        </div>
                     </div>
 
                 </div>

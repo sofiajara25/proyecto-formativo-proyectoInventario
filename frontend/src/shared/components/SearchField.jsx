@@ -91,9 +91,9 @@ const SearchField = forwardRef(
                     aria-label={ariaLabel}
                     autoComplete={autoComplete}
                     onChange={(e) => onChange(e.target.value)}
-                    className="search__input flex-1 bg-transparent px-2 outline-none"
+                    className="search__input flex-1 bg-transparent px-2 outline-none [&::-webkit-search-cancel-button]:hidden"
                 />
-                {/* Se convirte a boleano */}
+
                 {!!value && !disabled && (
                     <button
                         type="button"
@@ -111,4 +111,4 @@ const SearchField = forwardRef(
 
 SearchField.displayName = "SearchField";
 
-export default SearchField;
+export default SearchField; 

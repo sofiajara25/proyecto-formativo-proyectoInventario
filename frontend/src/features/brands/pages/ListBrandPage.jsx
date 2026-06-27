@@ -1,14 +1,24 @@
 import DataTable from "@/shared/components/DataTable"
 import { brandsColumns } from "../table/brandsColumns";
-import { brands } from "../data/brands";
+// import { brands } from "../data/brands";
+import { getBrands } from "../service/brandService";
 import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ListBrandPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+    const [brands, setBrands] = useState([]);
+
+    useEffect(() => {
+        getBrands()
+            .then(setBrands)
+            .catch((err) => console.error("Error cargando marcas:", err));
+    }, []);
+
 
     return (
         <div

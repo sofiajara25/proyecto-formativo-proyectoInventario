@@ -46,18 +46,21 @@
     /* ============ FONT WEIGHT =============== */
     --semantic-font-weight-heading: var(--font-weight-bold);
     --semantic-font-weight-body: var(--font-weight-regular);
-    --semantic-font-weight-label: var(--font-weight-regular);
+    --semantic-font-weight-label: var(--font-weight-light);
 
     /* ================= BUTTONS ================= */
     --semantic-button-primary-bg: var(--color-primary-950);
     --semantic-button-primary-text: var(--color-white);
     --semantic-button-primary-padding: 24px 12px;
     --semantic-button-primary-gap: 8px;
+    --semantic-button-primary-hover: var(--color-primary-800);
 
-    --semantic-button-secondary-bg: var(--color-tertiary-500);
+
+    --semantic-button-secondary-bg: var(--color-tertiary-950);
     --semantic-button-secondary-text: var(--color-white);
     --semantic-button-secondary-padding: 20px 10px;
     --semantic-button-secondary-gap: 8px;
+    --semantic-button-secondary-hover: var(--color-tertiary-800);
 
     /* ================= ICONS ================= */
     --semantic-icon-size: 64px;

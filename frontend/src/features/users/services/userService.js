@@ -45,6 +45,67 @@ export async function createUser(userData) {
     }
 
     return response.json();
-}
+};
+
+export async function getUsers() {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    if (!response.ok) throw new Error("Error al obtener usuarios");
+    return response.json();
+};
+
+export async function getUserById(id) {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener usuario");
+    return response.json();
+};
+
+export async function updateUser(id, userData) {
+    const formData = new FormData();
+    const token = sessionStorage.getItem("token");
+
+    formData.append("userName", userData.userName);
+    formData.append("userDocumentType", userData.userDocumentType);
+    formData.append("userDocumentNumber", userData.userDocumentNumber);
+    formData.append("userType", userData.userType);
+    formData.append("userStartDate", userData.userStartDate);
+    formData.append("userEndDate", userData.userEndDate);
+    formData.append("userEmail", userData.userEmail);
+    formData.append("userAddress", userData.userAddress);
+    formData.append("userPhone", userData.userPhone);
+    formData.append("userStatus", userData.userStatus);
+    if (userData.userPassword) {
+        formData.append("userPassword", userData.userPassword);
+    }
+
+    if (Array.isArray(userData.userPhoto) && userData.userPhoto.length) {
+        formData.append("userPhoto", userData.userPhoto[0]);
+    }
+
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al actualizar usuario");
+    }
+
+    return response.json();
+};
+
+
+
 
 

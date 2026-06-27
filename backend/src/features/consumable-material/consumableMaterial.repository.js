@@ -79,4 +79,69 @@ export const consumableMaterialRepository = {
         // En este caso contiene el id del usuario recién creado
         return result.rows[0];
     },
+
+    async findAll() {
+        const result = await pool.query("SELECT * FROM consumable_materials");
+        return result.rows;
+    },
+
+    async findById(id) {
+        const result = await pool.query("SELECT * FROM consumable_materials WHERE id = $1", [id]);
+        return result.rows[0];
+    },
+
+    async update(id, consumableData) {
+        const {
+            materialAccountant,
+            materialToolId,
+            materialSenaPlate,
+            materialName,
+            materialEntryDate,
+            materialQuantity,
+            materialLocation,
+            materialUnitValue,
+            materialTotalValue,
+            materialStatus,
+            materialDescription,
+            photo,
+        } = consumableData;
+
+        const query = `
+            UPDATE consumable_materials
+            SET accountant = $1,
+                tool_id = $2,
+                sena_plate = $3,
+                material_name = $4,
+                entry_date = $5,
+                quantity = $6,
+                location = $7,
+                unit_value = $8,
+                total_value = $9,
+                status = $10,
+                description = $11,
+                photo_url = COALESCE($12, photo_url)
+            WHERE id = $13
+            RETURNING *;
+        `;
+
+        const values = [
+            materialAccountant,
+            materialToolId,
+            materialSenaPlate,
+            materialName,
+            materialEntryDate,
+            materialQuantity,
+            materialLocation,
+            materialUnitValue,
+            materialTotalValue,
+            materialStatus,
+            materialDescription,
+            photo ?? null,
+            id,
+        ];
+
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
+
 };

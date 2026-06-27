@@ -21,4 +21,11 @@ export const loanService = {
         // Delegamos al repository
         return await loanRepository.create(loanData);
     },
+
+    async getAllLoans() {
+        return await loanRepository.findAll();
+    },
+    async getLoanById(id) {
+        return await loanRepository.findById(id);
+    }
 };

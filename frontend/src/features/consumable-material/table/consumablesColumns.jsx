@@ -3,19 +3,26 @@ import { Switch } from "@/shared";
 import ConsumableRowActions from "../components/ConsumableRowActions";
 
 export const consumablesColumns = [
-
     {
         accessorKey: "id",
         header: "ID",
         size: 80,
     },
     {
-        accessorKey: "custodian",
-        header: "Encargado",
+        accessorKey: "accountant",
+        header: "Cuentadante",
     },
     {
-        accessorKey: "materialName",
-        header: "Nombre del Material",
+        accessorKey: "tool_id",
+        header: "ID Herramienta",
+    },
+    {
+        accessorKey: "sena_plate",
+        header: "Placa SENA",
+    },
+    {
+        accessorKey: "material_name",
+        header: "Nombre del material",
     },
     {
         accessorKey: "status",

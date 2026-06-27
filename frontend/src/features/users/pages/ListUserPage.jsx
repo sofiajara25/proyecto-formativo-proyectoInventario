@@ -1,14 +1,28 @@
 import { useState } from "react";
 import DataTable from "@/shared/components/DataTable"
 import { usersColumns } from "../table/usersColumns"
-import { users } from "../data/users"
+// import { users } from "../data/users"
 import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { getUsers } from "../services/userService";
+import { useEffect } from "react";
 
 export default function ListUserPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        getUsers()
+            .then((data) => {
+                console.log("Usuarios desde backend:", data);
+                setUsers(data);
+            })
+            .catch((err) => console.error("Error cargando usuarios:", err));
+    }, []);
+
 
     return (
         <div
@@ -64,10 +78,10 @@ export default function ListUserPage() {
                         </div>
                     </div>
 
-                    {/* Tabla */}
                     <DataTable
                         data={users}
                         columns={usersColumns}
+                        onRowClick={(row) => navigate(`/dashboard/users/${row.original.id}`)}
                     />
                 </div>
 

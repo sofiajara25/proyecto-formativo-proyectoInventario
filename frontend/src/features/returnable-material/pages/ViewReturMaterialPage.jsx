@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar } from "@/shared";
+import { Navbar, Button } from "@/shared";
 import { Package } from "lucide-react"; // ícono para materiales devolutivos
 import { returnables } from "../data/returnables";
 
@@ -150,19 +150,10 @@ export default function ViewReturMaterialPage() {
 
                     {/* Acciones */}
                     <div className="flex justify-end">
-                        <button
+                        <Button
                             onClick={() =>
-                                navigate(`/dashboard/devolutivos/${returnable.id}/edit`)
-                            }
-                            className="rounded-full px-6 py-2 cursor-pointer transition-all"
-                            style={{
-                                background: "var(--color-primary-950)",
-                                color: "var(--color-white)",
-                                fontSize: "var(--fs-xxs)",
-                                fontWeight: "var(--font-weight-bold)",
-                                border: "none",
-                                fontFamily: "var(--main-font)",
-                            }}
+                                navigate(`/dashboard/devolutivos/${returnable.id}/edit`)}
+                            type="button" variant="primary" size="md"
                             onMouseEnter={(e) =>
                                 (e.currentTarget.style.background = "var(--color-primary-700)")
                             }
@@ -171,7 +162,7 @@ export default function ViewReturMaterialPage() {
                             }
                         >
                             Editar
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

@@ -23,8 +23,8 @@ export const userRepository = {
       userStartDate,
       userEndDate,
       userEmail,
-      userAddress,
       userPhone,
+      userAddress,
       userStatus,
       userPassword,
       userPhoto,
@@ -63,8 +63,8 @@ export const userRepository = {
       userStartDate,
       userEndDate,
       userEmail,
-      userAddress,
       userPhone,
+      userAddress,
       userStatus,
       userPassword,
       userPhoto,
@@ -80,4 +80,69 @@ export const userRepository = {
     // En este caso contiene el id del usuario recién creado
     return result.rows[0];
   },
+
+  async findAll() {
+    const result = await pool.query("SELECT * FROM users");
+    return result.rows;
+  },
+
+  async findById(id) {
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+    return result.rows[0]; // debe incluir user_photo
+  },
+
+  async update(id, userData) {
+    const {
+      userName,
+      userDocumentType,
+      userDocumentNumber,
+      userType,
+      userStartDate,
+      userEndDate,
+      userEmail,
+      userPhone,
+      userAddress,
+      userStatus,
+      userPassword,
+      userPhoto,
+    } = userData;
+
+    const query = `
+    UPDATE users
+    SET user_name = $1,
+        document_type = $2,
+        document_number = $3,
+        user_type = $4,
+        start_date = $5,
+        end_date = $6,
+        user_email = $7,
+        user_phone = $8,
+        user_address = $9,
+        user_status = $10,
+        password = COALESCE($11, password),
+        photo_url = COALESCE($12, photo_url)
+    WHERE id = $13
+    RETURNING *;
+  `;
+
+    const values = [
+      userName,
+      userDocumentType,
+      userDocumentNumber,
+      userType,
+      userStartDate,
+      userEndDate,
+      userEmail,
+      userPhone,
+      userAddress,
+      userStatus,
+      userPassword ?? null,
+      userPhoto ?? null,
+      id,
+    ];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  }
+
 };

@@ -17,67 +17,58 @@ export const usersColumns = [
         header: "Id",      // Título de la columna
     },
 
-
     // Columna Nombre
     {
-        accessorKey: "name", // Campo del objeto user
+        accessorKey: "user_name", // Campo del objeto user
         header: "Nombre",    // Encabezado visible
     },
-
-
+    {
+        accessorKey: "document_type",
+        header: "Tipo documento",
+    },
+    {
+        accessorKey: "document_number",
+        header: "Número documento",
+    },
+    {
+        accessorKey: "user_type",
+        header: "Tipo de usuario"
+    },
     // Columna Email
     {
-        accessorKey: "email",
+        accessorKey: "user_email",
         header: "Email",
     },
-
-
     // Columna Dirección
     {
-        accessorKey: "address",
+        accessorKey: "user_address",
         header: "Dirección",
     },
-
-
-    // Columna Estado (activo / inactivo)
     {
-        accessorKey: "is_active",
+        accessorKey: "user_phone",
+        header: "Teléfono",
+    },
+
+    {
+        accessorKey: "user_status",
         header: "Estado",
-
-
-        // Render personalizado de la celda
-        // Permite mostrar un componente en lugar de solo texto
         cell: ({ row }) => {
-
-
-            // Se obtiene el objeto completo del usuario de la fila
             const user = row.original;
 
-
-            // Función que se ejecuta cuando cambia el switch
             const handleChange = (value) => {
-
-
-                // value representa el nuevo estado del switch (true o false)
-                console.log("Actualizar estado usuario:", user.user_id, value);
-
-
-                // Aquí normalmente se llamaría una API para actualizar el estado
-                // updateUserStatus(user.user_id, value)
+                console.log("Actualizar estado usuario:", user.id, value);
+                // Aquí llamas a tu API updateUserStatus(user.id, value)
             };
 
-
             return (
-                // Componente reutilizable para mostrar el switch
                 <Switch
-                    checked={user.is_active} // Estado actual del usuario
-                    onChange={handleChange}  // Función que maneja el cambio
+                    checked={user.userStatus === "Activo"}
+                    onChange={(checked) => handleChange(checked ? "Activo" : "Inactivo")}
                     className="inline-flex"
                 />
             );
         },
     },
-
 
     // Columna de acciones (editar / eliminar)
     {
