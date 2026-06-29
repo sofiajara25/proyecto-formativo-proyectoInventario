@@ -39,11 +39,6 @@ router.get(
     userController.getById
 );
 
-router.get(
-    "/:id",
-    authenticateToken,
-    userController.getById
-);
 
 router.put(
     "/:id",

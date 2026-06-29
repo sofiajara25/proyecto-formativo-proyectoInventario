@@ -27,5 +27,8 @@ export const loanService = {
     },
     async getLoanById(id) {
         return await loanRepository.findById(id);
+    },
+    async updateLoan(id, data) {
+        return await loanRepository.update(id, data);
     }
 };

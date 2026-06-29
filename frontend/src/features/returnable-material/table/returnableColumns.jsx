@@ -15,7 +15,7 @@ export const returnableColumns = [
     },
 
     {
-        accessorKey: "materialName",
+        accessorKey: "material_name",
         header: "Nombre Material",
     },
 

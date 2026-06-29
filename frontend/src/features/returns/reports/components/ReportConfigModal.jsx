@@ -7,7 +7,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
 
     const [format, setFormat] = useState("pdf");
     const [scope, setScope] = useState("all");
-    const [returnDate, setReturnDate] = useState("");
+    const [materialType, setReturnDate] = useState("");
     const [selectedFields, setSelectedFields] = useState(
         () => returnReportFields.filter((f) => f.default),
     );
@@ -24,7 +24,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
     };
 
     const handleGenerateReport = () => {
-        generateReturnReport({ format, selectedFields, scope, returnDate });
+        generateReturnReport({ format, selectedFields, scope, materialType });
         onClose();
     };
 
@@ -90,16 +90,16 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                         onChange={(e) => setScope(e.target.value)}
                         options={[
                             { label: "Todos los retornos", value: "all" },
-                            { label: "Filtrar por fecha de retorno", value: "returnDate" },
+                            { label: "Filtrar por Tipo de material", value: "materialType" },
                         ]}
                     />
 
-                    {scope === "returnDate" && (
+                    {scope === "materialType" && (
                         <Input
-                            label="Fecha de retorno"
-                            value={returnDate}
+                            label="Tipo de material"
+                            value={materialType}
                             onChange={(e) => setReturnDate(e.target.value)}
-                            placeholder="Ingrese la fecha de retorno"
+                            placeholder="Ingrese la Tipo de material"
                         />
                     )}
                 </div>

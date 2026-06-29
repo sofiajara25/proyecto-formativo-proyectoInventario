@@ -68,4 +68,55 @@ export const returnRepository = {
         // En este caso contiene el id del usuario recién creado
         return result.rows[0];
     },
+
+    async findAll() {
+        const result = await pool.query("SELECT * FROM returns");
+        return result.rows;
+    },
+
+    async findById(id) {
+        const result = await pool.query("SELECT * FROM returns WHERE id = $1", [id]);
+        return result.rows[0]; // debe incluir user_photo
+    },
+
+    async update(id, returnData) {
+
+        const {
+            materialType,
+            loanId,
+            returnDate,
+            returnDescription,
+            returnQuantity,
+            isAvailable,
+            isMaintenance,
+            isLow
+        } = returnData;
+
+        const query = `
+            UPDATE returns
+            SET material_type = $1,
+                loan_id = $2,
+                return_date = $3,
+                description = $4,
+                quantity = $5,
+                is_available = $6,
+                is_maintenance = $7,
+                is_low = $8   
+            WHERE id = $9
+            RETURNING *;
+        `;
+        const values = [
+            materialType,
+            loanId,
+            returnDate,
+            returnDescription,
+            returnQuantity,
+            isAvailable,
+            isMaintenance,
+            isLow,
+            id
+        ];
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
 };

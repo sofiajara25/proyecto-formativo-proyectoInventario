@@ -29,4 +29,16 @@ export const returnableMaterialService = {
         // Delegamos al repository
         return await returnableMaterialRepository.create(materialData);
     },
+
+    async getAllReturnable() {
+        return await returnableMaterialRepository.findAll();
+    },
+
+    async getReturnableById(id) {
+        return await returnableMaterialRepository.findById(id);
+    },
+
+    async updateReturnable(id, data) {
+        return await returnableMaterialRepository.update(id, data);
+    }
 };

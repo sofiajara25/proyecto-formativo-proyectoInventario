@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Button, Navbar } from "@/shared";
+import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { brandSchema } from "../schemas/brandsSchema";
 import { getBrandById, updateBrand } from "../service/brandService";
 
 export default function UpdateBrandPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -24,8 +25,8 @@ export default function UpdateBrandPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
 
     const result = brandSchema.safeParse(formData);
     if (!result.success) {
@@ -34,20 +35,21 @@ export default function UpdateBrandPage() {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+      setIsSubmitting(false);
       return;
     }
 
     setErrors({});
-    setIsSubmitting(true);
-
     try {
       await updateBrand(id, result.data);
       alert("Marca actualizada correctamente");
+      navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
       alert(error.message);
     } finally {
       setIsSubmitting(false);
+      setIsModalOpen(false);
     }
   };
 
@@ -60,7 +62,7 @@ export default function UpdateBrandPage() {
           Actualizar Marca
         </h1>
         <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-sm mx-auto shadow justify-center items-center" style={{ padding: "32px 36px" }}>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full">
+          <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-6 w-full">
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-medium text-gray-700" htmlFor="marca">
                 Nombre de la marca
@@ -84,6 +86,17 @@ export default function UpdateBrandPage() {
               </Button>
             </div>
           </form>
+          <Modal
+            isOpen={isModalOpen}
+            title="Confirmar actualización de marca"
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleSubmit}
+            confirmText="Actualizar"
+            cancelText="Cancelar"
+          >
+            <p>¿Seguro que deseas actualizar esta marca?</p>
+          </Modal>
+
         </div>
       </div>
     </div>

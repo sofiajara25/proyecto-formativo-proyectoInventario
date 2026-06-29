@@ -105,7 +105,7 @@ export const userController = {
 
   async getAll(req, res) {
     try {
-      const users = await userService.getUsers();
+      const users = await userService.getAllUsers();
       res.status(200).json(users);
     } catch (err) {
       res.status(500).json({ error: err.message });

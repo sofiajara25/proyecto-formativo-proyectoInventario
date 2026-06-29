@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial } from "../services/returnableMaterialService";
 
 export default function ReturnableMaterialRegisterForm() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,10 +45,9 @@ export default function ReturnableMaterialRegisterForm() {
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
 
-    // Convertimos valores numéricos antes de validar
     const parsedData = {
       ...formData,
       materialUnitValue: Number(formData.materialUnitValue),
@@ -55,51 +55,36 @@ export default function ReturnableMaterialRegisterForm() {
       materialTotalValue: Number(formData.materialTotalValue),
     };
 
-    // Validación con Zod
     const result = returnablematerialSchema.safeParse(parsedData);
-
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+      setIsSubmitting(false);
       return;
     }
 
-    // Si pasa la validación
     setErrors({});
-    setIsSubmitting(true);
-
     try {
-      // Llamamos al servicio frontend que consume la API
-      // result.data contiene los datos ya validados por Zod
       const payload = {
         ...result.data,
         photo: result.data.photo?.[0]?.name ?? null,
       };
       const response = await createReturnableMaterial(payload);
-
-      // Log informativo para desarrollo
       console.log("Material creado:", response);
-
-      // Feedback básico al usuario
       alert("Material creado correctamente");
-
-      // Navegamos a la vista anterior
-      // navigate(-1) equivale a "volver atrás"
       navigate(-1);
     } catch (error) {
-      // Capturamos errores de red o errores lanzados por el service
       console.error("Error:", error.message);
-
-      // Mostramos el mensaje de error al usuario
       alert(error.message);
     } finally {
-      // Pase lo que pase, desactivamos el estado de envío
       setIsSubmitting(false);
+      setIsModalOpen(false);
     }
   };
+
 
   // =======================================================
 
@@ -122,7 +107,7 @@ export default function ReturnableMaterialRegisterForm() {
     >
       <Navbar />
 
-      <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+      <div className="flex flex-col flex-1 px-10 py-2 gap-2 justify-center">
         {/* Título */}
         <h1
           className="lg:pl-[70px]"
@@ -131,7 +116,7 @@ export default function ReturnableMaterialRegisterForm() {
             fontSize: "var(--fs-md)",
             fontWeight: "var(--font-weight-bold)",
             margin: 0,
-            
+
           }}
         >
           Crear Material Devolutivo
@@ -139,24 +124,15 @@ export default function ReturnableMaterialRegisterForm() {
 
         {/* Card */}
         <div
-          className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl mx-auto"
-          style={{ padding: "32px 36px" }}
+          className="bg-white rounded-2xl flex flex-col gap-2 lg:w-6xl mx-auto"
+          style={{ padding: "12px" }}
         >
-          <p
-            style={{
-              fontSize: "var(--fs-xxs)",
-              color: "var(--color-gray-500)",
-              margin: 0,
-            }}
-          >
-            Completa los campos para registrar un nuevo material devolutivo
-          </p>
 
           <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4 lg:mx-5 md:mx-2"
+            onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
+            className="flex flex-col gap-2 lg:mx-5 md:mx-2"
           >
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-6">
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-2">
               {/* Fila 1 */}
               <Input
                 label="ID Herramienta"
@@ -245,12 +221,13 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialDimensions}
               />
-              <Input
+              <TextArea
                 label="Descripción"
                 name="materialDescription"
                 value={formData.materialDescription}
                 onChange={handleChange}
                 error={errors.materialDescription}
+                rows={1}
               />
 
               {/* Fila 5 */}
@@ -302,6 +279,17 @@ export default function ReturnableMaterialRegisterForm() {
               </Button>
             </div>
           </form>
+          <Modal
+            isOpen={isModalOpen}
+            title="Confirmar creación de material devolutivo"
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleSubmit}
+            confirmText="Crear"
+            cancelText="Cancelar"
+          >
+            <p>¿Seguro que deseas crear este material devolutivo?</p>
+          </Modal>
+
         </div>
       </div>
     </div>

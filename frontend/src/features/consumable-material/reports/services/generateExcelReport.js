@@ -9,12 +9,12 @@ import * as XLSX from "xlsx";
 export function generateExcelReport({
     headers,                    //Array de encabezados
     rows,                       // Array de Filas (array de arrays)
-    fileName = "user-report.xlsx"  // Nombre del archivo de salida
+    fileName = "consumable-report.xlsx"  // Nombre del archivo de salida
 }) {
 
 
     const currenDate = new Date().toLocaleDateString();
-    const reportTitle = `   **********   REPORTE DE USUARIOS - ${currenDate}  **********`;
+    const reportTitle = `   **********   REPORTE DE MATERIAL DE CONSUMO - ${currenDate}  **********`;
 
     //Estructura Final de la hoja
 
@@ -51,7 +51,7 @@ export function generateExcelReport({
     const workbook = XLSX.utils.book_new();
 
     //Agrega la hoja del libro con el nombre del usuario
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Material de consumo");
 
 
     //Genera y descarga el archivo excel en el cliente

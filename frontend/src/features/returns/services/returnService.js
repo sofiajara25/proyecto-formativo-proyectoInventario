@@ -44,4 +44,28 @@ export async function createReturn(returnData) {
     return response.json();
 }
 
+export async function getReturns() {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Error al obtener retornos");
+    return response.json();
+}
+
+export async function getReturnById(id) {
+    const response = await fetch(`${API_URL}/${id}`);
+    if (!response.ok) throw new Error("Error al obtener retorno");
+    return response.json();
+}
+
+export async function updateReturn(id, data) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Error al actualizar retorno");
+    return response.json();
+}
+
+
+
 

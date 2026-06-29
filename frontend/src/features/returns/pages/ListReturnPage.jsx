@@ -1,14 +1,26 @@
 import { useState } from "react";
 import DataTable from "@/shared/components/DataTable";
 import { returnsColumns } from "../table/returnsColumns";
-import { returns } from "../data/returns";
+// import { returns } from "../data/returns";
 import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { getReturns } from "../services/returnService";
+import { useEffect } from "react";
 
 export default function ListReturnPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [returns, setReturns] = useState([]);
+
+    useEffect(() => {
+        getReturns()
+            .then((data) => {
+                console.log("Retorno desde backend:", data);
+                setReturns(data);
+            })
+            .catch((err) => console.error("Error cargando retorno:", err));
+    }, []);
 
     return (
         <div
@@ -76,9 +88,9 @@ export default function ListReturnPage() {
             </div>
 
             <ReportConfigModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-      />
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+            />
         </div>
     );
 }

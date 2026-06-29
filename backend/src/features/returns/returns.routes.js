@@ -20,6 +20,11 @@ const router = Router();
 // Express ejecuta el método create del controller.
 router.post("/", returnController.create);
 
+router.get("/", returnController.list);
+
+router.get("/:id", returnController.getById);
+
+router.put("/:id", returnController.update);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

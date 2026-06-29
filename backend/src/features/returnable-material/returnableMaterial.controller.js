@@ -55,4 +55,37 @@ export const returnableMaterialController = {
             });
         }
     },
+
+    async list(req, res) {
+        try {
+            const returnables = await returnableMaterialService.getAllReturnable();
+            res.status(200).json(returnables);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    async getById(req, res) {
+        try {
+            const { id } = req.params;
+            const returnable = await returnableMaterialService.getReturnableById(id);
+            if (!returnable) return res.status(404).json({ error: "Material devolutivo no encontrado" });
+            res.status(200).json(returnable);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    async update(req, res) {
+        try {
+            const { id } = req.params;
+            const updated = await returnableMaterialService.updateReturnable(id, req.body);
+            if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });
+            res.status(200).json({ message: "Material actualizado correctamente", material: updated });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
+
 };

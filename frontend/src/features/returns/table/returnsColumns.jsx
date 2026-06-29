@@ -17,23 +17,28 @@ export const returnsColumns = [
         header: "Id",      // Título de la columna
     },
 
+    {
+        accessorKey: "material_type", // Campo del objeto user
+        header: "Tipo de Material",    // Encabezado visible
+    },
+
 
     // Columna Prestamo
     {
-        accessorKey: "idloanid", // Campo del objeto user
+        accessorKey: "loan_id", // Campo del objeto user
         header: "Id Prestamo",    // Encabezado visible
     },
 
 
     // Columna Fecha de devolucion
     {
-        accessorKey: "returnDate",
+        accessorKey: "return_date",
         header: "Fecha de devolución",
     },
 
     // Columna Estado (activo / inactivo)
     {
-        accessorKey: "is_active",
+        accessorKey: "is_available",
         header: "Estado",
 
 
@@ -62,7 +67,7 @@ export const returnsColumns = [
             return (
                 // Componente reutilizable para mostrar el switch
                 <Switch
-                    checked={refund.is_active} // Estado actual del usuario
+                    checked={refund.is_available} // Estado actual del usuario
                     onChange={handleChange}  // Función que maneja el cambio
                     className="inline-flex"
                 />

@@ -1,19 +1,22 @@
-import { returns } from "../../data/returns";
+// import { returns } from "../../data/returns";
 import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { getReturns } from "../../services/returnService";
 
-export function generateReturnReport({
+export async function generateReturnReport({
     format,
     selectedFields,
     scope,
-    returnDate
+    materialType
 }) {
+
+    const returns = await getReturns();
     const { headers, rows } = buildReportDataset({
         returns,
         selectedFields,
         scope,
-        returnDate
+        materialType
     });
 
     if (!rows.length) {

@@ -44,4 +44,28 @@ export async function createReturnableMaterial(returnableMaterialData) {
     return response.json();
 }
 
+export async function getReturnables() {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Error al obtener materiales devolutivos");
+    return response.json();
+}
+
+export async function getReturnableById(id) {
+    const response = await fetch(`${API_URL}/${id}`);
+    if (!response.ok) throw new Error("Error al obtener material devolutivo");
+    return response.json();
+}
+
+export async function updateReturnable(id, data) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Error al actualizar material devolutivo");
+    return response.json();
+}
+
+
+
 

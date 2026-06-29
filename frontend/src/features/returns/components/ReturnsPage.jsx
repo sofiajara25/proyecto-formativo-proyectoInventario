@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Input, Button, Select, Checkbox } from "@/shared";
+import { Input, Button, Select, Checkbox, Navbar, Modal, TextArea } from "@/shared";
 import { returnSchema } from "../schemas/returnSchema";
 import { useNavigate } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
 import { createReturn } from "../services/returnService";
 
 export default function ReturnForm() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Un solo estado compartido: los campos no se pierden ni se reinician
@@ -38,12 +39,10 @@ export default function ReturnForm() {
   };
 
   // 🔹 handleSubmit simplificado con isSubmitting
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setIsSubmitting(true);
 
     const result = returnSchema.safeParse(formData);
-
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
@@ -55,33 +54,20 @@ export default function ReturnForm() {
     }
 
     setErrors({});
-    console.log("Devolución válida:", result.data);
-
     try {
-      // Llamamos al servicio frontend que consume la API
-      // result.data contiene los datos ya validados por Zod
       const response = await createReturn(result.data);
-
-      // Log informativo para desarrollo
       console.log("Retorno creado:", response);
-
-      // Feedback básico al usuario
       alert("Retorno creado correctamente");
-
-      // Navegamos a la vista anterior
-      // navigate(-1) equivale a "volver atrás"
       navigate(-1);
     } catch (error) {
-      // Capturamos errores de red o errores lanzados por el service
       console.error("Error:", error.message);
-
-      // Mostramos el mensaje de error al usuario
       alert(error.message);
     } finally {
-      // Pase lo que pase, desactivamos el estado de envío
       setIsSubmitting(false);
+      setIsModalOpen(false);
     }
   };
+
 
   let label;
   // 😂 lógica fuera del JSX
@@ -93,38 +79,21 @@ export default function ReturnForm() {
 
   return (
     <div
-      className="min-h-screen flex flex-col py-6 px-4"
+      className="min-h-screen flex flex-col "
       style={{
         background:
           "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
         fontFamily: "var(--main-font)",
       }}
     >
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center justify-center w-12 h-12 rounded-full hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer mb-6"
-      >
-        <CircleArrowLeft size={28} color="#ffffff" />
-      </button>
+      <Navbar />
 
-      <div className="flex justify-center mb-8">
-        <h1 className="text-white text-2xl font-medium tracking-tight text-center">
-          Sistema Inventario de Infraestructura y
-          <br />
-          Teleinformática CDITI SENA
-        </h1>
-      </div>
-
-      <div className="w-full max-w-3xl mx-auto bg-white rounded-[28px] p-8">
+      <div className="w-full max-w-3xl mx-auto bg-white rounded-[28px] p-6 mt-2">
         <h2 className="text-2xl font-medium text-center text-gray-900">
           Crear Devolución de Material
         </h2>
 
-        <p className="text-sm text-gray-500 text-center mt-2 mb-8">
-          Selecciona el tipo de material y completa los campos
-        </p>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-8">
           {/* Tipo de material: campo destacado, separado del resto */}
           <div className="flex justify-center pb-6 border-b border-gray-200">
             <Select
@@ -170,12 +139,13 @@ export default function ReturnForm() {
             />
 
             <div className="md:col-span-1">
-              <Input
+              <TextArea
                 label="Descripción / Observaciones"
                 name="returnDescription"
                 value={formData.returnDescription}
                 onChange={handleChange}
                 error={errors.returnDescription || errors.observations}
+                rows={1}
               />
             </div>
           </div>
@@ -233,6 +203,17 @@ export default function ReturnForm() {
             </Button>
           </div>
         </form>
+        <Modal
+          isOpen={isModalOpen}
+          title="Confirmar creación de retorno"
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleSubmit}
+          confirmText="Crear"
+          cancelText="Cancelar"
+        >
+          <p>¿Seguro que deseas crear este retorno?</p>
+        </Modal>
+
       </div>
     </div>
   );

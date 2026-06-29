@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Select, Navbar, FileInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 import { useNavigate } from "react-router-dom";
 import { createUser } from "../services/userService.js"
 
 export default function UserRegisterForm() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,68 +55,35 @@ export default function UserRegisterForm() {
     };
 
     //============== HANDLE SUBMIT ==============
-    const handleSubmit = async (e) => {
-        // Evita que el formulario recargue la página
-        e.preventDefault();
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
 
-        // Validamos los datos del formulario contra el esquema Zod
-        // safeParse NO lanza excepción, retorna un objeto controlado
         const result = userSchema.safeParse(formData);
-
-        // Verificar en consola si el esquema está funcionando 
-        console.log(result);
-
-        // Si la validación falla
         if (!result.success) {
-            // Objeto donde almacenaremos los errores por campo
             const fieldErrors = {};
-
-            // Recorremos cada error generado por Zod
             result.error.issues.forEach((issue) => {
-                // issue.path[0] corresponde al nombre del campo
-                // issue.message contiene el mensaje de error definido en el schema
                 fieldErrors[issue.path[0]] = issue.message;
             });
-
-            // Actualizamos el estado de errores para mostrarlos en la UI
             setErrors(fieldErrors);
-
-            // Cortamos la ejecución: NO se envía nada al backend
-
+            setIsSubmitting(false);
             return;
         }
 
-        // Si la validación pasa, limpiamos errores previos
         setErrors({});
-
-        // Activamos estado de envío (útil para deshabilitar el botón)
-        setIsSubmitting(true);
-
         try {
-            // Llamamos al servicio frontend que consume la API
-            // result.data contiene los datos ya validados por Zod
             const response = await createUser(result.data);
-
-            // Log informativo para desarrollo
             console.log("Usuario creado:", response);
-
-            // Feedback básico al usuario
             alert("Usuario creado correctamente");
-
-            // Navegamos a la vista anterior
-            // navigate(-1) equivale a "volver atrás"
             navigate(-1);
         } catch (error) {
-            // Capturamos errores de red o errores lanzados por el service
             console.error("Error:", error.message);
-
-            // Mostramos el mensaje de error al usuario
             alert(error.message);
         } finally {
-            // Pase lo que pase, desactivamos el estado de envío
             setIsSubmitting(false);
+            setIsModalOpen(false);
         }
     };
+
 
     // =======================================================
 
@@ -134,7 +102,7 @@ export default function UserRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-2 gap-4 justify-center">
 
                 {/* Título */}
                 <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
@@ -144,12 +112,8 @@ export default function UserRegisterForm() {
                 {/* Card */}
                 <div className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl  mx-auto" style={{ padding: "32px 36px" }}>
 
-                    <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)", margin: 0 }}>
-                        Completa los campos para registrar un nuevo usuario
-                    </p>
-
                     <form
-                        onSubmit={handleSubmit}
+                        onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                         className="
                             flex 
                             flex-col 
@@ -164,7 +128,7 @@ export default function UserRegisterForm() {
                                 lg:grid-cols-3 
                                 md:grid-cols-2
                                 sm:grid-cols-1
-                                gap-6
+                                gap-4
                             ">
 
                             {/* Fila 1 */}
@@ -304,6 +268,17 @@ export default function UserRegisterForm() {
                         </div>
 
                     </form>
+                    <Modal
+                        isOpen={isModalOpen}
+                        title="Confirmar creación de usuario"
+                        onClose={() => setIsModalOpen(false)}
+                        onConfirm={handleSubmit}
+                        confirmText="Crear"
+                        cancelText="Cancelar"
+                    >
+                        <p>¿Seguro que deseas crear este usuario?</p>
+                    </Modal>
+
                 </div>
 
             </div>

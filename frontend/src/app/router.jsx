@@ -12,7 +12,7 @@ import { CreateLoansPage, ListLoansPage, UpdateLoansPage, ViewLoanPage } from "@
 import { CreateMaterialPage, ListConsumablePage, UpdateMaterialPage, ViewConsumablePage } from "@/features/consumable-material";
 import { CreateReturnableMaterialPage, ListReturMaterialPage, UpdateReturnablePage, ViewReturMaterialPage } from "@/features/returnable-material";
 import { CreateBrandsPage, ListBrandPage, UpdateBrandPage, ViewBrandPage } from "@/features/brands";
-import { CreateReturnPage, UpdateReturnPage, ListReturnPage } from "@/features/returns"
+import { CreateReturnPage, UpdateReturnPage, ListReturnPage, ViewReturnPage } from "@/features/returns"
 
 const router = createBrowserRouter([
   {
@@ -66,6 +66,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
       { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage /> },
       { path: "/dashboard/users/:id/edit", element: <UpdateUserPage /> },
+      { path: "/dashboard/retorno/:id/edit", element: <UpdateReturnPage /> },
 
       // Rutas de Ver
       { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },
@@ -73,6 +74,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
       { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
       { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
+      { path: "/dashboard/retorno/:id/view", element: <ViewReturnPage /> },
 
       {
         path: "/dashboard/access",

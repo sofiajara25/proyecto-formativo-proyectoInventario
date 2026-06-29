@@ -89,4 +89,76 @@ export const returnableMaterialRepository = {
         // En este caso contiene el id del usuario recién creado
         return result.rows[0];
     },
+
+    async findAll() {
+        const result = await pool.query("SELECT * FROM returnable_materials");
+        return result.rows;
+    },
+
+    async findById(id) {
+        const result = await pool.query("SELECT * FROM returnable_materials WHERE id = $1", [id]);
+        return result.rows[0];
+    },
+
+    async update(id, returnableMaterialData) {
+        const {
+            materialToolId,
+            materialSenaPlate,
+            materialSerial,
+            materialName,
+            materialModel,
+            materialUnitValue,
+            materialCustodian,
+            materialQuantity,
+            materialStatus,
+            materialTotalValue,
+            materialDimensions,
+            materialDescription,
+            materialTechnicalSheet,
+            materialLocation,
+            photo,
+        } = returnableMaterialData;
+
+        const query = `
+            UPDATE returnable_materials
+            SET tool_id = $1,
+                sena_plate = $2,
+                serial = $3,
+                material_name = $4,
+                model = $5,
+                unit_value = $6,
+                custodian = $7,
+                quantity = $8,
+                status = $9,
+                total_value = $10,
+                dimensions = $11,
+                description = $12,
+                technical_sheet = $13,
+                location = $14,
+                photo_url = COALESCE($15, photo_url)
+            WHERE id = $16
+            RETURNING *;
+        `;
+        const values = [
+            materialToolId,
+            materialSenaPlate,
+            materialSerial,
+            materialName,
+            materialModel,
+            materialUnitValue,
+            materialCustodian,
+            materialQuantity,
+            materialStatus,
+            materialTotalValue,
+            materialDimensions,
+            materialDescription,
+            materialTechnicalSheet,
+            materialLocation,
+            photo ?? null,
+            id
+        ];
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
+
 };

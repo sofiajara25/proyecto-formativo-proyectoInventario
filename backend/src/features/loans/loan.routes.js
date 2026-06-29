@@ -21,7 +21,7 @@ const router = Router();
 router.post("/", loanController.create);
 router.get("/", loanController.list);
 router.get("/:id", loanController.getById);
-
+router.put("/:id", loanController.update);
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

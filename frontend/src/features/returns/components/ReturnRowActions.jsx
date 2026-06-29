@@ -30,10 +30,14 @@ export default function ReturnRowActions({ refund }) {
     // Acción para editar el usuario
     // Redirige a la página de edición usando el id del usuario
     const handleEdit = () => {
-        navigate(`/returns/${refund.id}/edit`);
+        navigate(`/dashboard/retorno/${refund.id}/edit`);
     };
 
 
+    // Acción para ver el préstamo
+    const handleView = () => {
+        navigate(`/dashboard/retorno/${refund.id}/view`);
+    };
     // // Acción para eliminar el usuario
     // // Actualmente solo imprime en consola el id
     // // En una aplicación real aquí se llamaría a la API
@@ -48,10 +52,10 @@ export default function ReturnRowActions({ refund }) {
 
             {/* Botón ver */}
             <button
-                onClick={handleEdit} // Ejecuta la navegación a la página de edición
+                onClick={handleView} // Ejecuta la navegación a la página de edición
                 className="p-1 rounded hover:bg-gray-100"
             >
-                <Eye size={18} color="#083344"/> {/* Icono de editar */}
+                <Eye size={18} color="#083344" /> {/* Icono de editar */}
             </button>
 
             {/* Botón editar */}
@@ -59,7 +63,7 @@ export default function ReturnRowActions({ refund }) {
                 onClick={handleEdit} // Ejecuta la navegación a la página de edición
                 className="p-1 rounded hover:bg-gray-100"
             >
-                <SquarePen size={16} color="#71277A"/> {/* Icono de editar */}
+                <SquarePen size={16} color="#71277A" /> {/* Icono de editar */}
             </button>
         </div>
     );

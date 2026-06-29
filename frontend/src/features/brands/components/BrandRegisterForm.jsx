@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Button, Navbar } from "@/shared";
+import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate } from "react-router-dom";
 // Si tienes un schema con Zod para marca
 import { brandSchema } from "../schemas/brandsSchema";
 import { createBrand } from "../service/brandService";
 
 export default function BrandRegisterForm() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -22,12 +23,11 @@ export default function BrandRegisterForm() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    // Validación con Zod
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
     const result = brandSchema.safeParse(formData);
-
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
@@ -35,16 +35,14 @@ export default function BrandRegisterForm() {
         fieldErrors[field] = issue.message;
       });
       setErrors(fieldErrors);
+      setIsSubmitting(false);
       return;
     }
 
     setErrors({});
-    setIsSubmitting(true);
-
     try {
       const payload = result.data;
       const response = await createBrand(payload);
-
       console.log("Marca creada:", response);
       alert("Marca creada correctamente");
       navigate(-1);
@@ -53,8 +51,10 @@ export default function BrandRegisterForm() {
       alert(error.message);
     } finally {
       setIsSubmitting(false);
+      setIsModalOpen(false);
     }
   };
+
 
   let label;
   // 😂 lógica fuera del JSX
@@ -76,7 +76,7 @@ export default function BrandRegisterForm() {
           <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)" }}>
             Completa el campo para registrar una nueva marca
           </p>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-medium text-gray-700" htmlFor="marca">
                 Nombre de la marca
@@ -108,6 +108,17 @@ export default function BrandRegisterForm() {
               </Button>
             </div>
           </form>
+          <Modal
+            isOpen={isModalOpen}
+            title="Confirmar creación de marca"
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleSubmit}
+            confirmText="Crear"
+            cancelText="Cancelar"
+          >
+            <p>¿Seguro que deseas crear esta marca?</p>
+          </Modal>
+
         </div>
       </div>
     </div>

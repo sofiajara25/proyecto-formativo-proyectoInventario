@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
 import { loanSchema } from "../schemas/loansSchema.js";
-import { createLoan } from "../services/loanService.js";
-import { useNavigate } from "react-router-dom";
+import { getLoanById, updateLoan } from "../services/loanService.js";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function LoansRegisterForm() {
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         loanUser: "",
@@ -27,6 +29,20 @@ export default function LoansRegisterForm() {
         { value: "consumible", label: "Consumible" },
     ];
 
+    useEffect(() => {
+        getLoanById(id)
+            .then((data) => setFormData({
+                loanUser: data.loan_user,
+                loanCategory: data.category,
+                loanProductName: data.product_name,
+                loanDate: data.loan_date?.slice(0, 10) || "",
+                loanReturnDate: data.return_date?.slice(0, 10) || "",
+                loanDescription: data.description,
+                photo: [],
+            }))
+            .catch((err) => console.error("Error cargando prestamo:", err));
+    }, [id]);
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
@@ -35,12 +51,10 @@ export default function LoansRegisterForm() {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
 
-        // Validación con Zod
         const result = loanSchema.safeParse(formData);
-
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
@@ -48,35 +62,29 @@ export default function LoansRegisterForm() {
                 fieldErrors[field] = issue.message;
             });
             setErrors(fieldErrors);
+            setIsSubmitting(false);
             return;
         }
 
         setErrors({});
-        setIsSubmitting(true);
-
         try {
-
             const payload = {
                 ...result.data,
                 photo: result.data.photo?.[0]?.name ?? null,
             };
-            // Payload validado
-
-            // Aquí llamas al servicio que consume la API
-            const response = await createLoan(payload);
-
-            console.log("Préstamo creado:", response);
-            alert("Préstamo creado correctamente");
-
-            // Volver atrás
-            window.history.back();
+            const response = await updateLoan(id, payload);
+            console.log("Préstamo actualizado:", response);
+            alert("Préstamo actualizado correctamente");
+            navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
             alert(error.message);
         } finally {
             setIsSubmitting(false);
+            setIsModalOpen(false);
         }
     };
+
 
     let label;
     // 😂 lógica fuera del JSX
@@ -98,15 +106,15 @@ export default function LoansRegisterForm() {
             <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
 
                 {/* Título */}
-                <h1  className="lg:pl-[70px]"
-                    style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0,}}>
+                <h1 className="lg:pl-[70px]"
+                    style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, }}>
                     Actualizar Préstamo
                 </h1>
 
                 {/* Card */}
                 <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto " style={{ padding: "32px 36px" }}>
 
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
+                    <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="grid grid-cols-1 place-items-center gap-6">
 
                         <div className="grid  gap-6 
                                 lg:grid-cols-3
@@ -158,7 +166,7 @@ export default function LoansRegisterForm() {
                                 onChange={handleChange}
                                 error={errors.loanReturnDate}
                             />
-                            <Input
+                            <TextArea
                                 label="Descripción"
                                 name="loanDescription"
                                 placeholder="Ingrese la descripción"
@@ -166,6 +174,7 @@ export default function LoansRegisterForm() {
                                 value={formData.loanDescription}
                                 onChange={handleChange}
                                 error={errors.loanDescription}
+                                rows={1}
                             />
                             {/* Contenedor del input */}
                             <div>
@@ -203,6 +212,17 @@ export default function LoansRegisterForm() {
                         </div>
 
                     </form>
+                    <Modal
+                        isOpen={isModalOpen}
+                        title="Confirmar actualización de préstamo"
+                        onClose={() => setIsModalOpen(false)}
+                        onConfirm={handleSubmit}
+                        confirmText="Actualizar"
+                        cancelText="Cancelar"
+                    >
+                        <p>¿Seguro que deseas actualizar este préstamo?</p>
+                    </Modal>
+
                 </div>
 
             </div>

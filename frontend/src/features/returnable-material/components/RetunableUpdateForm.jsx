@@ -1,29 +1,31 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
-import { useNavigate } from "react-router-dom";
-import { createReturnableMaterial } from "../services/returnableMaterialService";
+import { useNavigate, useParams } from "react-router-dom";
+import { getReturnableById, updateReturnable } from "../services/returnableMaterialService";
+import { useEffect } from "react";
 
 export default function ReturnableMaterialRegisterForm() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    toolId: "",
-    senaPlate: "",
-    serial: "",
+    materialToolId: "",
+    materialSenaPlate: "",
+    materialSerial: "",
     materialName: "",
-    model: "",
-    unitValue: "",
-    custodian: "",
-    quantity: "",
-    status: "",
-    totalValue: "",
-    dimensions: "",
-    description: "",
-    technicalSheet: "",
-    location: "",
+    materialModel: "",
+    materialUnitValue: "",
+    materialCustodian: "",
+    materialQuantity: "",
+    materialStatus: "",
+    materialTotalValue: "",
+    materialDimensions: "",
+    materialDescription: "",
+    materialTechnicalSheet: "",
+    materialLocation: "",
     photo: [],
   });
 
@@ -33,6 +35,30 @@ export default function ReturnableMaterialRegisterForm() {
     { value: "activo", label: "Activo" },
     { value: "inactivo", label: "Inactivo" },
   ];
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    getReturnableById(id)
+      .then((data) => setFormData({
+        materialToolId: data.tool_id,
+        materialSenaPlate: data.sena_plate,
+        materialSerial: data.serial,
+        materialName: data.material_name,
+        materialModel: data.model,
+        materialUnitValue: data.unit_value,
+        materialCustodian: data.custodian,
+        materialQuantity: data.quantity,
+        materialStatus: data.status,
+        materialTotalValue: data.total_value,
+        materialDimensions: data.dimensions,
+        materialDescription: data.description,
+        materialTechnicalSheet: data.technical_sheet,
+        materialLocation: data.location,
+        photo: [],
+      }))
+      .catch((err) => console.error("Error cargando material:", err));
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -44,63 +70,45 @@ export default function ReturnableMaterialRegisterForm() {
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
 
-    // Convertimos valores numéricos antes de validar
     const parsedData = {
       ...formData,
-      unitValue: Number(formData.unitValue),
-      quantity: Number(formData.quantity),
-      totalValue: Number(formData.totalValue),
+      materialUnitValue: Number(formData.materialUnitValue),
+      materialQuantity: Number(formData.materialQuantity),
+      materialTotalValue: Number(formData.materialTotalValue),
     };
 
-    // Validación con Zod
     const result = returnablematerialSchema.safeParse(parsedData);
-
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+      setIsSubmitting(false);
       return;
     }
 
-    // Si pasa la validación
     setErrors({});
-    setIsSubmitting(true);
-
     try {
-      // Llamamos al servicio frontend que consume la API
-      // result.data contiene los datos ya validados por Zod
       const payload = {
         ...result.data,
         photo: result.data.photo?.[0]?.name ?? null,
       };
-      const response = await createReturnableMaterial(payload);
-
-      // Log informativo para desarrollo
+      const response = await updateReturnable(id, payload);
       console.log("Material actualizado:", response);
-
-      // Feedback básico al usuario
       alert("Material actualizado correctamente");
-
-      // Navegamos a la vista anterior
-      // navigate(-1) equivale a "volver atrás"
       navigate(-1);
     } catch (error) {
-      // Capturamos errores de red o errores lanzados por el service
       console.error("Error:", error.message);
-
-      // Mostramos el mensaje de error al usuario
       alert(error.message);
     } finally {
-      // Pase lo que pase, desactivamos el estado de envío
       setIsSubmitting(false);
+      setIsModalOpen(false);
     }
   };
-
   // =======================================================
 
   let label;
@@ -122,7 +130,7 @@ export default function ReturnableMaterialRegisterForm() {
     >
       <Navbar />
 
-      <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+      <div className="flex flex-col flex-1 px-10 py-2 gap-2 justify-center">
         {/* Título */}
         <h1
           className="lg:pl-[70px]"
@@ -138,45 +146,36 @@ export default function ReturnableMaterialRegisterForm() {
 
         {/* Card */}
         <div
-          className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl mx-auto"
-          style={{ padding: "32px 36px" }}
+          className="bg-white rounded-2xl flex flex-col gap-2 lg:w-6xl mx-auto"
+          style={{ padding: "14px" }}
         >
-          <p
-            style={{
-              fontSize: "var(--fs-xxs)",
-              color: "var(--color-gray-500)",
-              margin: 0,
-            }}
-          >
-            Completa los campos para actualizar un nuevo material devolutivo
-          </p>
 
           <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4 lg:mx-5 md:mx-2"
+            onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
+            className="flex flex-col gap-1 lg:mx-5 md:mx-2"
           >
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-6">
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-2">
               {/* Fila 1 */}
               <Input
                 label="ID Herramienta"
-                name="toolId"
-                value={formData.toolId}
+                name="materialToolId"
+                value={formData.materialToolId}
                 onChange={handleChange}
-                error={errors.toolId}
+                error={errors.materialToolId}
               />
               <Input
                 label="Placa SENA"
-                name="senaPlate"
-                value={formData.senaPlate}
+                name="materialSenaPlate"
+                value={formData.materialSenaPlate}
                 onChange={handleChange}
-                error={errors.senaPlate}
+                error={errors.materialSenaPlate}
               />
               <Input
                 label="Serial"
-                name="serial"
-                value={formData.serial}
+                name="materialSerial"
+                value={formData.materialSerial}
                 onChange={handleChange}
-                error={errors.serial}
+                error={errors.materialSerial}
               />
 
               {/* Fila 2 */}
@@ -189,83 +188,84 @@ export default function ReturnableMaterialRegisterForm() {
               />
               <Input
                 label="Modelo"
-                name="model"
-                value={formData.model}
+                name="materialModel"
+                value={formData.materialModel}
                 onChange={handleChange}
-                error={errors.model}
+                error={errors.materialModel}
               />
               <Input
                 label="Valor Unitario"
-                name="unitValue"
+                name="materialUnitValue"
                 type="number"
-                value={formData.unitValue}
+                value={formData.materialUnitValue}
                 onChange={handleChange}
-                error={errors.unitValue}
+                error={errors.materialUnitValue}
               />
 
               {/* Fila 3 */}
               <Input
                 label="Cuentadante"
-                name="custodian"
-                value={formData.custodian}
+                name="materialCustodian"
+                value={formData.materialCustodian}
                 onChange={handleChange}
-                error={errors.custodian}
+                error={errors.materialCustodian}
               />
               <Input
                 label="Cantidad"
-                name="quantity"
+                name="materialQuantity"
                 type="number"
-                value={formData.quantity}
+                value={formData.materialQuantity}
                 onChange={handleChange}
-                error={errors.quantity}
+                error={errors.materialQuantity}
               />
               <Select
                 label="Estado"
-                name="status"
+                name="materialStatus"
                 options={estados}
-                value={formData.status}
+                value={formData.materialStatus}
                 onChange={handleChange}
-                error={errors.status}
+                error={errors.materialStatus}
               />
 
               {/* Fila 4 */}
               <Input
                 label="Valor Total"
-                name="totalValue"
+                name="materialTotalValue"
                 type="number"
-                value={formData.totalValue}
+                value={formData.materialTotalValue}
                 onChange={handleChange}
-                error={errors.totalValue}
+                error={errors.materialTotalValue}
               />
               <Input
                 label="Dimensiones"
-                name="dimensions"
-                value={formData.dimensions}
+                name="materialDimensions"
+                value={formData.materialDimensions}
                 onChange={handleChange}
-                error={errors.dimensions}
+                error={errors.materialDimensions}
               />
-              <Input
+              <TextArea
                 label="Descripción"
-                name="description"
-                value={formData.description}
+                name="materialDescription"
+                value={formData.materialDescription}
                 onChange={handleChange}
-                error={errors.description}
+                error={errors.materialDescription}
+                rows={1}
               />
 
               {/* Fila 5 */}
               <Input
                 label="Ficha Técnica"
-                name="technicalSheet"
-                value={formData.technicalSheet}
+                name="materialTechnicalSheet"
+                value={formData.materialTechnicalSheet}
                 onChange={handleChange}
-                error={errors.technicalSheet}
+                error={errors.materialTechnicalSheet}
               />
               <Input
                 label="Ubicación"
-                name="location"
-                value={formData.location}
+                name="materialLocation"
+                value={formData.materialLocation}
                 onChange={handleChange}
-                error={errors.location}
+                error={errors.materialLocation}
               />
               {/* Contenedor del input */}
               <div>
@@ -301,6 +301,17 @@ export default function ReturnableMaterialRegisterForm() {
               </Button>
             </div>
           </form>
+          <Modal
+            isOpen={isModalOpen}
+            title="Confirmar actualización de material devolutivo"
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleSubmit}
+            confirmText="Actualizar"
+            cancelText="Cancelar"
+          >
+            <p>¿Seguro que deseas actualizar este material devolutivo?</p>
+          </Modal>
+
         </div>
       </div>
     </div>

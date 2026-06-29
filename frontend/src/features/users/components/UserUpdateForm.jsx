@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Select, Navbar, FileInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ const updateUserSchema = userSchema.extend({
 });
 
 export default function UserUpdateForm() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,39 +81,34 @@ export default function UserUpdateForm() {
         }
     };
     //============== HANDLE SUBMIT ==============
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
 
-        // Validamos los datos contra el esquema Zod
         const result = updateUserSchema.safeParse(formData);
-        console.log(result);
-
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+            setIsSubmitting(false);
             return;
         }
 
-        setErrors({});
-        setIsSubmitting(true);
-
         try {
-            // Llamamos al servicio de actualización
             const response = await updateUser(id, result.data);
-
             console.log("Usuario actualizado:", response);
             alert("Usuario actualizado correctamente");
-
+            navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
             alert(error.message);
         } finally {
             setIsSubmitting(false);
+            setIsModalOpen(false);
         }
     };
+
     // =======================================================
 
     let label;
@@ -130,7 +126,7 @@ export default function UserUpdateForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-2 gap-4 justify-center">
 
                 {/* Título */}
                 <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
@@ -140,12 +136,8 @@ export default function UserUpdateForm() {
                 {/* Card */}
                 <div className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl  mx-auto" style={{ padding: "32px 36px" }}>
 
-                    <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-gray-500)", margin: 0 }}>
-                        Completa los campos para actualizar un nuevo usuario
-                    </p>
-
                     <form
-                        onSubmit={handleSubmit}
+                        onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                         className="
                             flex 
                             flex-col 
@@ -160,7 +152,7 @@ export default function UserUpdateForm() {
                                 lg:grid-cols-3 
                                 md:grid-cols-2
                                 sm:grid-cols-1
-                                gap-6
+                                gap-2
                             ">
 
                             {/* Fila 1 */}
@@ -300,6 +292,17 @@ export default function UserUpdateForm() {
                         </div>
 
                     </form>
+                    {/* Modal de confirmación */}
+                    <Modal
+                        isOpen={isModalOpen}
+                        title="Confirmar actualización"
+                        onClose={() => setIsModalOpen(false)}
+                        onConfirm={handleSubmit}
+                        confirmText="Actualizar"
+                        cancelText="Cancelar"
+                    >
+                        <p>¿Seguro que deseas actualizar este usuario?</p>
+                    </Modal>
                 </div>
 
             </div>

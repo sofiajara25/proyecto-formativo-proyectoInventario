@@ -23,8 +23,8 @@ export default function ReportConfigModal({ isOpen, onClose }) {
         }
     };
 
-    const handleGenerateReport = () => {
-        generateLoanReport({ format, selectedFields, scope, name });
+    const handleGenerateReport = async () => {
+        await generateLoanReport({ format, selectedFields, scope, name });
         onClose();
     };
 

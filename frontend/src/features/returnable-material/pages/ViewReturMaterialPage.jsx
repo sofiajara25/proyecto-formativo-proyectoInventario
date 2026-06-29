@@ -1,33 +1,33 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Navbar, Button } from "@/shared";
 import { Package } from "lucide-react"; // ícono para materiales devolutivos
-import { returnables } from "../data/returnables";
+// import { returnables } from "../data/returnables";
+import { getReturnableById } from "../services/returnableMaterialService"
+import { useEffect } from "react";
+import { useState } from "react";
+
 
 export default function ViewReturMaterialPage() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const [materialReturnable, setmaterialReturnable] = useState(null);
 
-    const returnable = returnables.find((r) => r.id === Number(id));
+    useEffect(() => {
+        getReturnableById(id)
+            .then(setmaterialReturnable)
+            .catch((err) => console.error("Error cargando material devolutivo:", err));
+    }, [id]);
 
-    if (!returnable)
+    if (!materialReturnable) {
         return (
-            <div
-                className="min-h-screen flex items-center justify-center"
-                style={{
-                    background:
-                        "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
-                }}
-            >
-                <p
-                    style={{
-                        color: "var(--color-white)",
-                        fontSize: "var(--fs-sm)",
-                    }}
-                >
+            <div className="min-h-screen flex items-center justify-center"
+                style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}>
+                <p style={{ color: "var(--color-white)", fontSize: "var(--fs-sm)" }}>
                     Material devolutivo no encontrado.
                 </p>
             </div>
         );
+    }
 
     return (
         <div
@@ -65,7 +65,15 @@ export default function ViewReturMaterialPage() {
                                 flexShrink: 0,
                             }}
                         >
-                            <Package size={40} color="white" />
+                            {materialReturnable.photo_url ? (
+                                <img
+                                    src={`http://localhost:5000/${materialReturnable.photo_url}`}
+                                    alt="Foto del material de consumo"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <Package size={40} color="white" />
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-1">
@@ -77,7 +85,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                {returnable.materialName}
+                                {materialReturnable.material_name}
                             </p>
                             <p
                                 style={{
@@ -86,7 +94,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                Custodio: {returnable.custodian}
+                                Custodio: {materialReturnable.custodian}
                             </p>
                             <p
                                 style={{
@@ -96,7 +104,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                Estado: {returnable.status ? "Activo" : "Inactivo"}
+                                Estado: {materialReturnable.status ? "Activo" : "Inactivo"}
                             </p>
                         </div>
                     </div>
@@ -105,45 +113,20 @@ export default function ViewReturMaterialPage() {
                     <div style={{ borderTop: "1.5px solid var(--color-gray-100)" }} />
 
                     {/* Detalles en vertical */}
-                    <div className="flex flex-col gap-4">
-                        {[
-                            { label: "Código herramienta", value: returnable.toolId },
-                            { label: "Placa SENA", value: returnable.senaPlate },
-                            { label: "Serial", value: returnable.serial },
-                            { label: "Modelo", value: returnable.modelo },
-                            { label: "Cantidad", value: returnable.quantity },
-                            { label: "Valor unitario", value: `$${returnable.unitValue}` },
-                            { label: "Valor total", value: `$${returnable.totalValue}` },
-                            { label: "Dimensiones", value: returnable.dimensions },
-                            { label: "Ubicación", value: returnable.location },
-                            { label: "Ficha técnica", value: returnable.techSheet },
-                            { label: "Descripción", value: returnable.description },
-                        ].map((item) => (
-                            <div key={item.label} className="flex flex-col gap-1">
-                                <p
-                                    style={{
-                                        fontSize: "var(--fs-xxxs)",
-                                        fontWeight: "var(--font-weight-bold)",
-                                        color: "var(--color-gray-500)",
-                                        margin: 0,
-                                        textTransform: "uppercase",
-                                        letterSpacing: "0.05em",
-                                    }}
-                                >
-                                    {item.label}
-                                </p>
-                                <p
-                                    style={{
-                                        fontSize: "var(--fs-xxs)",
-                                        color: "var(--color-gray-900)",
-                                        margin: 0,
-                                    }}
-                                >
-                                    {item.value}
-                                </p>
-                            </div>
-                        ))}
+                    <div className="grid grid-cols-2 gap-4">
+                        <p><strong>Código herramienta:</strong> {materialReturnable.tool_id}</p>
+                        <p><strong>Placa SENA:</strong> {materialReturnable.sena_plate}</p>
+                        <p><strong>Serial:</strong> {materialReturnable.serial}</p>
+                        <p><strong>Modelo:</strong> {materialReturnable.model}</p>
+                        <p><strong>Valor unitario:</strong> ${materialReturnable.unit_value}</p>
+                        <p><strong>Cantidad:</strong> {materialReturnable.quantity}</p>
+                        <p><strong>Valor total:</strong> ${materialReturnable.total_value}</p>
+                        <p><strong>Dimenciones:</strong> {materialReturnable.dimensions}</p>
+                        <p><strong>Descripción:</strong> {materialReturnable.description}</p>
+                        <p><strong>Ficha Tecnica:</strong> {materialReturnable.technical_sheet}</p>
+                        <p><strong>Ubicación:</strong> {materialReturnable.location}</p>
                     </div>
+
 
                     {/* Divider */}
                     <div style={{ borderTop: "1.5px solid var(--color-gray-100)" }} />
@@ -152,7 +135,7 @@ export default function ViewReturMaterialPage() {
                     <div className="flex justify-end">
                         <Button
                             onClick={() =>
-                                navigate(`/dashboard/devolutivos/${returnable.id}/edit`)}
+                                navigate(`/dashboard/devolutivos/${materialReturnable.id}/edit`)}
                             type="button" variant="primary" size="md"
                             onMouseEnter={(e) =>
                                 (e.currentTarget.style.background = "var(--color-primary-700)")

@@ -1,15 +1,18 @@
-import { returnables } from "../../data/returnables";
+// import { returnables } from "../../data/returnables";
 import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { getReturnables } from "../../services/returnableMaterialService";
 
-export function generateReturnableReport({
+export async function generateReturnableReport({
     format,
     selectedFields,
     scope,
     senaPlate,
     filterStatus
 }) {
+
+    const returnables = await getReturnables();
     const { headers, rows } = buildReportDataset({
         returnables,
         selectedFields,

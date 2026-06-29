@@ -1,7 +1,7 @@
 // campos del reporte de prestamos
 export const loanReportFields = [
     {
-        key: "user",
+        key: "loan_user",
         label: "Usuario",
         default: true,
     },
@@ -11,17 +11,17 @@ export const loanReportFields = [
         default: true,
     },
     {
-        key: "materialName",
-        label: "Nombre del Material",
+        key: "product_name",
+        label: "Nombre del producto",
         default: true,
     },
     {
-        key: "loanDate",
+        key: "loan_date",
         label: "Fecha de Préstamo",
         default: true,
     },
     {
-        key: "returnDate",
+        key: "return_date",
         label: "Fecha de Devolución",
         default: true,
     },

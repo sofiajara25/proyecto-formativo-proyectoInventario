@@ -9,7 +9,7 @@ import autoTable from "jspdf-autotable";
 export function generatePdfReport({
     headers,                            // Encabezadps de la tabla (columnas)
     rows,                              // Datos (array de filas)
-    fileName = "user-report.pdf",      // Nombre del archivo del salida
+    fileName = "materialReturnable-report.pdf",      // Nombre del archivo del salida
 }) {
 
     // Inicializa el documento PDF
@@ -17,7 +17,7 @@ export function generatePdfReport({
 
     // Configuracion del titulo
     doc.setFontSize(16);
-    doc.text("Reporte de usuarios", 14, 20) // Posicion (x, y)
+    doc.text("Reporte de materiales devolutivos", 14, 20) // Posicion (x, y)
 
     // Generacion de tabla automatica
     autoTable(doc, {

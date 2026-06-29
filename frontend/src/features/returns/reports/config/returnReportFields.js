@@ -1,11 +1,16 @@
 export const returnReportFields = [
     {
-        key: "loanId",
+        key: "material_type",
+        label: "Tipo de Materia",
+        default: true,
+    },
+    {
+        key: "loan_id",
         label: "ID Préstamo",
         default: true,
     },
     {
-        key: "returnDate",
+        key: "return_date",
         label: "Fecha de Devolución",
         default: true,
     },
@@ -15,53 +20,22 @@ export const returnReportFields = [
         default: true,
     },
     {
-        key: "isAvailable",
-        label: "Disponible",
-        default: false,
-    },
-    {
-        key: "isMaintenance",
-        label: "Mantenimiento",
-        default: false,
-    },
-    {
-        key: "isLow",
-        label: "Baja",
-        default: false,
-    },
-
-    {
-        key: "idloanid",
-        label: "ID Préstamo",
-        default: true,
-    },
-    {
-        key: "returnDate",
-        label: "Fecha de Devolución",
-        default: true,
-    },
-    {
-        key: "observations",
-        label: "Observaciones",
-        default: true,
-    },
-    {
-        key: "quantityReturned",
+        key: "quantity",
         label: "Cantidad Devuelta",
         default: true,
     },
     {
-        key: "isAvailable",
+        key: "is_available",
         label: "Disponible",
         default: false,
     },
     {
-        key: "isMaintenance",
+        key: "is_maintenance",
         label: "Mantenimiento",
         default: false,
     },
     {
-        key: "isLow",
+        key: "is_low",
         label: "Baja",
         default: false,
     },

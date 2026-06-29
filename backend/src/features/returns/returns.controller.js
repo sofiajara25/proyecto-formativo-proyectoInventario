@@ -55,4 +55,35 @@ export const returnController = {
       });
     }
   },
+
+  async list(req, res) {
+    try {
+      const returns = await returnService.getAllReturn();
+      res.status(200).json(returns);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async getById(req, res) {
+    try {
+      const { id } = req.params;
+      const returns = await returnService.getReturnById(id);
+      if (!returns) return res.status(404).json({ error: "Retorno de material no encontrado" });
+      res.status(200).json(returns);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+      const updated = await returnService.updateReturn(id, req.body);
+      if (!updated) return res.status(404).json({ error: "Retorno no encontrado" });
+      res.status(200).json({ message: "Retorno actualizado correctamente", retorno: updated });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 };

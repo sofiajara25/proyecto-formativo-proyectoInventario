@@ -2,13 +2,13 @@ export function buildReportDataset({
     returnables,
     selectedFields,
     scope,
-    senaPlate
+    materialSenaPlate
 }) {
     let filteredReturnables = [...returnables];
 
-    if (scope === "senaPlate" && senaPlate) {
+    if (scope === "materialSenaPlate" && materialSenaPlate) {
         filteredReturnables = filteredReturnables.filter(
-            (returnable) => returnable.senaPlate === senaPlate
+            (returnable) => returnable.materialSenaPlate === materialSenaPlate
         );
     }
 

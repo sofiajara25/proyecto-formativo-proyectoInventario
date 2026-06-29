@@ -5,28 +5,30 @@ export function buildReportDataset({
     loans,          // array de prestamos origen
     selectedFields, // campos seleccionados [{key, label}]
     scope,          // alcance: "all" | "user"
-    name            // nombre del usuario para filtrar (si aplica)
+    loanUser            // nombre del usuario para filtrar (si aplica)
 }) {
 
     // copia inmutable del array original
     let filteredLoans = [...loans];
 
     // filtro por usuario si aplica
-    if (scope === "name" && name) {
+    if (scope === "loanUser" && loanUser) {
         filteredLoans = filteredLoans.filter(
-            (loan) => loan.user === name // corregido: era loan.name, debe ser loan.user
+            (loan) => loan.loanUser === loanUser // corregido: era loan.name, debe ser loan.user
         );
     }
 
+    // Evitar duplicados
+    const uniqueFields = selectedFields.filter(
+        (field, index, self) => index === self.findIndex((f) => f.key === field.key)
+    );
+
     // encabezados del reporte
-    const headers = selectedFields.map((field) => field.label);
+    const headers = uniqueFields.map((field) => field.label);
 
     // filas del reporte
     const rows = filteredLoans.map((loan) =>
-        selectedFields.map((field) => {
-            const value = loan[field.key];
-            return value ?? "";
-        })
+        uniqueFields.map((field) => loan[field.key] ?? "")
     );
 
     return { headers, rows };

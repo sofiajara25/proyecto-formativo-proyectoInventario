@@ -9,7 +9,7 @@ import * as XLSX from "xlsx";
 export function generateExcelReport({
     headers,                    //Array de encabezados
     rows,                       // Array de Filas (array de arrays)
-    fileName = "user-report.xlsx"  // Nombre del archivo de salida
+    fileName = "materialReturnable-report.xlsx"  // Nombre del archivo de salida
 }) {
 
 

@@ -9,12 +9,12 @@ import * as XLSX from "xlsx";
 export function generateExcelReport({
     headers,                    //Array de encabezados
     rows,                       // Array de Filas (array de arrays)
-    fileName = "loan-report.xlsx"  // Nombre del archivo de salida
+    fileName = "returns-report.xlsx"  // Nombre del archivo de salida
 }) {
 
 
     const currenDate = new Date().toLocaleDateString();
-    const reportTitle = `   **********   REPORTE DE Devoluciones - ${currenDate}  **********`;
+    const reportTitle = `   **********   REPORTE DE RETORNOS - ${currenDate}  **********`;
 
     //Estructura Final de la hoja
 

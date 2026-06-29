@@ -5,18 +5,22 @@ export function buildReportDataset({
     returns,          // Array de usuarios origen
     selectedFields, // Campos seleccionados para el reporte [{key,label}]
     scope,          // Alcance del reporte: "all" | "document"
-    returnDate  // Numero de documentos para filtrar (si aplica)
+    materialType  // Numero de documentos para filtrar (si aplica)
 }) {
 
     // Copia inmutable del array original (evita mutaciones)
     let filteredReturns = [...returns];
 
     // Filtro por alcance: si es documento, se aplica filtro especifico
-    if (scope === "returnDate" && returnDate) {
+    if (scope === "materialType" && materialType) {
         filteredReturns = filteredReturns.filter(
-            (brand) => brand.returnDate === returnDate  // Fix: typo "docuement_number" -> "document"
+            (brand) => brand.materialType === materialType  // Fix: typo "docuement_number" -> "document"
         );
     }
+
+    const uniqueFields = selectedFields.filter(
+        (field, index, self) => index === self.findIndex((f) => f.key === field.key)
+    );
 
     // Construccion de encabezados del reporte
     // Se toma el label de cada uno de los campos seleccionados
@@ -24,13 +28,8 @@ export function buildReportDataset({
 
     // Construccion de filas del reporte
     // Cada usuario se transforma en un arreglo de valores segun los campos seleccionados
-    const rows = filteredReturns.map((brand) =>
-        selectedFields.map((field) => {
-            const value = brand[field.key]; // Acceso dinamico a la propiedad
-
-            // Normalizacion: evita undefined o null en el reporte
-            return value ?? "";
-        })
+    const rows = filteredReturns.map((returnable) =>
+        uniqueFields.map((field) => returnable[field.key] ?? "")
     );
 
     // Estructura final desacoplada de la UI

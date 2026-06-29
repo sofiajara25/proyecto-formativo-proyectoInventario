@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Input, Button, Navbar, FileInput } from "@/shared";
+import { Input, Button, Navbar, FileInput, Modal, TextArea } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getConsumableById, updateConsumable } from "../services/consumableMaterialService";
 
 
 export default function MaterialRegisterForm() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,8 +58,8 @@ export default function MaterialRegisterForm() {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
 
         const parsedData = {
             ...formData,
@@ -67,9 +68,7 @@ export default function MaterialRegisterForm() {
             materialTotalValue: Number(formData.materialTotalValue),
         };
 
-        // Validación con Zod
         const result = materialSchema.safeParse(parsedData);
-
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
@@ -77,29 +76,27 @@ export default function MaterialRegisterForm() {
                 fieldErrors[field] = issue.message;
             });
             setErrors(fieldErrors);
+            setIsSubmitting(false);
             return;
         }
 
-        // Si pasa la validación
         setErrors({});
-        setIsSubmitting(true);
-
         try {
             const payload = {
                 ...result.data,
                 photo: result.data.photo?.[0]?.name ?? null,
             };
-            await updateConsumable(id, payload);   // 👈 aquí usas update
-            alert("Material actualizado correctamente")
+            await updateConsumable(id, payload);
+            alert("Material actualizado correctamente");
+            navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
             alert(error.message);
         } finally {
             setIsSubmitting(false);
+            setIsModalOpen(false);
         }
-
     };
-
     let label;
     // 😂 lógica fuera del JSX
     if (isSubmitting) {
@@ -119,7 +116,7 @@ export default function MaterialRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-2 gap-4 justify-center">
                 {/* Título */}
                 <h1 className="lg:pl-[60px]"
                     style={{
@@ -135,23 +132,14 @@ export default function MaterialRegisterForm() {
                 {/* Card */}
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto"
-                    style={{ padding: "32px 36px" }}
+                    style={{ padding: "28px " }}
                 >
-                    <p
-                        style={{
-                            fontSize: "var(--fs-xxs)",
-                            color: "var(--color-gray-500)",
-                            margin: 0,
-                        }}
-                    >
-                        Completa los campos para actualizar un nuevo material
-                    </p>
 
                     <form
-                        onSubmit={handleSubmit}
-                        className="grid grid-cols-1 place-items-center gap-6"
+                        onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
+                        className="grid grid-cols-1 place-items-center gap-2"
                     >
-                        <div className="grid grid-cols-3 gap-6 mx-auto">
+                        <div className="grid grid-cols-3 gap-4 mx-auto">
                             <Input
                                 label="Cuentadante"
                                 name="materialAccountant"
@@ -236,12 +224,13 @@ export default function MaterialRegisterForm() {
                                 error={errors.materialStatus}
                             />
 
-                            <Input
+                            <TextArea
                                 label="Descripción"
                                 name="materialDescription"
                                 value={formData.materialDescription}
                                 onChange={handleChange}
                                 error={errors.materialDescription}
+                                rows={1}
                             />
 
                             {/* Contenedor del input */}
@@ -278,6 +267,17 @@ export default function MaterialRegisterForm() {
                             </Button>
                         </div>
                     </form>
+                    <Modal
+                        isOpen={isModalOpen}
+                        title="Confirmar actualización de material de consumo"
+                        onClose={() => setIsModalOpen(false)}
+                        onConfirm={handleSubmit}
+                        confirmText="Actualizar"
+                        cancelText="Cancelar"
+                    >
+                        <p>¿Seguro que deseas actualizar este material de consumo?</p>
+                    </Modal>
+
                 </div>
             </div>
         </div>

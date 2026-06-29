@@ -75,4 +75,42 @@ export const loanRepository = {
         const result = await pool.query("SELECT * FROM loans WHERE id = $1", [id]);
         return result.rows[0]; // debe incluir user_photo
     },
+    async update(id, loanData) {
+        const {
+            loanUser,
+            loanCategory,
+            loanProductName,
+            loanDate,
+            loanReturnDate,
+            loanDescription,
+            photo
+        } = loanData;
+
+        const query = `
+            UPDATE loans
+            SET loan_user = $1,
+                category = $2,
+                product_name = $3,
+                loan_date = $4,
+                return_date = $5,
+                description = $6,
+                photo_url = COALESCE($7, photo_url)
+            WHERE id = $8
+            RETURNING *;
+        `;
+
+        const values = [
+            loanUser,
+            loanCategory,
+            loanProductName,
+            loanDate,
+            loanReturnDate,
+            loanDescription,
+            photo ?? null,
+            id,
+        ];
+
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
 };

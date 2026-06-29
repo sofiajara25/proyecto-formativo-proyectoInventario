@@ -17,6 +17,11 @@ export { default as DataTable } from "./components/DataTable";
 export { default as Checkbox } from "./components/Checkbox";
 export { default as Card } from "./components/Card";
 export { default as FileInput } from "./components/FileInput";
+export { default as TextArea } from "./components/TextArea";
+export { default as Modal } from "./components/Modal";
+export { default as PageLayout } from "./layouts/PageLayout";
+
+
 
 
 // schemas

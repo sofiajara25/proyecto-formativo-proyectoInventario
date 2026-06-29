@@ -1,77 +1,75 @@
-// src/shared/components/Modal.jsx
-
-import { useRef } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
+import Button from "./Button";
 
-export function Modal({
-    open = false,
-    onClose,
+export default function Modal({
+    isOpen,
     title,
+    onClose,
+    onConfirm,
+    confirmText = "Confirmar",
+    cancelText = "Cancelar",
+    showFooter = true,
+    containerClassName = "",
     children,
-    footer,
-    className = "",
 }) {
-    const overlayRef = useRef(null);
+    // Cierra con la tecla Escape
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        if (isOpen) document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
 
-    const handleOverlayClick = (e) => {
-        if (e.target === overlayRef.current) {
-            onClose?.();
-        }
-    };
-
-    if (!open) return null;
+    if (!isOpen) return null;
 
     return (
         <div
-            ref={overlayRef}
-            onClick={handleOverlayClick}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={onClose}
         >
             <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-                className={`
-                    relative
-                    w-full
-                    max-w-lg
-                    rounded-2xl
-                    bg-white
-                    shadow-xl
-                    ${className}
-                `}
+                className={`bg-white rounded-2xl shadow-lg w-full max-w-md mx-4 flex flex-col ${containerClassName}`}
+                onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between border-b px-6 py-4">
-                    <h2
-                        id="modal-title"
-                        className="text-base font-semibold text-neutral-900"
-                    >
-                        {title}
-                    </h2>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+                    <h2 className="text-base font-semibold text-text-primary">{title}</h2>
                     <button
                         onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none"
                         aria-label="Cerrar modal"
-                        className="rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
                     >
-                        <X className="size-5" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Content */}
-                <div className="px-6 py-4">
+                {/* Body */}
+                <div className="px-6 py-5">
                     {children}
                 </div>
 
                 {/* Footer */}
-                {footer && (
-                    <div className="flex items-center justify-end gap-2 border-t px-6 py-4">
-                        {footer}
+                {showFooter && (
+                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={onClose}
+                        >
+                            {cancelText}
+                        </Button>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            onClick={onConfirm}
+                        >
+                            {confirmText}
+                        </Button>
                     </div>
                 )}
             </div>
         </div>
     );
 }
-
-export default Modal;

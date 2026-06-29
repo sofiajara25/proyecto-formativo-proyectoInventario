@@ -34,7 +34,7 @@ export default function ListUserPage() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4">
+            <div className="flex flex-col flex-1 px-10 py-2 gap-4">
 
                 {/* Título */}
                 <h1

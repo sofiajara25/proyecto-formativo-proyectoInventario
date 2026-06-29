@@ -21,4 +21,15 @@ export const returnService = {
         // Delegamos al repository
         return await returnRepository.create(returnData);
     },
+
+    async getAllReturn() {
+        return await returnRepository.findAll();
+    },
+    async getReturnById(id) {
+        return await returnRepository.findById(id);
+    },
+
+    async updateReturn(id, data) {
+        return await returnRepository.update(id, data);
+    }
 };
