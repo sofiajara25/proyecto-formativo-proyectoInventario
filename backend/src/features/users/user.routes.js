@@ -44,8 +44,11 @@ router.put(
     "/:id",
     authenticateToken,
     upload.single("userPhoto"),
-    userController.update);
+    userController.update
+);
 
+router.get("/:userId/permissions", userController.getPermissionsByUserId);
+router.put("/:userId/permissions", userController.updatePermissions);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

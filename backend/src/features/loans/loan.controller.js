@@ -24,7 +24,11 @@ export const loanController = {
     try {
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-      const loan = await loanService.createLoan(req.body);
+      const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+      const loan = await loanService.createLoan({
+        ...req.body,
+        photo: photoPath,
+      });
 
 
       // Respuesta HTTP en caso de éxito
@@ -79,7 +83,11 @@ export const loanController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const updatedLoan = await loanService.updateLoan(id, req.body);
+      const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+      const updatedLoan = await loanService.updateLoan(id, {
+        ...req.body,
+        photo: photoPath,
+      });
 
       if (!updatedLoan) {
         return res.status(404).json({ error: "Préstamo no encontrado" });

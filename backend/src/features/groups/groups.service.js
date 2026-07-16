@@ -1,14 +1,9 @@
 import { groupsRepository } from "./groups.repository.js";
 
 export const groupsService = {
-    async create(data) {
-        if (!data.groupName?.trim()) {
-            throw new Error("El nombre del grupo es obligatorio");
-        }
-
-        return await groupsRepository.create({
-            groupName: data.groupName.trim(),
-        });
+    // groups.service.js
+    async createGroup(groupData) {
+        return await groupsRepository.create(groupData);
     },
 
     async getAll() {
@@ -18,4 +13,7 @@ export const groupsService = {
     async getPermissionsByGroupId(group_id) {
         return await groupsRepository.getPermissionsByGroupId(group_id);
     },
+    async updatePermissions(groupId, permissionIds) {
+        return await groupsRepository.updatePermissions(groupId, permissionIds);
+    }
 };

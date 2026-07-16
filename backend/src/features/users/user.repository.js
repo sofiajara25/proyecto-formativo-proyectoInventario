@@ -143,6 +143,60 @@ export const userRepository = {
 
     const result = await pool.query(query, values);
     return result.rows[0];
+  },
+
+  // users.repository.js
+  async getPermissionsByUserId(userId) {
+    const query = `
+      SELECT 
+        p.permission_id, 
+        p.permission_name, 
+        p.permission_codename
+      FROM user_permissions up
+      INNER JOIN permissions p 
+        ON p.permission_id = up.permission_id
+      WHERE up.user_id = $1
+      ORDER BY p.permission_name;
+  `;
+    const result = await pool.query(query, [userId]);
+    return result.rows;
+  },
+
+  async updatePermissions(userId, permissionIds) {
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      await client.query(
+        `
+        DELETE FROM user_permissions
+        WHERE user_id = $1
+      `,
+        [userId],
+      );
+      for (const permissionId of permissionIds) {
+
+        await client.query(
+          `INSERT INTO user_permissions (
+            user_id, 
+            permission_id
+          )
+         VALUES ($1, $2)
+         ON CONFLICT (user_id, permission_id) DO NOTHING
+         `,
+          [userId, permissionId]
+        );
+      }
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
+
 
 };

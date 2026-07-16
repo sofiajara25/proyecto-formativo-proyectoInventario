@@ -40,7 +40,7 @@ export const consumableMaterialController = {
 
         // Retornamos únicamente el ID del usuario creado
         // Evita exponer información sensible innecesaria
-        consumableMaterialId: consumableMaterial.id,
+        consumableMaterialId: consumable.id,
       });
 
 

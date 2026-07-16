@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
-import { loanSchema } from "../schemas/loansSchema.js";
-import { createLoan } from "../services/loanService.js";
-import { useNavigate } from "react-router-dom";
+    import { useState } from "react";
+    import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
+    import { loanSchema } from "../schemas/loansSchema.js";
+    import { createLoan } from "../services/loanService.js";
+    import { useNavigate } from "react-router-dom";
 
-export default function LoansRegisterForm() {
+    export default function LoansRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         loanUser: "",
         loanCategory: "",
@@ -19,7 +19,6 @@ export default function LoansRegisterForm() {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const [errors, setErrors] = useState({});
 
     const categorias = [
@@ -31,8 +30,8 @@ export default function LoansRegisterForm() {
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData((prev) => ({
-            ...prev,
-            [name]: files ? files[0] : value,
+        ...prev,
+        [name]: files ? files[0] : value,
         }));
     };
 
@@ -41,177 +40,190 @@ export default function LoansRegisterForm() {
 
         const result = loanSchema.safeParse(formData);
         if (!result.success) {
-            const fieldErrors = {};
-            result.error.issues.forEach((issue) => {
-                const field = issue.path[0];
-                fieldErrors[field] = issue.message;
-            });
-            setErrors(fieldErrors);
-            setIsSubmitting(false);
-            return;
+        const fieldErrors = {};
+        result.error.issues.forEach((issue) => {
+            const field = issue.path[0];
+            fieldErrors[field] = issue.message;
+        });
+        setErrors(fieldErrors);
+        setIsSubmitting(false);
+        return;
         }
 
         setErrors({});
         try {
-            const payload = {
-                ...result.data,
-                photo: result.data.photo?.[0]?.name ?? null,
-            };
-            const response = await createLoan(payload);
-            console.log("Préstamo creado:", response);
-            alert("Préstamo creado correctamente");
-            navigate(-1);
+        const response = await createLoan(result.data);
+        console.log("Préstamo creado:", response);
+        alert("Préstamo creado correctamente");
+        navigate(-1);
         } catch (error) {
-            console.error("Error:", error.message);
-            alert(error.message);
+        console.error("Error:", error.message);
+        alert(error.message);
         } finally {
-            setIsSubmitting(false);
-            setIsModalOpen(false);
+        setIsSubmitting(false);
+        setIsModalOpen(false);
         }
     };
 
-
     let label;
-    // 😂 lógica fuera del JSX
     if (isSubmitting) {
         label = "Creando...";
     } else {
         label = "Crear prestamo";
     }
 
-
-
     return (
         <div
-            className="min-h-screen flex flex-col"
-            style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))", fontFamily: "var(--main-font)" }}
+        className="min-h-screen flex flex-col"
+        style={{
+            background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
+            fontFamily: "var(--main-font)",
+        }}
         >
-            <Navbar />
+        <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
+        <div className="flex flex-col flex-1 px-4 sm:px-10 py-6 sm:py-8 gap-4 justify-center">
 
-                {/* Título */}
-                <h1 className="lg:pl-[70px]"
-                    style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, }}>
-                    Crear Préstamo
-                </h1>
+            {/* Título */}
+            <h1
+            className="sm:pl-[70px]"
+            style={{
+                color: "var(--color-white)",
+                fontSize: "var(--fs-md)",
+                fontWeight: "var(--font-weight-bold)",
+                margin: 0,
+            }}
+            >
+            Crear Préstamo
+            </h1>
 
-                {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto " style={{ padding: "32px 36px" }}>
+            {/* Card */}
+            <div
+            className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto"
+            style={{ padding: "20px 16px" }}
+            >
+            <form
+                onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
+                className="grid grid-cols-1 place-items-center gap-6"
+            >
+                <div className="grid gap-4 sm:gap-6 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
-                    <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="grid grid-cols-1 place-items-center gap-6">
+                <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                    <Input
+                    label="Usuario"
+                    name="loanUser"
+                    placeholder="Ingrese el usuario"
+                    type="text"
+                    value={formData.loanUser}
+                    onChange={handleChange}
+                    error={errors.loanUser}
+                    />
+                </div>
 
-                        <div className="grid  gap-6 
-                                lg:grid-cols-3
-                                md:grid-cols-2
-                                sm:grid-cols-1
-                                ">
+                <div className="w-full [&>div]:w-full [&>div>select]:w-full">
+                    <Select
+                    label="Categoría"
+                    name="loanCategory"
+                    options={categorias}
+                    value={formData.loanCategory}
+                    onChange={handleChange}
+                    error={errors.loanCategory}
+                    />
+                </div>
 
-                            <Input
-                                label="Usuario"
-                                name="loanUser"
-                                placeholder="Ingrese el usuario"
-                                type="text"
-                                value={formData.loanUser}
-                                onChange={handleChange}
-                                error={errors.loanUser}
-                            />
-                            <Select
-                                label="Categoría"
-                                name="loanCategory"
-                                options={categorias}
-                                value={formData.loanCategory}
-                                onChange={handleChange}
-                                error={errors.loanCategory}
-                            />
+                <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                    <Input
+                    label="Nombre del producto"
+                    name="loanProductName"
+                    placeholder="Ingrese el nombre del producto"
+                    type="text"
+                    value={formData.loanProductName}
+                    onChange={handleChange}
+                    error={errors.loanProductName}
+                    />
+                </div>
 
-                            <Input
-                                label="Nombre del producto"
-                                name="loanProductName"
-                                placeholder="Ingrese el nombre del producto"
-                                type="text"
-                                value={formData.loanProductName}
-                                onChange={handleChange}
-                                error={errors.loanProductName}
-                            />
-                            <Input
-                                label="Fecha préstamo"
-                                name="loanDate"
-                                type="date"
-                                value={formData.loanDate}
-                                onChange={handleChange}
-                                error={errors.loanDate}
-                            />
+                <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                    <Input
+                    label="Fecha préstamo"
+                    name="loanDate"
+                    type="date"
+                    value={formData.loanDate}
+                    onChange={handleChange}
+                    error={errors.loanDate}
+                    />
+                </div>
 
-                            <Input
-                                label="Fecha de devolución"
-                                name="loanReturnDate"
-                                type="date"
-                                value={formData.loanReturnDate}
-                                onChange={handleChange}
-                                error={errors.loanReturnDate}
-                            />
-                            <TextArea
-                                label="Descripción"
-                                name="loanDescription"
-                                placeholder="Ingrese la descripción"
-                                type="text"
-                                value={formData.loanDescription}
-                                onChange={handleChange}
-                                error={errors.loanDescription}
-                                rows={1}
-                                
-                            />
-                            {/* Contenedor del input */}
-                            <div>
-                                <h4>
-                                    Foto
-                                </h4>
-                                <FileInput
-                                    value={formData.photo}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({ ...prev, photo: files }))
-                                    }
-                                    multiple={true}
-                                />
-                                {errors.photo && (
-                                    <span className="text-red-500 text-sm">{errors.photo}</span>
-                                )}
-                            </div>
+                <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                    <Input
+                    label="Fecha de devolución"
+                    name="loanReturnDate"
+                    type="date"
+                    value={formData.loanReturnDate}
+                    onChange={handleChange}
+                    error={errors.loanReturnDate}
+                    />
+                </div>
 
-                        </div>
+                <div className="w-full [&>div]:w-full [&>div>textarea]:w-full">
+                    <TextArea
+                    label="Descripción"
+                    name="loanDescription"
+                    placeholder="Ingrese la descripción"
+                    type="text"
+                    value={formData.loanDescription}
+                    onChange={handleChange}
+                    error={errors.loanDescription}
+                    rows={1}
+                    />
+                </div>
 
-                        {/* Acciones */}
-                        <div className="flex justify-end gap-3 pt-2 w-full">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="md"
-                                onClick={() => navigate(-1)}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
-                                {label}
-                                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
-                            </Button>
-                        </div>
-
-                    </form>
-                    <Modal
-                        isOpen={isModalOpen}
-                        title="Confirmar creación de préstamo"
-                        onClose={() => setIsModalOpen(false)}
-                        onConfirm={handleSubmit}
-                        confirmText="Crear"
-                        cancelText="Cancelar"
-                    >
-                        <p>¿Seguro que deseas crear este préstamo?</p>
-                    </Modal>
+                <div>
+                    <h4 className="text-xs mb-1">Foto</h4>
+                    <FileInput
+                    value={formData.photo}
+                    onChange={(files) =>
+                        setFormData((prev) => ({ ...prev, photo: files }))
+                    }
+                    multiple={true}
+                    />
+                    {errors.photo && (
+                    <span className="text-red-500 text-sm">{errors.photo}</span>
+                    )}
+                </div>
 
                 </div>
 
+                {/* Acciones */}
+                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2 w-full">
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="md"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancelar
+                </Button>
+                <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                    {label}
+                </Button>
+                </div>
+
+            </form>
+
+            <Modal
+                isOpen={isModalOpen}
+                title="Confirmar creación de préstamo"
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleSubmit}
+                confirmText="Crear"
+                cancelText="Cancelar"
+            >
+                <p>¿Seguro que deseas crear este préstamo?</p>
+            </Modal>
             </div>
+
+        </div>
         </div>
     );
-}
+    }

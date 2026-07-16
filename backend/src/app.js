@@ -17,7 +17,9 @@ import brandRoutes from "./features/brands/brand.routes.js";
 import loanRoutes from "./features/loans/loan.routes.js";
 import returnsRoutes from "./features/returns/returns.routes.js"
 import groupsRoutes from "./features/groups/groups.routes.js";
-
+import tasksRoutes from "./features/tasks/task.routes.js";
+import permissionsRoutes from "./features/permissions/permissions.routes.js";
+import accessRoutes from "./features/access/access.routes.js";
 
 // Creamos la instancia principal de la aplicación Express
 const app = express();
@@ -45,7 +47,10 @@ app.use("/api/brands", brandRoutes);
 app.use("/api/loan", loanRoutes);
 app.use("/api/returns", returnsRoutes);
 app.use("/api/groups", groupsRoutes);
+app.use("/api/tasks", tasksRoutes)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/api/permissions", permissionsRoutes);
+app.use("/api/access", accessRoutes);
 // Exportamos la aplicación configurada
 // El arranque del servidor se hace en server.js
 export default app;

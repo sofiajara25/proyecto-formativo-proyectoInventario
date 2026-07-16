@@ -28,7 +28,7 @@
     /* ================= STATE ================= */
     --semantic-success: var(--color-primary-950);
     --semantic-warning: var(--color-tertiary-950);
-    --semantic-error: var(--color-secundary-950);
+    --semantic-error: var(--color-secondary-950);
 
     /* ================= TYPOGRAPHY ================= */
     --semantic-font-family-primary: var(--main-font);
@@ -61,6 +61,12 @@
     --semantic-button-secondary-padding: 20px 10px;
     --semantic-button-secondary-gap: 8px;
     --semantic-button-secondary-hover: var(--color-tertiary-800);
+
+    --semantic-button-tertiary-bg: var(--color-secondary-950);
+    --semantic-button-tertiary-text: var(--color-black);
+    --semantic-button-tertiary-padding: 10px 5px;
+    --semantic-button-tertiary-gap: 4px;
+    --semantic-button-tertiary-hover: var(--color-secondary-800);
 
     /* ================= ICONS ================= */
     --semantic-icon-size: 64px;

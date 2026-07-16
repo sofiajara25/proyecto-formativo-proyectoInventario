@@ -40,7 +40,15 @@ export default function ViewLoanPage() {
                     <div className="flex items-center gap-6">
                         <div className="flex items-center justify-center rounded-full"
                             style={{ width: "80px", height: "80px", background: "var(--color-primary-950)", flexShrink: 0 }}>
-                            <FileText size={40} color="white" />
+                            {loan.photo_url ? (
+                                <img
+                                    src={`http://localhost:5000/${loan.photo_url}`}
+                                    alt="Foto del prestamo"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <FileText size={40} color="white" />
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-1">

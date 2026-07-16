@@ -24,7 +24,11 @@ export const returnableMaterialController = {
         try {
             // Llamamos al servicio de usuario, pasando los datos recibidos
             // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-            const returnableMaterial = await returnableMaterialService.createReturnableMaterial(req.body);
+            const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+            const returnableMaterial = await returnableMaterialService.createReturnableMaterial({
+                ...req.body,
+                photo: photoPath,
+            });
 
 
             // Respuesta HTTP en caso de éxito
@@ -79,7 +83,11 @@ export const returnableMaterialController = {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const updated = await returnableMaterialService.updateReturnable(id, req.body);
+            const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+            const updated = await returnableMaterialService.updateReturnable(id, {
+                ...req.body,
+                photo: photoPath,
+            });
             if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });
             res.status(200).json({ message: "Material actualizado correctamente", material: updated });
         } catch (err) {

@@ -14,15 +14,20 @@ export default function Button({
   const variants = {
     // Verde — color primario del proyecto
     primary: `
-      text-body
+      text-small sm:text-medium lg:text-body
       text-white font-body rounded-lg
       transition-colors duration-150   bg-button-primary-bg hover:bg-button-primary-hover
     `,
     // Morado — color terciario del proyecto
     secondary: `
-      text-body
+      text-small sm:text-medium lg:text-body
       text-white font-label rounded-lg
       transition-colors duration-150 bg-button-secondary-bg hover:bg-button-secondary-hover
+    `,
+
+    tertiary: `
+      text-small sm:text-medium lg:text-body font-label rounded-lg 
+      transition-colors duration-150 bg-button-tertiary-bg hover:bg-button-tertiary-hover gap-2
     `,
   };
 

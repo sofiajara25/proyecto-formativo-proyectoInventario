@@ -1,257 +1,87 @@
-import { Checkbox, Select, Switch, Button, Input } from "@/shared";
+import { Checkbox, Button, IconButton } from "@/shared";
+import { Pencil } from "lucide-react";
 
-export default function PermissionModule({ groupPermissions }) {
+export default function PermissionModule({
+  selectedGroupName,
+  allPermissions,
+  isEditing,
+  permissionsDraft,
+  setPermissionsDraft,
+  onEdit,
+  onCancel,
+  onSave,
+  entityType = "group", // 🔹 nuevo: "group" o "user"
+}) {
   const hasPermission = (codename) =>
-    groupPermissions.some(
-      (permission) => permission.permission_codename === codename,
+    permissionsDraft.some(
+      (permission) => permission.permission_codename === codename
     );
 
+  const handlePermissionChange = (permission, checked) => {
+    if (!checked) {
+      setPermissionsDraft((prev) =>
+        prev.filter((item) => item.permission_id !== permission.permission_id)
+      );
+      return;
+    }
+    setPermissionsDraft((prev) => [...prev, permission]);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Material devolutivo */}
-      <section className="border rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-semibold mb-4">Material devolutivo</h2>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox
-            id="create_returnable_material"
-            name="create_returnable_material"
-            label="Crear material devolutivos"
-            checked={hasPermission("create_returnable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="list_returnable_material"
-            name="list_returnable_material"
-            label="Listar material devolutivos"
-            checked={hasPermission("list_returnable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="report_returnable_material"
-            name="report_returnable_material"
-            label="Reportar material devolutivos"
-            checked={hasPermission("report_returnable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="view_returnable_material"
-            name="view_returnable_material"
-            label="Visualizar material devolutivos"
-            checked={hasPermission("view_returnable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="modify_returnable_material"
-            name="modify_returnable_material"
-            label="Modificar material devolutivo"
-            checked={hasPermission("modify_returnable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="state_returnable_material"
-            name="state_returnable_material"
-            label="Habilitar/Deshabilitar material devolutivos"
-            checked={hasPermission("state_returnable_material")}
-            onChange={() => {}}
-          />
+    <section className="border rounded-lg p-4 sm:p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div>
+          <p className="text-xs sm:text-sm text-neutral-500">
+            {entityType === "group" ? "Grupo" : "Usuario"}
+          </p>
+          <h2 className="text-base sm:text-lg font-semibold">
+            {selectedGroupName || "Seleccione un grupo o usuario"}
+          </h2>
         </div>
-      </section>
 
-      {/* Material de consumo */}
-      <section className="border rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-semibold mb-4">Material de consumo</h2>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox
-            id="create_consumable_material"
-            name="create_consumable_material"
-            label="Crear material de consumo"
-            checked={hasPermission("create_consumable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="list_consumable_material"
-            name="list_consumable_material"
-            label="Listar material de consumo"
-            checked={hasPermission("list_consumable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="report_consumable_material"
-            name="report_consumable_material"
-            label="Reportar material de consumo"
-            checked={hasPermission("report_consumable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="view_consumable_material"
-            name="view_consumable_material"
-            label="Visualizar material de consumo"
-            checked={hasPermission("view_consumable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="modify_consumable_material"
-            name="modify_consumable_material"
-            label="Modificar material de consumo"
-            checked={hasPermission("modify_consumable_material")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="state_consumable_material"
-            name="state_consumable_material"
-            label="Habilitar/Deshabilitar material de consumo"
-            checked={hasPermission("state_consumable_material")}
-            onChange={() => {}}
-          />
-        </div>
-      </section>
+        {!isEditing && selectedGroupName && (
+          <IconButton ariaLabel="Editar permisos" onClick={onEdit}>
+            <Pencil size={18} />
+          </IconButton>
+        )}
+      </div>
 
-      {/* Préstamos */}
-      <section className="border rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-semibold mb-4">Préstamos</h2>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox
-            id="create_loan"
-            name="create_loan"
-            label="Crear prestamos"
-            checked={hasPermission("create_loan")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="list_loan"
-            name="list_loan"
-            label="Listar prestamos"
-            checked={hasPermission("list_loan")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="report_loan"
-            name="report_loan"
-            label="Reportar prestamos"
-            checked={hasPermission("report_loan")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="view_loan"
-            name="view_loan"
-            label="Visualizar prestamos"
-            checked={hasPermission("view_loan")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="modify_loan"
-            name="modify_loan"
-            label="Modificar prestamos"
-            checked={hasPermission("modify_loan")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="state_loan"
-            name="state_loan"
-            label="Habilitar/Deshabilitar prestamos"
-            checked={hasPermission("state_loan")}
-            onChange={() => {}}
-          />
+      {/* Permisos */}
+      <div className="space-y-6 sm:space-y-8">
+        <div className="border-b-2 pb-4 sm:pb-6">
+          <h3 className="text-sm sm:text-base font-medium mb-3 sm:mb-4">
+            Módulo Usuarios
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4">
+            {allPermissions.map((permission) => (
+              <Checkbox
+                key={permission.permission_id}
+                id={permission.permission_codename}
+                name={permission.permission_codename}
+                label={permission.permission_name}
+                checked={hasPermission(permission.permission_codename)}
+                disabled={!isEditing}
+                onChange={(e) =>
+                  handlePermissionChange(permission, e.target.checked)
+                }
+              />
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Retornos */}
-      <section className="border rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-semibold mb-4">Retornos</h2>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox
-            id="create_return"
-            name="create_return"
-            label="Crear retornos"
-            checked={hasPermission("create_return")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="list_return"
-            name="list_return"
-            label="Listar retornos"
-            checked={hasPermission("list_return")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="report_return"
-            name="report_return"
-            label="Reportar retornos"
-            checked={hasPermission("report_return")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="view_return"
-            name="view_return"
-            label="Visualizar retornos"
-            checked={hasPermission("view_return")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="modify_return"
-            name="modify_return"
-            label="Modificar retornos"
-            checked={hasPermission("modify_return")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="state_return"
-            name="state_return"
-            label="Habilitar/Deshabilitar retornos"
-            checked={hasPermission("state_return")}
-            onChange={() => {}}
-          />
+      {/* Acciones */}
+      {isEditing && (
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6 sm:mt-8">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="button" variant="primary" onClick={onSave}>
+            Guardar
+          </Button>
         </div>
-      </section>
-
-      {/* Marca */}
-      <section className="border rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-semibold mb-4">Marca</h2>
-        <div className="flex flex-wrap gap-6">
-          <Checkbox
-            id="create_brand"
-            name="create_brand"
-            label="Crear marca"
-            checked={hasPermission("create_brand")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="list_brand"
-            name="list_brand"
-            label="Listar marca"
-            checked={hasPermission("list_brand")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="report_brand"
-            name="report_brand"
-            label="Reportar marca"
-            checked={hasPermission("report_brand")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="view_brand"
-            name="view_brand"
-            label="Visualizar marca"
-            checked={hasPermission("view_brand")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="modify_brand"
-            name="modify_brand"
-            label="Modificar marca"
-            checked={hasPermission("modify_brand")}
-            onChange={() => {}}
-          />
-          <Checkbox
-            id="state_brand"
-            name="state_brand"
-            label="Habilitar/Deshabilitar marca"
-            checked={hasPermission("state_brand")}
-            onChange={() => {}}
-          />
-        </div>
-      </section>
-    </div>
+      )}
+    </section>
   );
 }

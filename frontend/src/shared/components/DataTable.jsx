@@ -1,321 +1,169 @@
-// Hooks y utilidades principales de TanStack Table
-import {
-    useReactTable,          // Hook que crea la instancia de la tabla
-    getCoreRowModel,        // Modelo base de filas (sin filtros ni paginación)
-    flexRender,             // Permite renderizar contenido dinámico de columnas
-    getPaginationRowModel,  // Modelo de filas con paginación
-    getFilteredRowModel     // Modelo de filas filtradas
-} from "@tanstack/react-table"
+    import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+    getPaginationRowModel,
+    getFilteredRowModel,
+    } from "@tanstack/react-table";
+    import { useState } from "react";
+    import { Button, SearchField } from "@/shared";
 
-// Hook de React para manejar estado
-import { useState } from "react"
-
-
-// Botón reutilizable del sistema de componentes
-import { Button, SearchField } from "@/shared"
-import Input from "./Input"
-
-
-// Componente reutilizable de tabla
-// Recibe:
-// - data: datos que se mostrarán
-// - columns: configuración de columnas
-export default function DataTable({ data, columns }) {
-
-
-    // ================== ESTADO DE PAGINACIÓN ==================
-    // pageIndex → página actual
-    // pageSize → cantidad de filas por página
+    export default function DataTable({ data, columns }) {
     const [pagination, setPagination] = useState({
         pageIndex: 0,
-        pageSize: 5
-    })
+        pageSize: 5,
+    });
+    const [globalFilter, setGlobalFilter] = useState("");
 
-
-    // ================== ESTADO DEL FILTRO GLOBAL ==================
-    // Se usa para el buscador de la tabla
-    const [globalFilter, setGlobalFilter] = useState("")
-
-
-    // ================== CONFIGURACIÓN DE LA TABLA ==================
     const table = useReactTable({
-
-
-        // Datos que se mostrarán
         data,
-
-
-        // Definición de columnas
         columns,
-
-
-        // Estado controlado de la tabla
-        state: {
-            globalFilter,
-            pagination
-        },
-
-
-        // Función que se ejecuta cuando cambia la paginación
+        state: { globalFilter, pagination },
         onPaginationChange: setPagination,
-
-
-        // Función que se ejecuta cuando cambia el filtro global
         onGlobalFilterChange: setGlobalFilter,
-
-
-        // Modelo base de filas
         getCoreRowModel: getCoreRowModel(),
-
-
-        // Modelo con filtrado aplicado
         getFilteredRowModel: getFilteredRowModel(),
-
-
-        // Modelo con paginación aplicada
         getPaginationRowModel: getPaginationRowModel(),
-    })
-
+    });
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
 
+        {/* ================== TOOLBAR ================== */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 
-            {/* ================== TOOLBAR ================== */}
-            {/* Barra superior con buscador y selector de filas */}
+            {/* Buscador */}
+            <div className="w-full sm:w-auto">
+            <SearchField
+                type="text"
+                placeholder="Buscar..."
+                value={globalFilter ?? ""}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                className="w-full sm:w-64 border rounded px-3 py-2"
+            />
+            </div>
 
+            {/* Selector de filas */}
+            <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            className="border rounded px-2 py-2 text-sm w-full sm:w-auto"
+            >
+            {[5, 7, 10, 20, 50].map((size) => (
+                <option key={size} value={size}>
+                {size} filas
+                </option>
+            ))}
+            </select>
+        </div>
 
-            <div className="flex items-center justify-between gap-4">
+        {/* ================== TABLA ================== */}
+        <div className="overflow-x-auto border rounded w-full">
+            <table className="w-full min-w-[400px]">
 
-
-                {/* ================== BUSCADOR ================== */}
-                {/* Filtra todas las columnas de la tabla */}
-                <SearchField
-                    type="text"
-                    placeholder="Buscar..."
-                    value={globalFilter ?? ""}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    className="border rounded px-3 py-2 w-64"
-                />
-
-
-                {/* ================== SELECTOR DE FILAS ================== */}
-                {/* Permite cambiar cuántas filas se muestran por página */}
-                <select
-                    value={table.getState().pagination.pageSize}
-                    onChange={(e) => table.setPageSize(Number(e.target.value))}
-                    className="border rounded px-2 py-2"
-                >
-                    {[5, 7, 10, 20, 50].map(size => (
-                        <option key={size} value={size}>
-                            {size} filas
-                        </option>
+            {/* Cabecera */}
+            <thead className="bg-gray-100">
+                {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                    <th
+                        key={header.id}
+                        className="p-2 sm:p-3 text-left border-b text-xs sm:text-sm whitespace-nowrap"
+                    >
+                        {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                        )}
+                    </th>
                     ))}
-                </select>
+                </tr>
+                ))}
+            </thead>
 
-
-            </div>
-
-
-            {/* ================== TABLA ================== */}
-            <div className="overflow-x-auto border rounded">
-                <table className="w-full">
-
-
-                    {/* ================== CABECERA ================== */}
-                    <thead className="bg-gray-100">
-
-
-                        {/* TanStack agrupa cabeceras automáticamente */}
-                        {table.getHeaderGroups().map(headerGroup => (
-
-
-                            <tr key={headerGroup.id}>
-
-
-                                {headerGroup.headers.map(header => (
-
-
-                                    <th
-                                        key={header.id}
-                                        className="p-3 text-left border-b"
-                                    >
-
-
-                                        {/* 
-                      flexRender permite renderizar:
-                      - texto
-                      - JSX
-                      - funciones
-                      definidos en columnDef.header
-                    */}
-                                        {flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-
-
-                                    </th>
-
-
-                                ))}
-                            </tr>
-
-
-                        ))}
-                    </thead>
-
-
-                    {/* ================== CUERPO DE LA TABLA ================== */}
-                    <tbody>
-
-
-                        {/* Filas generadas por TanStack */}
-                        {table.getRowModel().rows.map(row => (
-
-
-                            <tr key={row.id} className="hover:bg-gray-50">
-
-
-                                {/* Celdas visibles de cada fila */}
-                                {row.getVisibleCells().map(cell => (
-
-
-                                    <td key={cell.id} className="p-3 border-b">
-
-
-                                        {/* Render dinámico del contenido de la celda */}
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-
-
-                                    </td>
-
-
-                                ))}
-
-
-                            </tr>
-
-
-                        ))}
-
-
-                    </tbody>
-
-
-                </table>
-            </div>
-
-
-            {/* ================== FOOTER ================== */}
-            <div className="flex items-center justify-between">
-
-
-                {/* ================== INFORMACIÓN ================== */}
-                {/* Cantidad de registros visibles */}
-                <span className="text-sm text-gray-600">
-                    Mostrando {table.getRowModel().rows.length} de{" "}
-                    {table.getFilteredRowModel().rows.length} registros
-                </span>
-
-
-                {/* ================== CONTROLES DE PAGINACIÓN ================== */}
-                <div className="flex items-center gap-2">
-
-
-                    {/* Ir a la primera página */}
-                    <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
+            {/* Cuerpo */}
+            <tbody>
+                {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="hover:bg-gray-50">
+                    {row.getVisibleCells().map((cell) => (
+                    <td
+                        key={cell.id}
+                        className="p-2 sm:p-3 border-b text-xs sm:text-sm"
                     >
-                        Inicio
-                    </Button>
+                        {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                        )}
+                    </td>
+                    ))}
+                </tr>
+                ))}
+            </tbody>
 
+            </table>
+        </div>
 
-                    {/* Página anterior */}
-                    <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Anterior
-                    </Button>
+        {/* ================== FOOTER ================== */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 
+            {/* Información */}
+            <span className="text-xs sm:text-sm text-gray-600">
+            Mostrando {table.getRowModel().rows.length} de{" "}
+            {table.getFilteredRowModel().rows.length} registros
+            </span>
 
-                    {/* Información de página actual */}
-                    <span className="text-sm px-2">
-                        Página {table.getState().pagination.pageIndex + 1} de{" "}
-                        {table.getPageCount()}
-                    </span>
-
-
-                    {/* Página siguiente */}
-                    <Button
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Siguiente
-                    </Button>
-
-
-                    {/* Ir a la última página */}
-                    <Button
-                        size="sm"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Final
-                    </Button>
-
-
-                </div>
-
-
+            {/* Controles de paginación */}
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+            <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+            >
+                Inicio
+            </Button>
+            <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+            >
+                Anterior
+            </Button>
+            <span className="text-xs sm:text-sm px-1 sm:px-2">
+                Pág. {table.getState().pagination.pageIndex + 1} de{" "}
+                {table.getPageCount()}
+            </span>
+            <Button
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+            >
+                Siguiente
+            </Button>
+            <Button
+                size="sm"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+            >
+                Final
+            </Button>
             </div>
+        </div>
 
-
-            {/* ================== IR A PÁGINA ================== */}
-            {/* Permite navegar directamente a una página específica */}
-            <div className="flex items-center gap-2 text-sm">
-
-
-                <span>Ir a página:</span>
-
-
-                <input
-                    type="number"
-
-
-                    // Página actual (se muestra +1 porque el índice empieza en 0)
-                    defaultValue={table.getState().pagination.pageIndex + 1}
-
-
-                    onChange={(e) => {
-
-
-                        // Convierte el número ingresado en índice de página
-                        const page = e.target.value ? Number(e.target.value) - 1 : 0
-
-
-                        // Cambia la página
-                        table.setPageIndex(page)
-                    }}
-
-
-                    className="border rounded px-2 py-1 w-16"
-                />
-
-
-            </div>
-
+        {/* ================== IR A PÁGINA ================== */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <span>Ir a página:</span>
+            <input
+            type="number"
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+            }}
+            className="border rounded px-2 py-1 w-14 sm:w-16 text-sm"
+            />
+        </div>
 
         </div>
-    )
-}
+    );
+    }

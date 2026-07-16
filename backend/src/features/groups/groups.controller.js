@@ -1,24 +1,20 @@
 import { groupsService } from "./groups.service.js";
 
 export const groupsController = {
-    async create(req, res) {
-        try {
-            const group = await groupsService.create(req.body);
 
-            res.status(201).json({
-                message: "Grupo creado correctamente",
-                group,
-            });
+    // groups.controller.js
+    async createGroup(req, res) {
+        try {
+            const { group_name } = req.body;
+            const newGroup = await groupsService.createGroup(group_name);
+            res.status(201).json(newGroup);
         } catch (error) {
             console.error(error);
-
-            res.status(500).json({
-                error: error.message || "Error creando grupo",
-            });
+            res.status(500).json({ error: "Error creando grupo" });
         }
     },
 
-    async getAll (req, res) {
+    async getAll(req, res) {
         try {
             const groups = await groupsService.getAll();
 
@@ -44,6 +40,25 @@ export const groupsController = {
 
             res.status(500).json({
                 error: "Error obteniendo permisos del grupo",
+            });
+        }
+    },
+
+    async updatePermissions(req, res) {
+        try {
+            const groupId = Number(req.params.groupId);
+            const { permissionIds } = req.body;
+
+            await groupsService.updatePermissions(groupId, permissionIds);
+
+            res.status(200).json({
+                message: "Permisos actualizados correctamente",
+            });
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                error: "Error actualizando permisos del grupo",
             });
         }
     },

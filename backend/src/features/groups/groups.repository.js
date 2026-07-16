@@ -2,35 +2,41 @@ import { pool } from "../../config/db.js";
 
 
 export const groupsRepository = {
+
+  // groups.repository.js
   async create(groupData) {
-    const { groupName } = groupData;
+    const {
+      groupName
+    } = groupData;
 
     const query = `
       INSERT INTO groups (
-        group_name
-      )
-      VALUES ($1)
-      RETURNING group_id, group_name, created_at, updated_at;
-    `;
+      group_name, 
+      is_active
+    )
+    VALUES ($1, true)
+    RETURNING id;
+  `;
 
-    const result = await pool.query(query, [groupName]);
+    const values = [
+      groupName
+    ];
+    const result = await pool.query(query, values);
 
     return result.rows[0];
   },
+
 
   async getAll() {
     const query = `
       SELECT
         group_id,
-        group_name
+        group_name,
+        is_active
       FROM groups
       ORDER BY group_name;
     `;
-
-
     const result = await pool.query(query);
-
-
     return result.rows;
   },
 
@@ -54,5 +60,49 @@ export const groupsRepository = {
 
 
     return result.rows;
+
+
   },
+  async updatePermissions(groupId, permissionIds) {
+    const client = await pool.connect();
+
+
+    try {
+      await client.query("BEGIN");
+
+
+      await client.query(
+        `
+      DELETE FROM group_permissions
+      WHERE group_id = $1
+    `,
+        [groupId],
+      );
+
+
+      for (const permissionId of permissionIds) {
+        await client.query(
+          `
+        INSERT INTO group_permissions (
+          group_id,
+          permission_id
+        )
+        VALUES ($1, $2)
+        ON CONFLICT (group_id, permission_id) DO NOTHING
+      `,
+          [groupId, permissionId],
+        );
+      }
+
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  },
+
+
 };

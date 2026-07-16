@@ -64,7 +64,7 @@ export default function ListConsumablePage() {
                                 size="md"
                                 onClick={() => setIsReportModalOpen(true)}
                             >
-                                Reportar material de consumo
+                                Reportar material 
                             </Button>
                             <Button
                                 type="button"
@@ -72,7 +72,7 @@ export default function ListConsumablePage() {
                                 size="md"
                                 onClick={() => navigate("/dashboard/consumo")}
                             >
-                                Crear material de consumo
+                                Crear material 
                             </Button>
                         </div>
                     </div>

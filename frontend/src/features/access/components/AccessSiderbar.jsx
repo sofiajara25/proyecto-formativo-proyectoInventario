@@ -1,191 +1,191 @@
 import { useState, useEffect } from "react";
-import { Select, Button, Input } from "@/shared";
+import Button from "../../../shared/components/Button";
+import Input from "../../../shared/components/Input";
+import { Select } from "@/shared";
 import { createGroup, getGroups } from "../services/groupService";
-import { getGroupsPermissions } from "../services/permissionService";
-import { CircleArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { getGroupsPermissions, getUserPermissions } from "../services/permissionService";
+import { getUsers } from "../../users/services/userService";
 
 export default function AccessSidebar({
   selectedGroup,
   setSelectedGroup,
   setGroupPermissions,
+  setSelectedGroupName,
+  // onCreatePermissions,
+  setEntityType,       // 🔹 nuevo
+  setSelectedUser,
 }) {
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [userId, setUserId] = useState("");
   const [groups, setGroups] = useState([]);
-  const [groupName, setGroupName] = useState("");
+  const [newGroupName, setNewGroupName] = useState("");
+
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     getGroups().then(setGroups).catch(console.error);
+    getUsers().then(setUsers).catch(console.error); // 🔹 traer usuarios reales
   }, []);
+
+  const userOptions = users.map((user) => ({
+    value: String(user.user_id),
+    label: user.user_name,
+  }));
 
   const groupOptions = groups.map((group) => ({
     value: String(group.group_id),
     label: group.group_name,
   }));
 
-  const userOptions = [
-    { value: "10", label: "Sebastian Arce" },
-    { value: "11", label: "Sofia Valencia" },
-    { value: "12", label: "Jose Marin" },
-  ];
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleSubmitGroup = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      const payload = { groupId: selectedGroup };
-      const response = await fetch("http://localhost:5000/api/access/group", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Error al guardar grupo");
-      const data = await response.json();
-      console.log("Grupo actualizado:", data);
-      alert("Grupo actualizado correctamente");
-    } catch (error) {
-      console.error(error.message);
-      alert(error.message);
-    } finally {
+    // Validación simple
+    if (!newGroupName.trim()) {
+      setErrors({ newGroupName: "El nombre del grupo es obligatorio" });
       setIsSubmitting(false);
+      return;
     }
-  };
 
-  const handleSubmitUser = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+    setErrors({});
     try {
-      const payload = { userId };
-      const response = await fetch("http://localhost:5000/api/access/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Error al guardar usuario");
-      const data = await response.json();
-      console.log("Usuario actualizado:", data);
-      alert("Usuario actualizado correctamente");
-    } catch (error) {
-      console.error(error.message);
-      alert(error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCreateGroup = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const data = await createGroup({ groupName });
-      const updatedGroups = await getGroups();
-
-      setGroups(updatedGroups);
-      setGroupName("");
-
-      console.log("Grupo creado:", data);
+      const response = await createGroup(newGroupName);
+      console.log("Grupo creado:", response);
       alert("Grupo creado correctamente");
+
+      // 🔹 refrescar lista de grupos
+      const updatedGroups = await getGroups();
+      setGroups(updatedGroups);
+
+      // limpiar input
+      setNewGroupName("");
     } catch (error) {
-      console.error(error.message);
+      console.error("Error creando grupo:", error.message);
       alert(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+  let label;
+  // 😂 lógica fuera del JSX
+  if (isSubmitting) {
+    label = "Creando...";
+  } else {
+    label = "Crear Material Devolutivo";
+  }
+
 
   return (
-    <aside className="w-[350px] space-y-12">
-      <button
-          onClick={() => navigate(-1)}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer"
+    <aside className="w-full flex flex-col gap-6">
+
+      {/* Card grupos */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+        <h2
+          className="text-sm font-semibold"
+          style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
         >
-          <CircleArrowLeft size={36} color="#ffffff" />
-        </button>
-
-      <form
-        className="bg-white text-black w-[360px] h-[200px] flex flex-col items-center justify-center rounded-2xl mt-[160px]"
-        onSubmit={handleSubmitGroup}
-      >
-        
-        <h2 className="text-lg font-semibold mb-6">Grupos usuarios</h2>
-        
-
-        <Select
-          name="groupId"
-          value={selectedGroup}
-          onChange={async (e) => {
-            const groupId = e.target.value;
-
-            setSelectedGroup(groupId);
-            setUserId("");
-
-            const permissions = await getGroupsPermissions(groupId);
-            setGroupPermissions(permissions);
-
-            console.log("PERMISOS DEL GRUPO:", permissions);
-          }}
-          options={groupOptions}
-        />
-
-        <div className="flex justify-center gap-3 pt-2 w-full">
-          <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : "Guardar cambios"}
-          </Button>
+          Grupos usuarios
+        </h2>
+        <div className="w-full [&>div]:w-full [&>div>select]:w-full">
+          <Select
+            name="groupId"
+            value={selectedGroup}
+            onChange={async (e) => {
+              const groupId = e.target.value;
+              const selectedGroupData = groups.find(
+                (group) => String(group.group_id) === groupId,
+              );
+              setSelectedGroup(groupId);
+              setSelectedGroupName(selectedGroupData?.group_name ?? "");
+              setUserId("");
+              const permissions = await getGroupsPermissions(groupId);
+              setGroupPermissions(permissions);
+              setEntityType("group");
+              setSelectedGroup(groupId);
+            }}
+            options={groupOptions}
+          />
         </div>
-      </form>
+      </div>
 
-      <form
-        className="bg-white text-black w-[360px] h-[200px] flex flex-col items-center justify-center rounded-2xl"
-        onSubmit={handleSubmitUser}
-      >
-        <h2 className="text-lg font-semibold mb-6">Usuario individual</h2>
+      {/* Card usuario individual */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+        <h2
+          className="text-sm font-semibold"
+          style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
+        >
+          Usuario individual
+        </h2>
+        <div className="w-full [&>div]:w-full [&>div>select]:w-full">
+          {users.length > 0 && (
+            <Select
+              name="userId"
+              value={userId}
+              onChange={async (e) => {
+                const id = e.target.value;
+                setUserId(id);
+                setSelectedGroup(""); // limpiar selección de grupo
 
-        <Select
-          name="userId"
-          value={userId}
-          onChange={(e) => {
-            setUserId(e.target.value);
-            setSelectedGroup("");
-          }}
-          options={userOptions}
-        />
+                // 🔹 Traer permisos del usuario
 
-        <div className="flex justify-center gap-3 pt-2 w-full">
-          <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : "Guardar cambios"}
-          </Button>
+                // 🔹 Traer permisos del usuario y normalizar estructura
+                const permissions = await getUserPermissions(id);
+                setGroupPermissions(
+                  permissions.map(p => ({
+                    permission_id: p.id,
+                    permission_codename: p.codename,
+                    permission_name: p.name,
+                  }))
+                );
+                // 🔹 Mostrar nombre del usuario seleccionado
+                setEntityType("user");
+                setSelectedUser(id);
+                const selectedUser = userOptions.find(u => u.value === id);
+                if (selectedUser) {
+                  setSelectedGroupName(`Usuario: ${selectedUser.label}`);
+                }
+
+              }}
+              options={userOptions}
+            />
+          )}
+
         </div>
-      </form>
+      </div>
 
-      <form
-        className="bg-white text-black w-[360px] h-[200px] flex flex-col items-center justify-center rounded-2xl"
-        onSubmit={handleCreateGroup}
-      >
-        <h2 className="text-lg font-semibold mb-6">Crear Grupo</h2>
+      {/* Card crear permisos */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+        <h2
+          className="text-sm font-semibold"
+          style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
+        >
+          Crear Grupo
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <Input
+            name="newGroupName"
+            value={newGroupName}
+            error={errors.newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+            placeholder="Nombre del grupo"
+            containerClassName="w-full"
+          />
+          <div className="w-full [&>button]:w-full">
+            <Button
+              variant="primary"
+              size="md"
+              disabled={isSubmitting}
+            >
+              {label}
+            </Button>
+          </div>
+        </form>
+      </div>
 
-        <Input
-          name="groupName"
-          value={groupName}
-          onChange={(e) => {
-            setGroupName(e.target.value);
-            setSelectedGroup("");
-          }}
-        />
-
-        <div className="flex justify-center gap-3 pt-2 w-full">
-          <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creando..." : "Crear grupo"}
-          </Button>
-        </div>
-      </form>
     </aside>
   );
 }

@@ -3,11 +3,20 @@ import { Input, Button, Select, Navbar, FileInput, Modal } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 import { useNavigate } from "react-router-dom";
-import { createUser } from "../services/userService.js"
+import { createUser } from "../services/userService.js";
+import { CirclePlus } from "lucide-react"
+import { TasksRegisterForm } from "@/features/tasks"
+import { createTask } from "../../tasks/services/taskService.js";
+
 
 export default function UserRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const [isTaskOpen, setIsTaskOpen] = useState(false);
+
+    const [pendingUserData, setPendingUserData] = useState(null);
+    const [pendingTaskData, setPendingTaskData] = useState(null);
+
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
@@ -41,6 +50,21 @@ export default function UserRegisterForm() {
         getDocumentType().then(setDocumentType);
     }, []);
 
+    const validateUserForm = () => {
+        const result = userSchema.safeParse(formData);
+        if (!result.success) {
+            const fieldErrors = {};
+            result.error.issues.forEach((issue) => {
+                fieldErrors[issue.path[0]] = issue.message;
+            });
+            setErrors(fieldErrors);
+            return null;
+        }
+
+        setErrors({});
+        return result.data;
+    };
+
     //=========================
     //      Handle Genérico
     //* Función que se ejecuta cada vez que cambia el valor de un input del formulario
@@ -54,10 +78,9 @@ export default function UserRegisterForm() {
         }));
     };
 
-    //============== HANDLE SUBMIT ==============
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
 
+    const handleOpenTask = (e) => {
+        e.preventDefault();
         const result = userSchema.safeParse(formData);
         if (!result.success) {
             const fieldErrors = {};
@@ -65,24 +88,60 @@ export default function UserRegisterForm() {
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
-            setIsSubmitting(false);
             return;
         }
-
         setErrors({});
+        setPendingUserData(result.data); // ✅ solo guardar en memoria
+        setIsTaskOpen(true);             // abrir modal de tarea
+    };
+
+
+    const handleCreateAll = async () => {
+        setIsSubmitting(true);
+        setIsModalOpen(false);
+
         try {
-            const response = await createUser(result.data);
-            console.log("Usuario creado:", response);
-            alert("Usuario creado correctamente");
+            if (!pendingUserData) {
+                throw new Error("No hay datos de usuario validados en memoria");
+            }
+
+            // Crear usuario en backend
+            const userResponse = await createUser(pendingUserData);
+            const userId = userResponse.id ?? userResponse.userId;
+
+            if (!userId) {
+                throw new Error("El backend no devolvió el id del usuario creado");
+            }
+
+            // Crear tarea vinculada al usuario (ahora sí en BD)
+            if (pendingTaskData) {
+                await createTask({ ...pendingTaskData, userId });
+            }
+
+            alert("Usuario y tarea creados correctamente");
             navigate(-1);
         } catch (error) {
-            console.error("Error:", error.message);
             alert(error.message);
         } finally {
             setIsSubmitting(false);
-            setIsModalOpen(false);
         }
     };
+
+
+    const handleSubmitWithModal = (e) => {
+        e.preventDefault();
+        const validUserData = validateUserForm();
+        if (!validUserData) return;
+
+        if (!pendingTaskData) {
+            alert("Debes asignar una tarea antes de crear el usuario");
+            return;
+        }
+
+        setPendingUserData(validUserData); // guardar usuario validado
+        setIsModalOpen(true);              // abrir modal de confirmación
+    };
+
 
 
     // =======================================================
@@ -93,7 +152,12 @@ export default function UserRegisterForm() {
         label = "Creando...";
     } else {
         label = "Crear";
-    }
+    };
+
+    // Acción para ver el préstamo
+    // const handleTasks = () => {
+    //     navigate(`/dashboard/users/tasks`);
+    // };
 
     return (
         <div
@@ -102,7 +166,7 @@ export default function UserRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-2 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-1 gap-2 justify-center">
 
                 {/* Título */}
                 <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
@@ -110,26 +174,26 @@ export default function UserRegisterForm() {
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl  mx-auto" style={{ padding: "32px 36px" }}>
+                <div className="bg-white rounded-2xl flex flex-col gap-2 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
 
                     <form
-                        onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
+                        onSubmit={handleSubmitWithModal}
                         className="
-                            flex 
-                            flex-col 
-                            gap-4 
-                            lg:mx-5
-                            md:mx-2
-                        ">
+                                flex 
+                                flex-col 
+                                gap-4 
+                                lg:mx-5
+                                md:mx-2
+                            ">
 
                         <div
                             className="
-                                grid 
-                                lg:grid-cols-3 
-                                md:grid-cols-2
-                                sm:grid-cols-1
-                                gap-4
-                            ">
+                                    grid 
+                                    lg:grid-cols-3 
+                                    md:grid-cols-2
+                                    sm:grid-cols-1
+                                    gap-4
+                                ">
 
                             {/* Fila 1 */}
                             <Input
@@ -233,21 +297,52 @@ export default function UserRegisterForm() {
                                 error={errors.userPassword}
                             />
 
-                            {/* Contenedor del input */}
-                            <div>
-                                <h4>
-                                    Foto
-                                </h4>
-                                <FileInput
-                                    value={formData.userPhoto}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({ ...prev, userPhoto: files }))
-                                    }
-                                    multiple={true}
-                                />
-                                {errors.userPhoto && (
-                                    <span className="text-red-500 text-sm">{errors.userPhoto}</span>
-                                )}
+                            <div className="flex flex-row gap-16">
+                                <div>
+                                    <h4 className="text-[10px]">
+                                        Asignar tarea
+                                    </h4>
+                                    <Button
+                                        type="button"
+                                        variant="tertiary"
+                                        size="sm"
+                                        onClick={handleOpenTask}
+                                    >
+                                        Tarea
+                                        <CirclePlus />
+                                    </Button>
+                                    {/* Mostrar TaskForm encima */}
+                                    {isTaskOpen && (
+                                        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
+                                            <TasksRegisterForm
+                                                onClose={() => setIsTaskOpen(false)}
+                                                onSaveTask={(taskData) => {
+                                                    setPendingTaskData(taskData); // ✅ solo guardar en memoria
+                                                    setIsTaskOpen(false);         // cerrar modal
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
+
+                                </div>
+
+                                {/* Contenedor del input */}
+                                <div>
+                                    <h4>
+                                        Foto
+                                    </h4>
+                                    <FileInput
+                                        value={formData.userPhoto}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, userPhoto: files }))
+                                        }
+                                        multiple={true}
+                                    />
+                                    {errors.userPhoto && (
+                                        <span className="text-red-500 text-sm">{errors.userPhoto}</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -261,10 +356,13 @@ export default function UserRegisterForm() {
                             >
                                 Cancelar
                             </Button>
-                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+
+                            <Button variant="primary" size="md" type="submit"
+                                disabled={isSubmitting} >
                                 {label}
                                 {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
                             </Button>
+
                         </div>
 
                     </form>
@@ -272,7 +370,7 @@ export default function UserRegisterForm() {
                         isOpen={isModalOpen}
                         title="Confirmar creación de usuario"
                         onClose={() => setIsModalOpen(false)}
-                        onConfirm={handleSubmit}
+                        onConfirm={handleCreateAll}
                         confirmText="Crear"
                         cancelText="Cancelar"
                     >

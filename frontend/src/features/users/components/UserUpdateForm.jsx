@@ -5,6 +5,10 @@ import { userSchema } from "../schemas/userSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getUserById, updateUser } from "../services/userService";
 import { z } from "zod";
+import { Pencil } from "lucide-react";
+import { TasksUpdateForm } from "@/features/tasks";
+import { getTasksByUserId } from "../../tasks/services/taskService.js";
+
 
 const updateUserSchema = userSchema.extend({
     userPassword: z.union([userSchema.shape.userPassword, z.literal("")]),
@@ -14,6 +18,8 @@ export default function UserUpdateForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
+    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+    const [tasks, setTasks] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
@@ -65,6 +71,17 @@ export default function UserUpdateForm() {
         getDocumentType().then(setDocumentType);
     }, []);
 
+    useEffect(() => {
+        getTasksByUserId(id)
+            .then((data) => {
+                setTasks(data);
+            })
+            .catch((error) => {
+                console.error("Error cargando tareas del usuario:", error.message);
+                setTasks([]);
+            });
+    }, [id]);
+
 
     //=========================
     //      Handle Genérico
@@ -98,6 +115,7 @@ export default function UserUpdateForm() {
         try {
             const response = await updateUser(id, result.data);
             console.log("Usuario actualizado:", response);
+
             alert("Usuario actualizado correctamente");
             navigate(-1);
         } catch (error) {
@@ -117,7 +135,20 @@ export default function UserUpdateForm() {
         label = "Actualizando...";
     } else {
         label = "Actualizar";
-    }
+    };
+
+    const handleTasks = () => {
+        if (!selectedTask) {
+            alert("Este usuario no tiene tareas para actualizar");
+            return;
+        }
+
+        setIsTaskModalOpen(true);
+    };
+
+    const selectedTask = tasks[0] || null;
+
+
 
     return (
         <div
@@ -256,22 +287,56 @@ export default function UserUpdateForm() {
                                 onChange={handleChange}
                                 error={errors.userPassword}
                             />
+                            <div className="flex flex-row gap-16">
+                                <div>
+                                    <h4 className="text-[10px]">
+                                        Actualizar tarea
+                                    </h4>
+                                    <Button
+                                        type="button"
+                                        variant="tertiary"
+                                        size="sm"
+                                        onClick={handleTasks}
+                                    >
+                                        Tarea
+                                        <Pencil size={20}/>
+                                    </Button>
+                                    {isTaskModalOpen && (
+                                        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
+                                            <TasksUpdateForm
+                                                task={selectedTask}
+                                                onClose={() => setIsTaskModalOpen(false)}
+                                                onTaskUpdated={(response) => {
+                                                    const updatedTask = response.task ?? response;
+                                                    setTasks((currentTasks) =>
+                                                        currentTasks.map((task) =>
+                                                            task.id === updatedTask.id ? updatedTask : task
+                                                        )
+                                                    );
+                                                    setIsTaskModalOpen(false);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
 
-                            {/* Contenedor del input */}
-                            <div>
-                                <h4>
-                                    Foto
-                                </h4>
-                                <FileInput
-                                    value={formData.userPhoto}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({ ...prev, userPhoto: files }))
-                                    }
-                                    multiple={true}
-                                />
-                                {errors.userPhoto && (
-                                    <span className="text-red-500 text-sm">{errors.userPhoto}</span>
-                                )}
+                                </div>
+
+                                {/* Contenedor del input */}
+                                <div>
+                                    <h4>
+                                        Foto
+                                    </h4>
+                                    <FileInput
+                                        value={formData.userPhoto}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, userPhoto: files }))
+                                        }
+                                        multiple={true}
+                                    />
+                                    {errors.userPhoto && (
+                                        <span className="text-red-500 text-sm">{errors.userPhoto}</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

@@ -14,6 +14,9 @@ import { CreateReturnableMaterialPage, ListReturMaterialPage, UpdateReturnablePa
 import { CreateBrandsPage, ListBrandPage, UpdateBrandPage, ViewBrandPage } from "@/features/brands";
 import { CreateReturnPage, UpdateReturnPage, ListReturnPage, ViewReturnPage } from "@/features/returns"
 
+import { TasksRegisterForm, TasksPage, TasksUpdateForm } from "@/features/tasks"
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,7 +45,6 @@ const router = createBrowserRouter([
       { path: "/dashboard/list", element: <ListPage /> },
       { path: "/dashboard/setting", element: <SettingsPage /> },
 
-
       // Rutas de los 4 formularios de crear
       { path: "/dashboard/prestamo", element: <CreateLoansPage /> },
       { path: "/dashboard/consumo", element: <CreateMaterialPage /> },
@@ -50,7 +52,9 @@ const router = createBrowserRouter([
       { path: "/dashboard/usuarios", element: <CreateUserPage /> },
       { path: "/dashboard/retorno", element: <CreateReturnPage /> },
       { path: "/dashboard/marca", element: <CreateBrandsPage /> },
-
+      // ✅ /search primero, luego la raíz
+      { path: "/dashboard/tasks/search", element: <TasksPage /> },
+      { path: "/dashboard/tasks", element: <TasksRegisterForm /> },
 
       // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo", element: <ListLoansPage /> },
@@ -60,13 +64,14 @@ const router = createBrowserRouter([
       { path: "/dashboard/list-retorno", element: <ListReturnPage /> },
       { path: "/dashboard/list-marca", element: <ListBrandPage /> },
 
-      // Rutas de Actulizar
+      // Rutas de Actualizar
       { path: "/dashboard/loans/:id/edit", element: <UpdateLoansPage /> },
       { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
       { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
       { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage /> },
       { path: "/dashboard/users/:id/edit", element: <UpdateUserPage /> },
       { path: "/dashboard/retorno/:id/edit", element: <UpdateReturnPage /> },
+      { path: "/dashboard/tasks/:id/edit", element: <TasksUpdateForm /> },
 
       // Rutas de Ver
       { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },

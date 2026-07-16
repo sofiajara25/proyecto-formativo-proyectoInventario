@@ -29,3 +29,6 @@ export { fileSchema } from "./schemas/fileSchema"
 
 // auth
 export {default as ProtectedRoute} from "./auth/ProtectedRoute"
+
+//Tasks
+export {default as TaskCard} from "./components/TaskCard"

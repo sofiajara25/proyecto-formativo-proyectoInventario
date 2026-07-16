@@ -67,6 +67,12 @@
     --button-secondary-gap: var(--semantic-button-secondary-gap);
     --color-button-secondary-hover: var(--semantic-button-secondary-hover);
 
+    --color-button-tertiary-bg: var(--semantic-button-tertiary-bg);
+    --button-tertiary-text: var(--semantic-button-tertiary-text);
+    --button-tertiary-padding: var(--semantic-button-tertiary-padding);
+    --button-tertiary-gap: var(--semantic-button-tertiary-gap);
+    --color-button-tertiary-hover: var(--semantic-button-tertiary-hover);
+
     /* ========== ICONS ============= */
     --icon-size: var(--semantic-icon-size);
     --icon-gap: var(--semantic-icon-gap);

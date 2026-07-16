@@ -45,7 +45,17 @@ export const userService = {
 
   async getUsers() {
     return await userRepository.findAll();
+  },
+
+  // users.service.js
+  async getPermissionsByUserId(userId) {
+    return await userRepository.getPermissionsByUserId(userId);
+  },
+
+  async updatePermissions(userId, permissionIds) {
+    return await userRepository.updatePermissions(userId, permissionIds);
   }
+
 
 };
 

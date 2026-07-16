@@ -42,6 +42,7 @@ export const userController = {
 
         // Retornamos únicamente el ID del usuario creado
         // Evita exponer información sensible innecesaria
+        id: user.id,
         userId: user.id,
       });
 
@@ -110,8 +111,41 @@ export const userController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  }
+  },
 
+  async getPermissionsByUserId(req, res) {
+    try {
+      const userId = Number(req.params.userId);
+
+      const permissions = await userService.getPermissionsByUserId(userId);
+
+      res.json(permissions);
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Error obteniendo permisos del usuario",
+      });
+    }
+  },
+
+  async updatePermissions(req, res) {
+    try {
+      const userId = Number(req.params.userId);
+      const { permissionIds } = req.body;
+
+      await userService.updatePermissions(userId, permissionIds);
+
+      res.status(200).json({
+        message: "Permisos actualizados correctamente",
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Error actualizando permisos del usuario",
+      });
+    }
+  },
 };
-
 

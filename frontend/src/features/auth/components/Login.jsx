@@ -110,7 +110,7 @@ export default function Login() {
                         />
 
                         <Input
-                            label="Contreseña"
+                            label="Contraseña"
                             name="userPassword"
                             placeholder="Ingrese su contraseña"
                             type="password"

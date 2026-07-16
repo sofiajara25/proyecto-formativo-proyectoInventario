@@ -35,10 +35,10 @@ export default function ListReturnMaterialPage() {
                         </p>
                         <div className="flex gap-3">
                             <Button variant="primary" size="md" onClick={() => setIsReportModalOpen(true)}>
-                                Reportar material devolutivo
+                                Reportar material
                             </Button>
                             <Button variant="primary" size="md" onClick={() => navigate("/dashboard/devolutivo")}>
-                                Crear material devolutivo
+                                Crear material 
                             </Button>
                         </div>
                     </div>

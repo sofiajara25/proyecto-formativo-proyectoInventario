@@ -68,11 +68,7 @@ export default function ReturnableMaterialRegisterForm() {
 
     setErrors({});
     try {
-      const payload = {
-        ...result.data,
-        photo: result.data.photo?.[0]?.name ?? null,
-      };
-      const response = await createReturnableMaterial(payload);
+      const response = await createReturnableMaterial(result.data);
       console.log("Material creado:", response);
       alert("Material creado correctamente");
       navigate(-1);

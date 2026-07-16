@@ -93,11 +93,7 @@ export default function ReturnableMaterialRegisterForm() {
 
     setErrors({});
     try {
-      const payload = {
-        ...result.data,
-        photo: result.data.photo?.[0]?.name ?? null,
-      };
-      const response = await updateReturnable(id, payload);
+      const response = await updateReturnable(id, result.data);
       console.log("Material actualizado:", response);
       alert("Material actualizado correctamente");
       navigate(-1);
