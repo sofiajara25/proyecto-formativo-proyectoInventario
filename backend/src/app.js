@@ -40,16 +40,27 @@ app.use(express.json());
 // Todas las rutas del feature users quedarán bajo el prefijo /api/users
 // Ejemplo final: POST http://localhost:4000/api/users
 app.use("/api/users", userRoutes);
+
 app.use("/api/auth", authRoutes);
+
 app.use("/api/consumableMaterial", consumibleMaterialRoutes);
+
 app.use("/api/returnableMaterial", returnableMaterialRoutes);
+
 app.use("/api/brands", brandRoutes);
+
 app.use("/api/loan", loanRoutes);
+
 app.use("/api/returns", returnsRoutes);
+
 app.use("/api/groups", groupsRoutes);
-app.use("/api/tasks", tasksRoutes)
+
+app.use("/api/tasks", tasksRoutes);
+
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 app.use("/api/permissions", permissionsRoutes);
+
 app.use("/api/access", accessRoutes);
 // Exportamos la aplicación configurada
 // El arranque del servidor se hace en server.js

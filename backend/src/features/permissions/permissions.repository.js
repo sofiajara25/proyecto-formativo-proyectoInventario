@@ -3,12 +3,20 @@ import { pool } from "../../config/db.js";
 export const permissionsRepository = {
     async getAll() {
         const query = `
-        SELECT
-        permission_id,
-        permission_name,
-        permission_codename
-        FROM permissions
-        ORDER BY permission_name
+        SELECT 
+            p.permission_id,
+            p.permission_name,
+            p.permission_codename,
+            ct.content_type_id,
+            ct.app_label,
+            ct.model,
+            ct.display_name
+        FROM permissions p
+        INNER JOIN content_type ct
+            ON ct.content_type_id = p.content_type_id
+        ORDER BY
+            ct.display_name,
+            p.permission_name;
         `;
 
         const result = await pool.query(query);

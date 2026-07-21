@@ -14,18 +14,32 @@ export default function PermissionModule({
 }) {
   const hasPermission = (codename) =>
     permissionsDraft.some(
-      (permission) => permission.permission_codename === codename
+      (permissions) => permissions.permission_codename === codename
     );
 
-  const handlePermissionChange = (permission, checked) => {
+  const handlePermissionChange = (permissions, checked) => {
     if (!checked) {
       setPermissionsDraft((prev) =>
-        prev.filter((item) => item.permission_id !== permission.permission_id)
+        prev.filter((item) => item.permission_id !== permissions.permission_id)
       );
       return;
     }
-    setPermissionsDraft((prev) => [...prev, permission]);
+    setPermissionsDraft((prev) => [...prev, permissions]);
   };
+
+  //Agrupar los permisos
+  const permissionsByModule = allPermissions.reduce((groupedPermissions, permissions) => {
+    const moduleName = permissions.display_name;
+
+    //Inicializa el arreglo si el modulo no existe
+    if (!groupedPermissions[moduleName]) {
+      groupedPermissions[moduleName] = [];
+    }
+
+    groupedPermissions[moduleName].push(permissions);
+
+    return groupedPermissions;
+  }, {});
 
   return (
     <section className="border rounded-lg p-4 sm:p-6">
@@ -49,26 +63,31 @@ export default function PermissionModule({
 
       {/* Permisos */}
       <div className="space-y-6 sm:space-y-8">
-        <div className="border-b-2 pb-4 sm:pb-6">
-          <h3 className="text-sm sm:text-base font-medium mb-3 sm:mb-4">
-            Módulo Usuarios
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4">
-            {allPermissions.map((permission) => (
-              <Checkbox
-                key={permission.permission_id}
-                id={permission.permission_codename}
-                name={permission.permission_codename}
-                label={permission.permission_name}
-                checked={hasPermission(permission.permission_codename)}
-                disabled={!isEditing}
-                onChange={(e) =>
-                  handlePermissionChange(permission, e.target.checked)
-                }
-              />
-            ))}
-          </div>
-        </div>
+        {Object.entries(permissionsByModule).map(
+          ([moduleName, permissions]) => (
+            <div key={moduleName} className="border-b-2 pb-4 sm:pb-6">
+              <h3 className="text-sm sm:text-base font-medium mb-3 sm:mb-4">
+                Módulo {moduleName}
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4">
+                {permissions.map((permission) => (
+                  <Checkbox
+                    key={permission.permission_id}
+                    id={permission.permission_codename}
+                    name={permission.permission_codename}
+                    label={permission.permission_name}
+                    checked={hasPermission(permission.permission_codename)}
+                    disabled={!isEditing}
+                    onChange={(e) =>
+                      handlePermissionChange(permission, e.target.checked)
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ),
+        )}
       </div>
 
       {/* Acciones */}

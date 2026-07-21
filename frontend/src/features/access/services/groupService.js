@@ -1,19 +1,41 @@
 const API_URL = "http://localhost:5000/api/groups";
 
-export async function createGroup(groupName) {
-    const token = sessionStorage.getItem("token");
+export async function createGroup(groupData) {
+
+
+    // Realizamos la petición HTTP usando fetch
     const response = await fetch(API_URL, {
+        // Método HTTP según convención REST
         method: "POST",
+
+
+        // Cabeceras de la petición
+        // Indicamos que enviamos JSON
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ groupName }),
+
+
+        // Convertimos el objeto userData a JSON
+        body: JSON.stringify(groupData),
     });
 
-    if (!response.ok) throw new Error("Error creando grupo");
+
+    // Verificamos si la respuesta NO fue exitosa (status != 2xx)
+    if (!response.ok) {
+        // Leemos el cuerpo de la respuesta de error
+        const error = await response.json();
+
+
+        // Lanzamos una excepción con el mensaje de error
+        // Esto permite que el componente que llama maneje el error con try/catch
+        throw new Error(error.error || "Error al crear el grupo");
+    }
+
+
+    // Si la petición fue exitosa, retornamos la respuesta parseada como JSON
     return response.json();
-}
+};
 
 export async function getGroups() {
     const response = await fetch(API_URL);

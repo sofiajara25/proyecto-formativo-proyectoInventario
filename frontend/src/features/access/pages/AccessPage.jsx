@@ -10,8 +10,10 @@ export default function AccessPage() {
   const [groupPermissions, setGroupPermissions] = useState([]);
   const [selectedGroupName, setSelectedGroupName] = useState("");
   const [allPermissions, setAllPermissions] = useState([]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [permissionsDraft, setPermissionsDraft] = useState([]);
+
   const [entityType, setEntityType] = useState("group"); // "group" o "user"
   const [selectedUser, setSelectedUser] = useState("");
 
@@ -77,6 +79,7 @@ export default function AccessPage() {
           </h1>
 
           <PermissionModule
+            selectedGroup={selectedGroup}
             selectedGroupName={selectedGroupName}
             allPermissions={allPermissions}
             isEditing={isEditing}

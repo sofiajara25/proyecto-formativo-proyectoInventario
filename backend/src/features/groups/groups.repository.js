@@ -5,27 +5,16 @@ export const groupsRepository = {
 
   // groups.repository.js
   async create(groupData) {
-    const {
-      groupName
-    } = groupData;
-
+    const { group_name } = groupData;
     const query = `
-      INSERT INTO groups (
-      group_name, 
-      is_active
-    )
+    INSERT INTO groups (group_name, is_active)
     VALUES ($1, true)
-    RETURNING id;
+    RETURNING group_id, group_name, is_active;
   `;
-
-    const values = [
-      groupName
-    ];
+    const values = [group_name];
     const result = await pool.query(query, values);
-
     return result.rows[0];
   },
-
 
   async getAll() {
     const query = `
@@ -88,7 +77,6 @@ export const groupsRepository = {
           permission_id
         )
         VALUES ($1, $2)
-        ON CONFLICT (group_id, permission_id) DO NOTHING
       `,
           [groupId, permissionId],
         );

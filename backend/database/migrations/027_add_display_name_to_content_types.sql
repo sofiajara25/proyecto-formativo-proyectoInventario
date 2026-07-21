@@ -1,0 +1,2 @@
+ALTER TABLE  content_type
+ADD COLUMN display_name VARCHAR(100) NOT NULL DEFAULT '';
