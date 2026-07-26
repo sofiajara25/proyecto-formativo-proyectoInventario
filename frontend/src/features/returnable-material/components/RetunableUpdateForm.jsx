@@ -95,7 +95,6 @@ export default function ReturnableMaterialRegisterForm() {
     try {
       const response = await updateReturnable(id, result.data);
       console.log("Material actualizado:", response);
-      alert("Material actualizado correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);

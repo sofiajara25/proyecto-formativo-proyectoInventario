@@ -4,11 +4,6 @@ import ConsumableRowActions from "../components/ConsumableRowActions";
 
 export const consumablesColumns = [
     {
-        accessorKey: "id",
-        header: "ID",
-        size: 80,
-    },
-    {
         accessorKey: "accountant",
         header: "Cuentadante",
     },

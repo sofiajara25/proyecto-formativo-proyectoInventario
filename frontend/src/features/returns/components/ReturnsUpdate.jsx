@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
 import { updateReturn, getReturnById } from "../services/returnService";
 import { useEffect } from "react";
+import { getLoans } from "../../loans/services/loanService";
 
 export default function ReturnForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +44,29 @@ export default function ReturnForm() {
       .catch((err) => console.error("Error cargando material:", err));
   }, [id]);
 
+  const [loans, setLoans] = useState([]);
+
+  // Opciones del select definidas afuera
+  const loanOptions = [
+    { id: "", label: "Seleccionar una opción" }, // opción inicial
+    ...loans.map(l => ({
+      id: l.loan_id,
+      label: `${l.product_name} - ${l.loan_user}`
+    }))
+  ];
+
+  const Options = [
+    { id: "", label: "Seleccionar una opción" }, // opción inicial
+    { id: "devolutivo", label: "Devolutivo" },
+    { id: "consumible", label: "Consumible" },
+  ];
+
+  useEffect(() => {
+    getLoans()
+      .then((data) => setLoans(data))
+      .catch((err) => console.error("Error cargando préstamos:", err));
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -77,7 +101,6 @@ export default function ReturnForm() {
     try {
       const response = await updateReturn(id, result.data);
       console.log("Retorno actualizado:", response);
-      alert("Retorno actualizado correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
@@ -122,22 +145,19 @@ export default function ReturnForm() {
               name="materialType"
               value={formData.materialType}
               onChange={handleChange}
-              options={[
-                { id: "devolutivo", label: "Devolutivo" },
-                { id: "consumible", label: "Consumible" },
-              ]}
+              options={Options}
               error={errors.materialType}
             />
           </div>
 
           {/* Datos del préstamo */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
-              label="ID del Préstamo"
+            <Select
+              label="Préstamo"
               name="loanId"
               value={formData.loanId}
               onChange={handleChange}
-              error={errors.loanId}
+              options={loanOptions}
             />
 
             <Input

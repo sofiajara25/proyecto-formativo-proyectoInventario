@@ -13,7 +13,7 @@ export const loansColumns = [
 
     // Columna ID
     {
-        accessorKey: "id", // Propiedad del objeto user que se mostrará en la columna
+        accessorKey: "loan_id", // Propiedad del objeto user que se mostrará en la columna
         header: "Id",      // Título de la columna
     },
 

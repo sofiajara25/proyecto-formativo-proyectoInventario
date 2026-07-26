@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button } from "@/shared";
+import { Navbar, Button, formatDate } from "@/shared";
 import { FileText } from "lucide-react";
 import { getConsumableById } from "../services/consumableMaterialService";
 
@@ -60,7 +60,7 @@ export default function ViewConsumablePage() {
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Código herramienta:</strong> {consumable.tool_id}</p>
                         <p><strong>Placa SENA:</strong> {consumable.sena_plate}</p>
-                        <p><strong>Fecha de ingreso:</strong> {consumable.entry_date}</p>
+                        <p><strong>Fecha de ingreso:</strong> {formatDate(consumable.entry_date)}</p>
                         <p><strong>Cantidad:</strong> {consumable.quantity}</p>
                         <p><strong>Ubicación:</strong> {consumable.location}</p>
                         <p><strong>Valor unitario:</strong> ${consumable.unit_value}</p>

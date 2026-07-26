@@ -42,7 +42,6 @@ export default function UpdateBrandPage() {
     setErrors({});
     try {
       await updateBrand(id, result.data);
-      alert("Marca actualizada correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);

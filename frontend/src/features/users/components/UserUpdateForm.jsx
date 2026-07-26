@@ -115,8 +115,6 @@ export default function UserUpdateForm() {
         try {
             const response = await updateUser(id, result.data);
             console.log("Usuario actualizado:", response);
-
-            alert("Usuario actualizado correctamente");
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);

@@ -78,7 +78,6 @@
         setErrors({});
         try {
         await updateConsumable(id, result.data);
-        alert("Material actualizado correctamente");
         navigate(-1);
         } catch (error) {
         console.error("Error:", error.message);

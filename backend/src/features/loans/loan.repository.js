@@ -27,7 +27,7 @@ export const loanRepository = {
 
         // Definimos la consulta SQL parametrizada
         // Usar placeholders ($1, $2, ...) previene inyecciones SQL
-        // RETURNING permite obtener datos generados por la base de datos (id)
+        // RETURNING permite obtener datos generados por la base de datos (loan_id)
         const query = `
       INSERT INTO loans (
         loan_user,
@@ -39,7 +39,7 @@ export const loanRepository = {
         photo_url
       )
       VALUES ($1,$2,$3,$4,$5,$6,$7)
-      RETURNING id;
+      RETURNING loan_id;
     `;
 
 
@@ -62,7 +62,7 @@ export const loanRepository = {
 
 
         // Devolvemos únicamente el primer registro retornado
-        // En este caso contiene el id del usuario recién creado
+        // En este caso contiene el loan_id del usuario recién creado
         return result.rows[0];
     },
 
@@ -71,11 +71,11 @@ export const loanRepository = {
         return result.rows;
     },
 
-    async findById(id) {
-        const result = await pool.query("SELECT * FROM loans WHERE id = $1", [id]);
+    async findById(loan_id) {
+        const result = await pool.query("SELECT * FROM loans WHERE loan_id = $1", [loan_id]);
         return result.rows[0]; // debe incluir user_photo
     },
-    async update(id, loanData) {
+    async update(loan_id, loanData) {
         const {
             loanUser,
             loanCategory,
@@ -95,7 +95,7 @@ export const loanRepository = {
                 return_date = $5,
                 description = $6,
                 photo_url = COALESCE($7, photo_url)
-            WHERE id = $8
+            WHERE loan_id = $8
             RETURNING *;
         `;
 
@@ -107,7 +107,7 @@ export const loanRepository = {
             loanReturnDate,
             loanDescription,
             photo ?? null,
-            id,
+            loan_id,
         ];
 
         const result = await pool.query(query, values);

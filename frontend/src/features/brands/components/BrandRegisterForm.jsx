@@ -44,7 +44,6 @@ export default function BrandRegisterForm() {
       const payload = result.data;
       const response = await createBrand(payload);
       console.log("Marca creada:", response);
-      alert("Marca creada correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);

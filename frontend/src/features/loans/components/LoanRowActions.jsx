@@ -6,12 +6,12 @@ export default function LoanRowActions({ loan }) {
 
     // Acción para editar el préstamo
     const handleEdit = () => {
-        navigate(`/dashboard/loans/${loan.id}/edit`);
+        navigate(`/dashboard/loans/${loan.loan_id}/edit`);
     };
 
     // Acción para ver el préstamo
     const handleView = () => {
-        navigate(`/dashboard/loans/${loan.id}/view`);
+        navigate(`/dashboard/loans/${loan.loan_id}/view`);
     };
 
     return (

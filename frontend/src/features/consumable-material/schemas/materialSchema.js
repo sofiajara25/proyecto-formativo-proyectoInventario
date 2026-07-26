@@ -59,4 +59,12 @@ export const materialSchema = z.object({
     .max(200, "La descripción es demasiado larga"),
 
   photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
-});
+}).refine((data) => {
+  if (!data.materialEntryDate) return false;
+  const today = new Date();
+  const materialEntryDate = new Date(data.materialEntryDate);
+  if (isNaN(materialEntryDate.getTime())) return false; // fecha inválida
+  today.setHours(0, 0, 0, 0);
+  materialEntryDate.setHours(0, 0, 0, 0);
+  return materialEntryDate >= today;
+}, { path: ["materialEntryDate"], message: "La fecha de préstamo no puede ser anterior a hoy" })

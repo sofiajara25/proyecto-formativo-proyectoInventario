@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button } from "@/shared";
+import { Navbar, Button, formatDate } from "@/shared";
 import { Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getReturnById } from "../services/returnService";
@@ -109,7 +109,7 @@ export default function ViewReturnPage() {
                     <div className="grid grid-cols-1 gap-4">
                         <p><strong>Tipo de Material:</strong> {returns.material_type}</p>
                         <p><strong>ID del Préstamo:</strong> {returns.loan_id}</p>
-                        <p><strong>Fecha de Devolución:</strong> {returns.return_date}</p>
+                        <p><strong>Fecha de Devolución:</strong> {formatDate(returns.return_date)}</p>
                         <p><strong>Cantidad Devuelta:</strong> {returns.description}</p>
                         <p><strong>Descripción / Observaciones:</strong> ${returns.quantity}</p>
                     </div>

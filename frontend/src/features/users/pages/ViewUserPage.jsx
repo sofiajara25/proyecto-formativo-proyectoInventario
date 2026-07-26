@@ -1,5 +1,5 @@
     import { useNavigate, useParams } from "react-router-dom";
-    import { Navbar, Button } from "@/shared";
+    import { Navbar, Button, formatDate } from "@/shared";
     import { User } from "lucide-react";
     import { useState, useEffect } from "react";
     import { getUserById } from "../services/userService";
@@ -118,8 +118,8 @@
                 { label: "Tipo documento", value: user.document_type },
                 { label: "Número documento", value: user.document_number },
                 { label: "Tipo usuario", value: user.user_type },
-                { label: "Fecha de inicio", value: user.start_date },
-                { label: "Fecha de finalización", value: user.end_date },
+                { label: "Fecha de inicio", value: formatDate(user.start_date) },
+                { label: "Fecha de finalización", value: formatDate(user.end_date) },
                 { label: "Correo", value: user.user_email },
                 { label: "Teléfono", value: user.user_phone },
                 { label: "Dirección", value: user.user_address },

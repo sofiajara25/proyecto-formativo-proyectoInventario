@@ -40,7 +40,7 @@ export const loanController = {
 
         // Retornamos únicamente el ID del usuario creado
         // Evita exponer información sensible innecesaria
-        loanId: loan.id,
+        loanId: loan.loan_id,
       });
 
 
@@ -71,8 +71,8 @@ export const loanController = {
 
   async getById(req, res) {
     try {
-      const { id } = req.params;
-      const loan = await loanService.getLoanById(id);
+      const { loan_id } = req.params;
+      const loan = await loanService.getLoanById(loan_id);
       if (!loan) return res.status(404).json({ error: "Préstamo no encontrado" });
       res.status(200).json(loan);
     } catch (err) {
@@ -82,9 +82,9 @@ export const loanController = {
 
   async update(req, res) {
     try {
-      const { id } = req.params;
+      const { loan_id } = req.params;
       const photoPath = req.file ? `uploads/${req.file.filename}` : null;
-      const updatedLoan = await loanService.updateLoan(id, {
+      const updatedLoan = await loanService.updateLoan(loan_id, {
         ...req.body,
         photo: photoPath,
       });

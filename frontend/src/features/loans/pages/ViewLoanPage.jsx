@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button } from "@/shared";
+import { Navbar, Button, formatDate } from "@/shared";
 import { FileText } from "lucide-react";
 import { getLoanById } from "../services/loanService";
 
 export default function ViewLoanPage() {
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { loan_id } = useParams();
     const [loan, setLoan] = useState(null);
 
     useEffect(() => {
-        getLoanById(id).then(setLoan).catch(console.error);
-    }, [id]);
+        getLoanById(loan_id).then(setLoan).catch(console.error);
+    }, [loan_id]);
 
     if (!loan) {
         return (
@@ -68,8 +68,8 @@ export default function ViewLoanPage() {
                         <p><strong>Usuario:</strong> {loan.loan_user}</p>
                         <p><strong>Categoria:</strong> {loan.category}</p>
                         <p><strong>Material:</strong> {loan.product_name}</p>
-                        <p><strong>Fecha préstamo:</strong> {loan.loan_date}</p>
-                        <p><strong>Fecha devolución:</strong> {loan.return_date}</p>
+                        <p><strong>Fecha préstamo:</strong> {formatDate(loan.loan_date)}</p>
+                        <p><strong>Fecha devolución:</strong> {formatDate(loan.return_date)}</p>
                         {loan.description && (
                             <p className="col-span-2"><strong>Descripción:</strong> {loan.description}</p>
                         )}
@@ -81,7 +81,7 @@ export default function ViewLoanPage() {
                     {/* Acciones */}
                     <div className="flex justify-end gap-4">
                         <Button variant="secondary" onClick={() => navigate(-1)}>Volver</Button>
-                        <Button variant="primary" onClick={() => navigate(`/dashboard/loans/${loan.id}/edit`)}>Editar</Button>
+                        <Button variant="primary" onClick={() => navigate(`/dashboard/loans/${loan.loan_id}/edit`)}>Editar</Button>
                     </div>
                 </div>
             </div>

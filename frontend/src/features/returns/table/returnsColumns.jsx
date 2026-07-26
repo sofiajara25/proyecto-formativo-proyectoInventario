@@ -1,5 +1,5 @@
 // Componente reutilizable que muestra un switch para activar o desactivar estados
-import { Switch } from "@/shared";
+import { Switch, formatDate } from "@/shared";
 
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
@@ -33,6 +33,7 @@ export const returnsColumns = [
     // Columna Fecha de devolucion
     {
         accessorKey: "return_date",
+        cell: ({ row }) => formatDate(row.original.return_date),
         header: "Fecha de devolución",
     },
 

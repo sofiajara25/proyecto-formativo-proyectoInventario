@@ -13,4 +13,12 @@ export const returnSchema = z.object({
   isAvailable: z.boolean(),
   isMaintenance: z.boolean(),
   isLow: z.boolean(),
-});
+}).refine((data) => {
+  if (!data.returnDate) return false;
+  const today = new Date();
+  const returnDate = new Date(data.returnDate);
+  if (isNaN(returnDate.getTime())) return false; // fecha inválida
+  today.setHours(0, 0, 0, 0);
+  returnDate.setHours(0, 0, 0, 0);
+  return returnDate >= today;
+}, { path: ["returnDate"], message: "La fecha de préstamo no puede ser anterior a hoy" })

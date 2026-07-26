@@ -22,8 +22,8 @@ const upload = multer({ dest: "uploads/" });
 // Express ejecuta el método create del controller.
 router.post("/", upload.array("photo"), loanController.create);
 router.get("/", loanController.list);
-router.get("/:id", loanController.getById);
-router.put("/:id", upload.single("photo"), loanController.update);
+router.get("/:loan_id", loanController.getById);
+router.put("/:loan_id", upload.single("photo"), loanController.update);
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

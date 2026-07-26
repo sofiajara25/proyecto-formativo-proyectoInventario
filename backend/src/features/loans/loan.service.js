@@ -25,10 +25,10 @@ export const loanService = {
     async getAllLoans() {
         return await loanRepository.findAll();
     },
-    async getLoanById(id) {
-        return await loanRepository.findById(id);
+    async getLoanById(loan_id) {
+        return await loanRepository.findById(loan_id);
     },
-    async updateLoan(id, data) {
-        return await loanRepository.update(id, data);
+    async updateLoan(loan_id, data) {
+        return await loanRepository.update(loan_id, data);
     }
 };

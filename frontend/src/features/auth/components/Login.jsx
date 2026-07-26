@@ -128,9 +128,6 @@ export default function Login() {
 
                         {/* Actions */}
                         <div className="flex items-center justify-center gap-12">
-                            <Button variant="secondary" size="sm" >
-                                Cancelar
-                            </Button>
 
                             <Button variant="primary" size="md" type="submit">
                                 Iniciar

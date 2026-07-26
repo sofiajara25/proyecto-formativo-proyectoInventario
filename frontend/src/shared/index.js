@@ -32,3 +32,6 @@ export {default as ProtectedRoute} from "./auth/ProtectedRoute"
 
 //Tasks
 export {default as TaskCard} from "./components/TaskCard"
+
+// utils
+export { formatDate } from "./utils/formatDate"

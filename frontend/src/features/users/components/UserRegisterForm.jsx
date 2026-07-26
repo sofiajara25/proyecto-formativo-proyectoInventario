@@ -118,7 +118,6 @@ export default function UserRegisterForm() {
                 await createTask({ ...pendingTaskData, userId });
             }
 
-            alert("Usuario y tarea creados correctamente");
             navigate(-1);
         } catch (error) {
             alert(error.message);

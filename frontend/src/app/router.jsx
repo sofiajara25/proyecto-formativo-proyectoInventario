@@ -65,7 +65,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/list-marca", element: <ListBrandPage /> },
 
       // Rutas de Actualizar
-      { path: "/dashboard/loans/:id/edit", element: <UpdateLoansPage /> },
+      { path: "/dashboard/loans/:loan_id/edit", element: <UpdateLoansPage /> },
       { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
       { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
       { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage /> },
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/tasks/:id/edit", element: <TasksUpdateForm /> },
 
       // Rutas de Ver
-      { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },
+      { path: "/dashboard/loans/:loan_id/view", element: <ViewLoanPage /> },
       { path: "/dashboard/users/:id/view", element: <ViewUserPage /> },
       { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
       { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },

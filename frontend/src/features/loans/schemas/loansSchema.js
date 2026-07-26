@@ -19,11 +19,11 @@ export const loanSchema = z.object({
 
   loanDate: z
     .string()
-    .min(1, "La fecha de préstamo es requerida"),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido"),
 
   loanReturnDate: z
     .string()
-    .min(1, "La fecha de devolución es requerida"),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido"),
 
   loanDescription: z
     .string()
@@ -31,4 +31,22 @@ export const loanSchema = z.object({
     .max(200, "La descripción es demasiado larga"),
 
   photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
-});
+}).refine((data) => {
+  if (!data.loanDate) return false;
+  const today = new Date();
+  const loanDate = new Date(data.loanDate);
+  if (isNaN(loanDate.getTime())) return false; // fecha inválida
+  today.setHours(0, 0, 0, 0);
+  loanDate.setHours(0, 0, 0, 0);
+  return loanDate >= today;
+}, { path: ["loanDate"], message: "La fecha de préstamo no puede ser anterior a hoy" })
+  .refine((data) => {
+    if (!data.loanDate || !data.loanReturnDate) return false;
+    const loanDate = new Date(data.loanDate);
+    const returnDate = new Date(data.loanReturnDate);
+    if (isNaN(loanDate.getTime()) || isNaN(returnDate.getTime())) return false; // fechas inválidas
+    loanDate.setHours(0, 0, 0, 0);
+    returnDate.setHours(0, 0, 0, 0);
+    return returnDate >= loanDate;
+  }, { path: ["loanReturnDate"], message: "La fecha de devolución no puede ser anterior a la fecha de préstamo" });
+

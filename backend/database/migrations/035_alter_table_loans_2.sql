@@ -1,0 +1,4 @@
+ALTER TABLE loans
+ALTER COLUMN loan_date TYPE DATE,
+ALTER COLUMN return_date TYPE DATE;
+    

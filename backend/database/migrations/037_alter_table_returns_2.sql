@@ -1,0 +1,1 @@
+ALTER TABLE loans RENAME COLUMN id TO loan_id;

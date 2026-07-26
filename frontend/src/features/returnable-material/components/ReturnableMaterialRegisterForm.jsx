@@ -70,7 +70,6 @@ export default function ReturnableMaterialRegisterForm() {
     try {
       const response = await createReturnableMaterial(result.data);
       console.log("Material creado:", response);
-      alert("Material creado correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
