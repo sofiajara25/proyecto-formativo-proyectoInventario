@@ -5,11 +5,6 @@ import ReturnableRowAction from "../components/ReturnableRowAction";
 export const returnableColumns = [
 
     {
-        accessorKey: "id",
-        header: "Id",
-    },
-
-    {
         accessorKey: "custodian",
         header: "Encargado",
     },

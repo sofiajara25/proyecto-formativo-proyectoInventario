@@ -15,7 +15,11 @@ function buildReturnableFormData(returnableMaterialData) {
     formData.append("materialTotalValue", returnableMaterialData.materialTotalValue);
     formData.append("materialDimensions", returnableMaterialData.materialDimensions);
     formData.append("materialDescription", returnableMaterialData.materialDescription);
-    formData.append("materialTechnicalSheet", returnableMaterialData.materialTechnicalSheet);
+    
+    if (Array.isArray(returnableMaterialData.materialTechnicalSheet) && returnableMaterialData.materialTechnicalSheet.length) {
+        formData.append("materialTechnicalSheet", returnableMaterialData.materialTechnicalSheet[0]);
+    }
+
     formData.append("materialLocation", returnableMaterialData.materialLocation);
 
     if (Array.isArray(returnableMaterialData.photo) && returnableMaterialData.photo.length) {

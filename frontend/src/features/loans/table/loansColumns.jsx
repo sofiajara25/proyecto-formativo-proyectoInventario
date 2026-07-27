@@ -4,6 +4,7 @@ import { Switch } from "@/shared";
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
 import LoanRowActions from "../components/LoanRowActions";
+import { updateLoanStatus } from "../services/loanService";
 
 
 // Definición de las columnas de la tabla de usuarios
@@ -38,16 +39,6 @@ export const loansColumns = [
     },
 
     {
-        accessorKey: "loan_date",
-        header: "Fecha de Préstamo",
-    },
-
-    {
-        accessorKey: "return_date",
-        header: "Fecha de Devolución",
-    },
-
-    {
         accessorKey: "description",
         header: "Descripción",
     },
@@ -69,17 +60,14 @@ export const loansColumns = [
 
 
             // Función que se ejecuta cuando cambia el switch
-            const handleChange = (value) => {
-
-
-                // value representa el nuevo estado del switch (true o false)
-                console.log("Actualizar estado usuario:", loan.loan_id, value);
-
-
-                // Aquí normalmente se llamaría una API para actualizar el estado
-                // updateUserStatus(user.user_id, value)
+            const handleChange = async (value) => {
+                try {
+                    await updateLoanStatus(loan.loan_id, value); // 👈 llamada al servicio
+                    console.log("Estado actualizado en BD:", loan.loan_id, value);
+                } catch (error) {
+                    console.error("Error actualizando estado:", error.message);
+                }
             };
-
 
             return (
                 // Componente reutilizable para mostrar el switch

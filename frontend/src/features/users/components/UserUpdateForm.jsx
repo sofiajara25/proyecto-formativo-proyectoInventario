@@ -8,9 +8,10 @@ import { z } from "zod";
 import { Pencil } from "lucide-react";
 import { TasksUpdateForm } from "@/features/tasks";
 import { getTasksByUserId } from "../../tasks/services/taskService.js";
+import { getGroups } from "../../access/services/groupService.js";
 
 
-const updateUserSchema = userSchema.extend({
+const updateUserSchema = userSchema.safeExtend({
     userPassword: z.union([userSchema.shape.userPassword, z.literal("")]),
 });
 
@@ -26,7 +27,7 @@ export default function UserUpdateForm() {
         userName: "",
         userDocumentType: "",
         userDocumentNumber: "",
-        userType: "",
+        groupId: "",
         userEndDate: "",
         userStartDate: "",
         userEmail: "",
@@ -38,14 +39,23 @@ export default function UserUpdateForm() {
     });
     const [errors, setErrors] = useState({});
 
-    const tiposUsuario = [
-        { value: "admin", label: "Administrador" },
-        { value: "usuario", label: "Usuario" },
+    const [groups, setGroups] = useState([]);
+    const groupOptions = [
+        { value: "", label: "Selecciona tu opción" },
+        ...groups.map(g => ({
+            value: String(g.group_id),   // 👈 convertir a string
+            label: g.group_name,
+        }))
     ];
 
+    useEffect(() => {
+        getGroups().then(setGroups).catch(err => console.error(err));
+    }, []);
+
     const estados = [
-        { value: "activo", label: "Activo" },
-        { value: "inactivo", label: "Inactivo" },
+        { value: "", label: "Selecciona tu opción" },
+        { value: "Activo", label: "Activo" },
+        { value: "Inactivo", label: "Inactivo" },
     ];
 
     // Cargar datos actuales
@@ -55,7 +65,7 @@ export default function UserUpdateForm() {
                 userName: data.user_name || "",
                 userDocumentType: data.document_type || "",
                 userDocumentNumber: data.document_number || "",
-                userType: data.user_type || "",
+                groupId: data.group_id ? String(data.group_id) : "",
                 userStartDate: data.start_date?.slice(0, 10) || "",
                 userEndDate: data.end_date?.slice(0, 10) || "",
                 userEmail: data.user_email || "",
@@ -214,12 +224,12 @@ export default function UserUpdateForm() {
 
                             {/* Fila 2 */}
                             <Select
-                                label="Tipo de usuario"
-                                name="userType"
-                                options={tiposUsuario}
-                                value={formData.userType}
+                                label="Grupo"
+                                name="groupId"
+                                options={groupOptions}   // 👈 igual que en UserRegisterForm
+                                value={formData.groupId}
                                 onChange={handleChange}
-                                error={errors.userType}
+                                error={errors.groupId}
                             />
                             <Input
                                 label="Fecha de inicio"
@@ -297,7 +307,7 @@ export default function UserUpdateForm() {
                                         onClick={handleTasks}
                                     >
                                         Tarea
-                                        <Pencil size={20}/>
+                                        <Pencil size={20} />
                                     </Button>
                                     {isTaskModalOpen && (
                                         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">

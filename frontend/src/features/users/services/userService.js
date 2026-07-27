@@ -15,7 +15,7 @@ export async function createUser(userData) {
     formData.append("userName", userData.userName);
     formData.append("userDocumentType", userData.userDocumentType);
     formData.append("userDocumentNumber", userData.userDocumentNumber);
-    formData.append("userType", userData.userType);
+    formData.append("groupId", userData.groupId);
     formData.append("userStartDate", userData.userStartDate);
     formData.append("userEndDate", userData.userEndDate);
     formData.append("userEmail", userData.userEmail);
@@ -74,7 +74,7 @@ export async function updateUser(id, userData) {
     formData.append("userName", userData.userName);
     formData.append("userDocumentType", userData.userDocumentType);
     formData.append("userDocumentNumber", userData.userDocumentNumber);
-    formData.append("userType", userData.userType);
+    formData.append("groupId", userData.groupId);
     formData.append("userStartDate", userData.userStartDate);
     formData.append("userEndDate", userData.userEndDate);
     formData.append("userEmail", userData.userEmail);

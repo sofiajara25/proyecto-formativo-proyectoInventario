@@ -24,10 +24,17 @@ export const returnableMaterialController = {
         try {
             // Llamamos al servicio de usuario, pasando los datos recibidos
             // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-            const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+            const photoPath = req.files?.photo?.[0]
+                ? `uploads/${req.files.photo[0].filename}`
+                : null;
+
+            const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
+                ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
+                : null;
             const returnableMaterial = await returnableMaterialService.createReturnableMaterial({
                 ...req.body,
                 photo: photoPath,
+                materialTechnicalSheet: technicalSheetPath,
             });
 
 
@@ -83,11 +90,19 @@ export const returnableMaterialController = {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+            const photoPath = req.files?.photo?.[0]
+                ? `uploads/${req.files.photo[0].filename}`
+                : null;
+            const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
+                ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
+                : null;
+
             const updated = await returnableMaterialService.updateReturnable(id, {
                 ...req.body,
+                materialTechnicalSheet: technicalSheetPath,
                 photo: photoPath,
             });
+
             if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });
             res.status(200).json({ message: "Material actualizado correctamente", material: updated });
         } catch (err) {

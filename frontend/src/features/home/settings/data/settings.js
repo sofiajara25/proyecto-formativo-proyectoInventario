@@ -3,14 +3,14 @@ import { Dices, Users2, UserRoundCheck } from "lucide-react"
 export const settings = [
     {
         id: 1,
-        title: "Gestionar Marca",
+        title: "Gestión de Marca",
         logo: Dices,
         category: "perifericos",
         path: "/dashboard/list-marca",
     },
     {
         id: 2,
-        title: "Grupos de usuarios",
+        title: "Grupos",
         logo: Users2,
         category: "perifericos",
         path: "/dashboard/access",

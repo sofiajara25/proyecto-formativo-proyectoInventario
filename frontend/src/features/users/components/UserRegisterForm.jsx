@@ -7,7 +7,7 @@ import { createUser } from "../services/userService.js";
 import { CirclePlus } from "lucide-react"
 import { TasksRegisterForm } from "@/features/tasks"
 import { createTask } from "../../tasks/services/taskService.js";
-
+import { getGroups } from "../../access/services/groupService.js";
 
 export default function UserRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function UserRegisterForm() {
         userName: "",
         userDocumentType: "",
         userDocumentNumber: "",
-        userType: "",
+        groupId: "",
         userEndDate: "",
         userStartDate: "",
         userEmail: "",
@@ -36,19 +36,27 @@ export default function UserRegisterForm() {
     });
     const [errors, setErrors] = useState({});
 
-    const tiposUsuario = [
-        { value: "admin", label: "Administrador" },
-        { value: "usuario", label: "Usuario" },
-    ];
+    const [groups, setGroups] = useState([]);
 
     const estados = [
-        { value: "activo", label: "Activo" },
-        { value: "inactivo", label: "Inactivo" },
+        { value: "", label: "Selecciona tu opción" },
+        { value: "Activo", label: "Activo" },
+        { value: "Inactivo", label: "Inactivo" },
+    ];
+
+    const groupOptions = [
+        { value: "", label: "Selecciona tu opción" }, // opción fija
+        ...groups.map((g) => ({
+            value: g.group_id,
+            label: g.group_name,
+        })),
     ];
 
     useEffect(() => {
         getDocumentType().then(setDocumentType);
+        getGroups().then(setGroups).catch(err => console.error(err));
     }, []);
+
 
     const validateUserForm = () => {
         const result = userSchema.safeParse(formData);
@@ -224,13 +232,14 @@ export default function UserRegisterForm() {
 
                             {/* Fila 2 */}
                             <Select
-                                label="Tipo de usuario"
-                                name="userType"
-                                options={tiposUsuario}
-                                value={formData.userType}
+                                label="Grupo"
+                                name="groupId"
+                                options={groupOptions}
+                                value={formData.groupId}
                                 onChange={handleChange}
-                                error={errors.userType}
+                                error={errors.groupId}
                             />
+
                             <Input
                                 label="Fecha de inicio"
                                 name="userStartDate"
@@ -314,6 +323,9 @@ export default function UserRegisterForm() {
                                     {isTaskOpen && (
                                         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
                                             <TasksRegisterForm
+                                                userId={pendingUserData.id}
+                                                userStartDate={pendingUserData.userStartDate}
+                                                userEndDate={pendingUserData.userEndDate}
                                                 onClose={() => setIsTaskOpen(false)}
                                                 onSaveTask={(taskData) => {
                                                     setPendingTaskData(taskData); // ✅ solo guardar en memoria

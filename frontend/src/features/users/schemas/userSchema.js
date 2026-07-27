@@ -17,9 +17,7 @@ export const userSchema = z.object({
         .min(5, "Número de documento inválido")
         .max(20, "Número de documento demasiado largo"),
 
-    userType: z
-        .string()
-        .min(1, "Debe seleccionar un tipo de usuario"),
+    groupId: z.string().min(1, "Debe seleccionar un grupo"),
 
     userEndDate: z
         .string()
@@ -56,4 +54,21 @@ export const userSchema = z.object({
 
 
     userPhoto: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
-})
+}).refine((data) => {
+  if (!data.userStartDate) return false;
+  const today = new Date();
+  const userStartDate = new Date(data.userStartDate);
+  if (isNaN(userStartDate.getTime())) return false; // fecha inválida
+  today.setHours(0, 0, 0, 0);
+  userStartDate.setHours(0, 0, 0, 0);
+  return userStartDate >= today;
+}, { path: ["userStartDate"], message: "La fecha de inicio no puede ser anterior a hoy" })
+  .refine((data) => {
+    if (!data.userStartDate || !data.userEndDate) return false;
+    const userStartDate = new Date(data.userStartDate);
+    const returnDate = new Date(data.userEndDate);
+    if (isNaN(userStartDate.getTime()) || isNaN(returnDate.getTime())) return false; // fechas inválidas
+    userStartDate.setHours(0, 0, 0, 0);
+    returnDate.setHours(0, 0, 0, 0);
+    return returnDate >= userStartDate;
+  }, { path: ["userEndDate"], message: "La fecha de finalización no puede ser anterior a la fecha de inicio" });

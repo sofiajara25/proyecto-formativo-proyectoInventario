@@ -1,5 +1,6 @@
 // Importamos Express, el framework base para construir el servidor HTTP
 import express from "express";
+import fs from "fs";
 
 import path from "path";
 
@@ -56,6 +57,35 @@ app.use("/api/returns", returnsRoutes);
 app.use("/api/groups", groupsRoutes);
 
 app.use("/api/tasks", tasksRoutes);
+
+app.get("/uploads/:filename", (req, res, next) => {
+  const filename = path.basename(req.params.filename);
+  const filePath = path.join(process.cwd(), "uploads", filename);
+
+  if (!fs.existsSync(filePath)) {
+    return next();
+  }
+
+  const header = Buffer.alloc(12);
+  const fd = fs.openSync(filePath, "r");
+  const bytesRead = fs.readSync(fd, header, 0, header.length, 0);
+  fs.closeSync(fd);
+
+  const signature = header.subarray(0, bytesRead);
+  const contentType = (() => {
+    if (signature.subarray(0, 4).toString() === "%PDF") return "application/pdf";
+    if (signature[0] === 0xff && signature[1] === 0xd8 && signature[2] === 0xff) return "image/jpeg";
+    if (signature.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+    if (signature.subarray(0, 4).toString() === "RIFF" && signature.subarray(8, 12).toString() === "WEBP") return "image/webp";
+    return null;
+  })();
+
+  if (contentType) {
+    res.setHeader("Content-Type", contentType);
+  }
+  res.setHeader("Content-Disposition", "inline");
+  return res.sendFile(filePath);
+});
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

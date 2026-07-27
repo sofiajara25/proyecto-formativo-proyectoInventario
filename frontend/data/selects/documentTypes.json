@@ -1,5 +1,9 @@
 [
     {
+        "id": "",
+        "label": "Selecciona tu opción"
+    },
+    {
         "id": "C.C.",
         "label": "Cédula de ciudadanía"
     },

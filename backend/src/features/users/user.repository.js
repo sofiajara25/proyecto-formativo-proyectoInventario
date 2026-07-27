@@ -19,7 +19,7 @@ export const userRepository = {
       userName,
       userDocumentType,
       userDocumentNumber,
-      userType,
+      groupId,
       userStartDate,
       userEndDate,
       userEmail,
@@ -38,7 +38,7 @@ export const userRepository = {
         user_name,
         document_type,
         document_number,
-        user_type,
+        group_id, 
         start_date,
         end_date,
         user_email,
@@ -59,7 +59,7 @@ export const userRepository = {
       userName,
       userDocumentType,
       userDocumentNumber,
-      userType,
+      groupId,
       userStartDate,
       userEndDate,
       userEmail,
@@ -82,7 +82,22 @@ export const userRepository = {
   },
 
   async findAll() {
-    const result = await pool.query("SELECT * FROM users");
+    const query = `
+    SELECT 
+      u.id,
+      u.user_name,
+      u.document_type,
+      u.document_number,
+      g.group_name,
+      u.user_email,
+      u.user_address,
+      u.user_phone,
+      u.user_status
+    FROM users u
+    LEFT JOIN groups g ON u.group_id = g.group_id
+    ORDER BY u.id;
+  `;
+    const result = await pool.query(query);
     return result.rows;
   },
 
@@ -96,7 +111,7 @@ export const userRepository = {
       userName,
       userDocumentType,
       userDocumentNumber,
-      userType,
+      groupId,
       userStartDate,
       userEndDate,
       userEmail,
@@ -112,7 +127,7 @@ export const userRepository = {
     SET user_name = $1,
         document_type = $2,
         document_number = $3,
-        user_type = $4,
+        group_id = $4,
         start_date = $5,
         end_date = $6,
         user_email = $7,
@@ -129,7 +144,7 @@ export const userRepository = {
       userName,
       userDocumentType,
       userDocumentNumber,
-      userType,
+      groupId,
       userStartDate,
       userEndDate,
       userEmail,

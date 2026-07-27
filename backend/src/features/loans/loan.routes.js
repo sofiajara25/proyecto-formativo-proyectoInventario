@@ -24,6 +24,7 @@ router.post("/", upload.array("photo"), loanController.create);
 router.get("/", loanController.list);
 router.get("/:loan_id", loanController.getById);
 router.put("/:loan_id", upload.single("photo"), loanController.update);
+router.put("/:loan_id/status", loanController.updateStatus);
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const API_URL = "http://localhost:5000/api/loan";
 
 function buildLoanFormData(loanData) {
@@ -61,4 +63,11 @@ export async function updateLoan(id, loanData) {
     }
 
     return response.json();
+}
+
+export async function updateLoanStatus(loanId, isActive) {
+  const response = await axios.put(`${API_URL}/${loanId}/status`, {
+    is_active: isActive,
+  });
+  return response.data;
 }

@@ -10,13 +10,6 @@ import UserRowActions from "../components/UserRowActions";
 // Este arreglo suele usarse en librerías de tablas como TanStack Table
 export const usersColumns = [
 
-
-    // Columna ID
-    {
-        accessorKey: "id", // Propiedad del objeto user que se mostrará en la columna
-        header: "Id",      // Título de la columna
-    },
-
     // Columna Nombre
     {
         accessorKey: "user_name", // Campo del objeto user
@@ -31,8 +24,9 @@ export const usersColumns = [
         header: "Número documento",
     },
     {
-        accessorKey: "user_type",
-        header: "Tipo de usuario"
+        accessorKey: "group_name",
+        header: "Tipo de usuario",
+        cell: ({ row }) => row.original.group_name || "Sin grupo"
     },
     // Columna Email
     {

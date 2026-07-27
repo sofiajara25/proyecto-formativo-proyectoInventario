@@ -24,7 +24,7 @@ export default function ReturnableMaterialRegisterForm() {
     materialTotalValue: "",
     materialDimensions: "",
     materialDescription: "",
-    materialTechnicalSheet: "",
+    materialTechnicalSheet: [],
     materialLocation: "",
     photo: [],
   });
@@ -53,7 +53,7 @@ export default function ReturnableMaterialRegisterForm() {
         materialTotalValue: data.total_value,
         materialDimensions: data.dimensions,
         materialDescription: data.description,
-        materialTechnicalSheet: data.technical_sheet,
+        materialTechnicalSheet: [],
         materialLocation: data.location,
         photo: [],
       }))
@@ -62,10 +62,22 @@ export default function ReturnableMaterialRegisterForm() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [name]: files ? files[0] : value,
+      };
+
+      // Si cambian cantidad o valor unitario, recalcular total
+      if (name === "materialQuantity" || name === "materialUnitValue") {
+        const quantity = Number(newData.materialQuantity) || 0;
+        const unitValue = Number(newData.materialUnitValue) || 0;
+        newData.materialTotalValue = quantity * unitValue;
+      }
+
+      return newData;
+    });
   };
 
 
@@ -248,13 +260,20 @@ export default function ReturnableMaterialRegisterForm() {
               />
 
               {/* Fila 5 */}
-              <Input
-                label="Ficha Técnica"
-                name="materialTechnicalSheet"
-                value={formData.materialTechnicalSheet}
-                onChange={handleChange}
-                error={errors.materialTechnicalSheet}
-              />
+              <div>
+                <h4>Ficha Técnica</h4>
+                <FileInput
+                  value={formData.materialTechnicalSheet}
+                  onChange={(files) =>
+                    setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                  }
+                  multiple={false}   // 👈 solo un archivo
+                />
+                {errors.materialTechnicalSheet && (
+                  <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                )}
+              </div>
+
               <Input
                 label="Ubicación"
                 name="materialLocation"

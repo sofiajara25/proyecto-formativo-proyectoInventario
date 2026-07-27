@@ -133,7 +133,7 @@ export const returnableMaterialRepository = {
                 total_value = $10,
                 dimensions = $11,
                 description = $12,
-                technical_sheet = $13,
+                technical_sheet = COALESCE($13, technical_sheet),
                 location = $14,
                 photo_url = COALESCE($15, photo_url)
             WHERE id = $16
@@ -152,7 +152,7 @@ export const returnableMaterialRepository = {
             materialTotalValue,
             materialDimensions,
             materialDescription,
-            materialTechnicalSheet,
+            materialTechnicalSheet ?? null,
             materialLocation,
             photo ?? null,
             id

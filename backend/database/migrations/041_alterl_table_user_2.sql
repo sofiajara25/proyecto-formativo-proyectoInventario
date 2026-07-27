@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN group_id INT REFERENCES groups(group_id);

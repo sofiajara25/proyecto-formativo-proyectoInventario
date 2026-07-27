@@ -10,7 +10,7 @@ import { useState } from "react";
 export default function ViewReturMaterialPage() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [materialReturnable, setmaterialReturnable] = useState(null);
+    const [retornable, setmaterialReturnable] = useState(null);
 
     useEffect(() => {
         getReturnableById(id)
@@ -18,7 +18,7 @@ export default function ViewReturMaterialPage() {
             .catch((err) => console.error("Error cargando material devolutivo:", err));
     }, [id]);
 
-    if (!materialReturnable) {
+    if (!retornable) {
         return (
             <div className="min-h-screen flex items-center justify-center"
                 style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))" }}>
@@ -65,9 +65,9 @@ export default function ViewReturMaterialPage() {
                                 flexShrink: 0,
                             }}
                         >
-                            {materialReturnable.photo_url ? (
+                            {retornable.photo_url ? (
                                 <img
-                                    src={`http://localhost:5000/${materialReturnable.photo_url}`}
+                                    src={`http://localhost:5000/${retornable.photo_url}`}
                                     alt="Foto del material de consumo"
                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />
@@ -85,7 +85,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                {materialReturnable.material_name}
+                                {retornable.material_name}
                             </p>
                             <p
                                 style={{
@@ -94,7 +94,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                Custodio: {materialReturnable.custodian}
+                                Custodio: {retornable.custodian}
                             </p>
                             <p
                                 style={{
@@ -104,7 +104,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                Estado: {materialReturnable.status ? "Activo" : "Inactivo"}
+                                Estado: {retornable.status ? "Activo" : "Inactivo"}
                             </p>
                         </div>
                     </div>
@@ -114,17 +114,31 @@ export default function ViewReturMaterialPage() {
 
                     {/* Detalles en vertical */}
                     <div className="grid grid-cols-2 gap-4">
-                        <p><strong>Código herramienta:</strong> {materialReturnable.tool_id}</p>
-                        <p><strong>Placa SENA:</strong> {materialReturnable.sena_plate}</p>
-                        <p><strong>Serial:</strong> {materialReturnable.serial}</p>
-                        <p><strong>Modelo:</strong> {materialReturnable.model}</p>
-                        <p><strong>Valor unitario:</strong> ${materialReturnable.unit_value}</p>
-                        <p><strong>Cantidad:</strong> {materialReturnable.quantity}</p>
-                        <p><strong>Valor total:</strong> ${materialReturnable.total_value}</p>
-                        <p><strong>Dimenciones:</strong> {materialReturnable.dimensions}</p>
-                        <p><strong>Descripción:</strong> {materialReturnable.description}</p>
-                        <p><strong>Ficha Tecnica:</strong> {materialReturnable.technical_sheet}</p>
-                        <p><strong>Ubicación:</strong> {materialReturnable.location}</p>
+                        <p><strong>Código herramienta:</strong> {retornable.tool_id}</p>
+                        <p><strong>Placa SENA:</strong> {retornable.sena_plate}</p>
+                        <p><strong>Serial:</strong> {retornable.serial}</p>
+                        <p><strong>Modelo:</strong> {retornable.model}</p>
+                        <p><strong>Valor unitario:</strong> ${retornable.unit_value}</p>
+                        <p><strong>Cantidad:</strong> {retornable.quantity}</p>
+                        <p><strong>Valor total:</strong> ${retornable.total_value}</p>
+                        <p><strong>Dimenciones:</strong> {retornable.dimensions}</p>
+                        <p><strong>Descripción:</strong> {retornable.description}</p>
+                        <p>
+                            <strong>Ficha Tecnica:</strong>{" "}
+                            {retornable.technical_sheet ? (
+                                <a
+                                    href={`http://localhost:5000/${retornable.technical_sheet}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 underline"
+                                >
+                                    Ver archivo
+                                </a>
+                            ) : (
+                                "Sin archivo"
+                            )}
+                        </p>
+                        <p><strong>Ubicación:</strong> {retornable.location}</p>
                     </div>
 
 
@@ -135,7 +149,7 @@ export default function ViewReturMaterialPage() {
                     <div className="flex justify-end">
                         <Button
                             onClick={() =>
-                                navigate(`/dashboard/devolutivos/${materialReturnable.id}/edit`)}
+                                navigate(`/dashboard/retornables/${retornable.id}/edit`)}
                             type="button" variant="primary" size="md"
                             onMouseEnter={(e) =>
                                 (e.currentTarget.style.background = "var(--color-primary-700)")

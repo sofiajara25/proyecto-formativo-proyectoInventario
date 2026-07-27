@@ -3,7 +3,7 @@
     import { Input, Button, Modal, TextArea } from "@/shared";
     import { taskSchema } from "../schemas/taskSchema";
 
-    export default function TasksRegisterForm({ userId, onClose, onSaveTask }) {
+    export default function TasksRegisterForm({ userId, userStartDate, userEndDate, onClose, onSaveTask }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         taskName: "",
@@ -22,7 +22,7 @@
     const handleValidate = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const result = taskSchema.safeParse(formData);
+        const result = taskSchema(userStartDate, userEndDate).safeParse(formData);
         if (!result.success) {
         const fieldErrors = {};
         result.error.issues.forEach((issue) => {
@@ -36,7 +36,7 @@
     };
 
     const handleSaveTask = () => {
-        const result = taskSchema.safeParse(formData);
+        const result = taskSchema(userStartDate, userEndDate).safeParse(formData);
         if (!result.success) return;
         onSaveTask(result.data); // ✅ guarda en memoria, no envía a BD
         setIsModalOpen(false);

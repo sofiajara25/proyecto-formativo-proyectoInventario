@@ -63,10 +63,9 @@ export const returnablematerialSchema = z.object({
     .min(5, "La descripción debe tener mínimo 5 caracteres")
     .max(200, "La descripción es demasiado larga"),
 
-  materialTechnicalSheet: z
-    .string()
-    .min(3, "La ficha técnica debe tener mínimo 3 caracteres")
-    .max(100, "La ficha técnica es demasiado larga"),
+  materialTechnicalSheet: fileSchema.shape.files
+    .or(z.array(z.instanceof(File)).max(1)) // 👈 solo un archivo
+    .optional(),
 
   materialLocation: z
     .string()

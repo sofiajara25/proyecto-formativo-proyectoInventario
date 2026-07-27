@@ -2,6 +2,7 @@
 // El service depende del repository para acceder a la persistencia,
 // pero el repository NO debe conocer el service.
 import { loanRepository } from "./loan.repository.js";
+import { pool } from "../../config/db.js";
 
 import bcrypt from "bcrypt";
 
@@ -30,5 +31,12 @@ export const loanService = {
     },
     async updateLoan(loan_id, data) {
         return await loanRepository.update(loan_id, data);
-    }
+    },
+    async updateLoanStatus(loan_id, is_active) {
+        const result = await pool.query(
+            "UPDATE loans SET is_active = $1 WHERE loan_id = $2 RETURNING *",
+            [is_active, loan_id]
+        );
+        return result.rows[0];
+    },
 };
