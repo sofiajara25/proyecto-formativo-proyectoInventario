@@ -34,7 +34,7 @@ export default function ListUserPage() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-2 gap-4">
+            <div className="flex flex-col flex-1 px-10 py-1 gap-1">
 
                 {/* Título */}
                 <h1
@@ -51,7 +51,7 @@ export default function ListUserPage() {
                 {/* Card */}
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-4"
-                    style={{ padding: "28px 32px" }}
+                    style={{ padding: "14px 32px" }}
                 >
                     {/* Acciones */}
                     <div className="flex items-center justify-between">

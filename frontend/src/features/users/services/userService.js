@@ -13,6 +13,7 @@ export async function createUser(userData) {
 
     // SOLO UNA PASADA CONTROLADA
     formData.append("userName", userData.userName);
+    formData.append("userLastname", userData.userLastname);
     formData.append("userDocumentType", userData.userDocumentType);
     formData.append("userDocumentNumber", userData.userDocumentNumber);
     formData.append("groupId", userData.groupId);
@@ -72,6 +73,8 @@ export async function updateUser(id, userData) {
     const token = sessionStorage.getItem("token");
 
     formData.append("userName", userData.userName);
+    formData.append("userLastname", userData.userLastname);
+
     formData.append("userDocumentType", userData.userDocumentType);
     formData.append("userDocumentNumber", userData.userDocumentNumber);
     formData.append("groupId", userData.groupId);
@@ -105,6 +108,19 @@ export async function updateUser(id, userData) {
     return response.json();
 };
 
+export async function updateUserStatus(id, userStatus) {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userStatus }),
+    });
+    if (!response.ok) throw new Error("Error al actualizar estado");
+    return response.json();
+}
 
 
 

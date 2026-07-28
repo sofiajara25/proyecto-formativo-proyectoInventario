@@ -18,5 +18,12 @@ export const taskSchema = (userStartDate, userEndDate) =>
         }, {
             message: "La fecha de entrega no puede ser después de la fecha de finalización del usuario",
             path: ["taskDeliveryDate"],
+        })
+        .refine((data) => {
+            const creation = new Date(data.taskCreationDate);
+            const delivery = new Date(data.taskDeliveryDate);
+            return creation <= delivery; // 👈 nueva regla
+        }, {
+            message: "La fecha de creación no puede ser posterior a la fecha de entrega",
+            path: ["taskCreationDate"],
         });
-

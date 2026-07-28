@@ -21,6 +21,7 @@ export async function createConsumableMaterial(consumableMaterialData) {
     formData.append("materialTotalValue", consumableMaterialData.materialTotalValue);
     formData.append("materialStatus", consumableMaterialData.materialStatus);
     formData.append("materialDescription", consumableMaterialData.materialDescription);
+    formData.append("brandId", consumableMaterialData.brandId);
 
     // archivos
     if (consumableMaterialData.photo?.length) {
@@ -95,6 +96,7 @@ export async function updateConsumable(id, consumableMaterialData) {
     formData.append("materialTotalValue", consumableMaterialData.materialTotalValue);
     formData.append("materialStatus", consumableMaterialData.materialStatus);
     formData.append("materialDescription", consumableMaterialData.materialDescription);
+    formData.append("brandId", consumableMaterialData.brandId);
 
     if (Array.isArray(consumableMaterialData.photo) && consumableMaterialData.photo.length) {
         formData.append("photo", consumableMaterialData.photo[0]);
@@ -110,6 +112,16 @@ export async function updateConsumable(id, consumableMaterialData) {
         throw new Error(error.error || "Error al actualizar material de consumo");
     }
 
+    return response.json();
+}
+
+export async function updateConsumableStatus(id, status) {
+    const response = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Error al actualizar estado");
     return response.json();
 }
 

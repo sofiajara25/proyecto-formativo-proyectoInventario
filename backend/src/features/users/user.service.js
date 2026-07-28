@@ -54,6 +54,10 @@ export const userService = {
 
   async updatePermissions(userId, permissionIds) {
     return await userRepository.updatePermissions(userId, permissionIds);
+  },
+
+  async updateUserStatus(id, status) {
+    return await userRepository.updateStatus(id, status);
   }
 
 

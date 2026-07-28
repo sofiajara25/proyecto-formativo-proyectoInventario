@@ -32,7 +32,7 @@ router.get("/:id", brandController.getById);
 
 router.put("/:id", brandController.update);
 
-
+router.patch("/:id/status", brandController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

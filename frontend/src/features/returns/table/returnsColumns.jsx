@@ -4,18 +4,12 @@ import { Switch, formatDate } from "@/shared";
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
 import ReturnRowActions from "../components/ReturnRowActions";
+import ReturnStatusSwitch from "../components/ReturnStatusSwitch";
 
 
 // Definición de las columnas de la tabla de usuarios
 // Este arreglo suele usarse en librerías de tablas como TanStack Table
 export const returnsColumns = [
-
-
-    // Columna ID
-    {
-        accessorKey: "id", // Propiedad del objeto user que se mostrará en la columna
-        header: "Id",      // Título de la columna
-    },
 
     {
         accessorKey: "material_type", // Campo del objeto user
@@ -41,39 +35,7 @@ export const returnsColumns = [
     {
         accessorKey: "is_available",
         header: "Estado",
-
-
-        // Render personalizado de la celda
-        // Permite mostrar un componente en lugar de solo texto
-        cell: ({ row }) => {
-
-
-            // Se obtiene el objeto completo del usuario de la fila
-            const refund = row.original;
-
-
-            // Función que se ejecuta cuando cambia el switch
-            const handleChange = (value) => {
-
-
-                // value representa el nuevo estado del switch (true o false)
-                console.log("Actualizar estado retorno:", refund.returns_id, value);
-
-
-                // Aquí normalmente se llamaría una API para actualizar el estado
-                // updateUserStatus(user.user_id, value)
-            };
-
-
-            return (
-                // Componente reutilizable para mostrar el switch
-                <Switch
-                    checked={refund.is_available} // Estado actual del usuario
-                    onChange={handleChange}  // Función que maneja el cambio
-                    className="inline-flex"
-                />
-            );
-        },
+        cell: ({ row }) => <ReturnStatusSwitch refund={row.original} />,
     },
 
 

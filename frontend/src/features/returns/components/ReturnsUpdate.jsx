@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Input, Button, Select, Checkbox, Navbar, Modal, TextArea } from "@/shared";
-import { returnSchema } from "../schemas/returnSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
 import { updateReturn, getReturnById } from "../services/returnService";
 import { useEffect } from "react";
 import { getLoans } from "../../loans/services/loanService";
+import { updateReturnSchema } from "../schemas/updateReturnSchema";
 
 export default function ReturnForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,7 +86,7 @@ export default function ReturnForm() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
-    const result = returnSchema.safeParse(formData);
+    const result = updateReturnSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {

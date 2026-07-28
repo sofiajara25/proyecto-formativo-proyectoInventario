@@ -115,14 +115,14 @@ export default function VerifyCode() {
                             inputClassName="text-center tracking-[0.5em] font-bold"
                         />
 
-                        <button
+                        <Button
                             type="button"
                             onClick={handleResend}
                             disabled={resending}
                             className="text-xs text-green-700 underline cursor-pointer disabled:opacity-50"
                         >
                             {resending ? "Reenviando..." : "Reenviar código"}
-                        </button>
+                        </Button>
 
                         {resent && (
                             <p className="text-xs text-green-700 -mt-3">

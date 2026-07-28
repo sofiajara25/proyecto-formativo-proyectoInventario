@@ -18,7 +18,7 @@ const upload = multer({ dest: "uploads/" });// o config mas avanzada
 // POST /users
 // Cuando se recibe una petición POST en la raíz del recurso,
 // Express ejecuta el método create del controller.
-router.post("/", upload.array("photo"),consumableMaterialController.create);
+router.post("/", upload.array("photo"), consumableMaterialController.create);
 
 router.get("/", consumableMaterialController.list);
 
@@ -26,6 +26,7 @@ router.get("/:id", consumableMaterialController.getById);
 
 router.put("/:id", upload.single("photo"), consumableMaterialController.update);
 
+router.patch("/:id/status", consumableMaterialController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

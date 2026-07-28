@@ -74,6 +74,17 @@ export async function updateBrand(id, brandData) {
     return response.json();
 }
 
+export async function updateBrandStatus(id, status) {
+    const response = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Error al actualizar estado");
+    return response.json();
+}
+
+
 
 
 

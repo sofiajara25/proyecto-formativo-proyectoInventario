@@ -49,6 +49,7 @@ router.put(
 
 router.get("/:userId/permissions", userController.getPermissionsByUserId);
 router.put("/:userId/permissions", userController.updatePermissions);
+router.patch("/:id/status", authenticateToken, userController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

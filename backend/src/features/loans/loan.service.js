@@ -40,3 +40,4 @@ export const loanService = {
         return result.rows[0];
     },
 };
+    

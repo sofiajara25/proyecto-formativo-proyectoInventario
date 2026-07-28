@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
@@ -25,15 +25,28 @@ export default function ReturnableMaterialRegisterForm() {
     materialDescription: "",
     materialTechnicalSheet: [],
     materialLocation: "",
+    brandId: "",
     photo: [],
   });
 
   const [errors, setErrors] = useState({});
 
+  const [brands, setBrands] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/brands")
+      .then(res => res.json())
+      .then(data => {
+        const options = data.map(b => ({ value: b.id, label: b.marca }));
+        setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
+      })
+      .catch(err => console.error("Error cargando marcas:", err));
+  }, []);
+
   const estados = [
     { value: "", label: "Selecciona una opción" },
-    { value: "activo", label: "Activo" },
-    { value: "inactivo", label: "Inactivo" },
+    { value: "Activo", label: "Activo" },
+    { value: "Inactivo", label: "Inactivo" },
   ];
 
   const handleChange = (e) => {
@@ -64,6 +77,7 @@ export default function ReturnableMaterialRegisterForm() {
 
     const parsedData = {
       ...formData,
+      brandId: Number(formData.brandId),
       materialUnitValue: Number(formData.materialUnitValue),
       materialQuantity: Number(formData.materialQuantity),
       materialTotalValue: Number(formData.materialTotalValue),
@@ -238,6 +252,21 @@ export default function ReturnableMaterialRegisterForm() {
                 error={errors.materialDescription}
                 rows={1}
               />
+              <Select
+                label="Marca"
+                name="brandId"
+                options={brands}
+                value={formData.brandId}
+                onChange={handleChange}
+                error={errors.brandId}
+              />
+              <Input
+                label="Ubicación"
+                name="materialLocation"
+                value={formData.materialLocation}
+                onChange={handleChange}
+                error={errors.materialLocation}
+              />
 
               {/* Fila 5 */}
               <div>
@@ -253,13 +282,7 @@ export default function ReturnableMaterialRegisterForm() {
                   <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
                 )}
               </div>
-              <Input
-                label="Ubicación"
-                name="materialLocation"
-                value={formData.materialLocation}
-                onChange={handleChange}
-                error={errors.materialLocation}
-              />
+
               {/* Contenedor del input */}
               <div>
                 <h4>

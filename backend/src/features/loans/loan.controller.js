@@ -65,7 +65,9 @@ export const loanController = {
       const loans = await loanService.getAllLoans();
       res.status(200).json(loans);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("ERROR BACKEND:", err);
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({ error: err.message });
     }
   },
 
@@ -73,32 +75,29 @@ export const loanController = {
     try {
       const { loan_id } = req.params;
       const loan = await loanService.getLoanById(loan_id);
-      if (!loan) return res.status(404).json({ error: "Préstamo no encontrado" });
+      if (!loan) {
+        return res.status(404).json({ error: "Préstamo no encontrado" });
+      }
       res.status(200).json(loan);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("ERROR BACKEND:", err);
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({ error: err.message });
     }
   },
 
   async update(req, res) {
     try {
       const { loan_id } = req.params;
-      const photoPath = req.file ? `uploads/${req.file.filename}` : null;
-      const updatedLoan = await loanService.updateLoan(loan_id, {
-        ...req.body,
-        photo: photoPath,
-      });
-
-      if (!updatedLoan) {
-        return res.status(404).json({ error: "Préstamo no encontrado" });
-      }
-
+      const updatedLoan = await loanService.updateLoan(loan_id, req.body, req.file);
       res.status(200).json({
         message: "Préstamo actualizado correctamente",
         loan: updatedLoan,
       });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("ERROR BACKEND:", err);
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({ error: err.message });
     }
   },
 
@@ -106,20 +105,15 @@ export const loanController = {
     try {
       const { loan_id } = req.params;
       const { is_active } = req.body;
-
       const updatedLoan = await loanService.updateLoanStatus(loan_id, is_active);
-
-      if (!updatedLoan) {
-        return res.status(404).json({ error: "Préstamo no encontrado" });
-      }
-
       res.status(200).json({
         message: "Estado del préstamo actualizado correctamente",
         loan: updatedLoan,
       });
     } catch (err) {
-      console.error("Error en updateStatus:", err.message);
-      res.status(500).json({ error: err.message });
+      console.error("ERROR BACKEND:", err);
+      const statusCode = err.statusCode || 500;
+      res.status(statusCode).json({ error: err.message });
     }
   }
 

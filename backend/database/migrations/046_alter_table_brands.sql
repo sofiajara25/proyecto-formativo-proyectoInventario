@@ -1,0 +1,1 @@
+ALTER TABLE brands ADD COLUMN status VARCHAR(20) DEFAULT 'Activo';

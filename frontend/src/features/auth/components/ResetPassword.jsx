@@ -122,8 +122,8 @@ export default function ResetPassword() {
                                 Cancelar
                             </Button>
 
-                            <Button variant="primary" size="md" type="submit" disabled={loading}>
-                                {loading ? "Guardando..." : "Cambiar contraseña"}
+                            <Button variant="primary" size="sm" type="submit" disabled={loading}>
+                                {loading ? "Guardando..." : "Cambiar "}
                             </Button>
                         </div>
                     </div>

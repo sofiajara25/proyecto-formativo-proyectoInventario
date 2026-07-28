@@ -15,7 +15,8 @@ function buildReturnableFormData(returnableMaterialData) {
     formData.append("materialTotalValue", returnableMaterialData.materialTotalValue);
     formData.append("materialDimensions", returnableMaterialData.materialDimensions);
     formData.append("materialDescription", returnableMaterialData.materialDescription);
-    
+    formData.append("brandId", returnableMaterialData.brandId);
+
     if (Array.isArray(returnableMaterialData.materialTechnicalSheet) && returnableMaterialData.materialTechnicalSheet.length) {
         formData.append("materialTechnicalSheet", returnableMaterialData.materialTechnicalSheet[0]);
     }
@@ -68,3 +69,14 @@ export async function updateReturnable(id, data) {
 
     return response.json();
 }
+
+export async function updateReturnableStatus(id, status) {
+    const response = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Error al actualizar estado");
+    return response.json();
+}
+

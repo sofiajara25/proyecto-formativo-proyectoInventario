@@ -22,6 +22,7 @@ export default function UserRegisterForm() {
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
         userName: "",
+        userLastname: "",
         userDocumentType: "",
         userDocumentNumber: "",
         groupId: "",
@@ -173,7 +174,7 @@ export default function UserRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-1 gap-2 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-1 gap-1 justify-center">
 
                 {/* Título */}
                 <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
@@ -181,14 +182,14 @@ export default function UserRegisterForm() {
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-2 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
+                <div className="bg-white rounded-2xl flex flex-col gap-1 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
 
                     <form
                         onSubmit={handleSubmitWithModal}
                         className="
                                 flex 
                                 flex-col 
-                                gap-4 
+                                gap-2
                                 lg:mx-5
                                 md:mx-2
                             ">
@@ -199,18 +200,27 @@ export default function UserRegisterForm() {
                                     lg:grid-cols-3 
                                     md:grid-cols-2
                                     sm:grid-cols-1
-                                    gap-4
+                                    gap-2
                                 ">
 
                             {/* Fila 1 */}
                             <Input
-                                label="Nombre completo"
+                                label="Nombre"
                                 name="userName"
                                 placeholder="Ingrese su nombre"
                                 type="text"
                                 value={formData.userName}
                                 onChange={handleChange}
                                 error={errors.userName}
+                            />
+                            <Input
+                                label="Apellido"
+                                name="userLastname"
+                                placeholder="Ingrese su apellido"
+                                type="text"
+                                value={formData.userLastname}
+                                onChange={handleChange}
+                                error={errors.userLastname}
                             />
                             <Select
                                 label="Tipo de documento"
@@ -358,7 +368,7 @@ export default function UserRegisterForm() {
                         </div>
 
                         {/* Acciones */}
-                        <div className="flex justify-end gap-3 pt-2">
+                        <div className="flex justify-end gap-3 pt-1">
                             <Button
                                 type="button"
                                 variant="secondary"

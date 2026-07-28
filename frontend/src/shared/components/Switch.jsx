@@ -1,113 +1,65 @@
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 
 import { Check, X, } from "lucide-react";
 
-// Componente reutilizable para representar un switch de estado (activo/inactivo)
+// Componente Switch controlado completamente por el padre
+// 👉 Ya no mantiene estado interno propio, solo refleja la prop "checked"
 export default function Switch({
-    checked = false,    //valor inicial del switch (controlado desde el padre)
-    onChange,           // callback que se ejecuta cuando el estado
-    disabled = false,   //permite deshabilitar la interaccion
-    size = "md",        //tamaño del switch (sm, md, lg)
+    checked = false,    // valor actual del switch (controlado desde el padre)
+    onChange,           // callback que se ejecuta cuando el padre decide cambiar
+    disabled = false,   // permite deshabilitar la interacción
+    size = "md",        // tamaño del switch (sm, md, lg)
     className,
 }) {
-
-    //Estado interno del componente
-    //Se inicializa con el valor recibido desde la prop "checked"
-    const [isActive, setIsActive] = useState(checked);
-
-    //Efecto que sincroniza el estado interno
-    //con el valor recibido desde el componente padre
-    useEffect(() => {
-        setIsActive(checked);
-    }, [checked]);//se ejecuta cada vez que cambia "checked"
-
-    //Funcion que maneja el cambio del switch
-    const handleToggle = () => {
-
-        //si el switch esta deshabilitado no permite interaccion
-        if (disabled) return;
-
-        //calcula el nuevo estado (invierte el valor actual)
-        const newValue = !isActive;
-
-        //Actualiza el estado interno
-        setIsActive(newValue);
-
-        //Si existe un callback onChange, se ejecuta
-        // enviando el nuevo valor al componente padre
-        if (onChange) {
-            onChange(newValue);
-        }
-    };
-
-    //clase de tamaño del contenedor del switch
+    // clases de tamaño del contenedor
     const sizes = {
         sm: "h-5 w-9",
         md: "h-6 w-11",
         lg: "h-7 w-14",
     };
 
-    // clases de tamaño del "knob" (el circulo que se mueve)
+    // clases de tamaño del "knob" (círculo que se mueve)
     const knobSizes = {
         sm: "h-4 w-4",
         md: "h-5 w-5",
         lg: "h-6 w-6",
     };
 
+    // función que notifica al padre el cambio
+    const handleToggle = () => {
+        if (disabled) return; // si está deshabilitado, no hace nada
+        if (onChange) {
+            onChange(!checked); // solo avisa al padre, no cambia nada aquí
+        }
+    };
+
     return (
-
-        //Botón que funciona somo switch
         <button
-            onClick={handleToggle}  //Evento que cambia el estado
-            disabled={disabled}     // Permite deshabilitar el botón
-            // Posicionamiento base del switch
-            // Forma rendondeada del contenedor
-            // Tamaño dinámico según la prop "size"
-            //  Color dependiendo del estado 
-            // 
+            onClick={handleToggle}
+            disabled={disabled}
             className={`
-                relative items-center
-                rounded-full transition-colors
-                ${sizes[size]}
-                ${isActive ? "bg-green-500" : "bg-gray-300"}
-
-                ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-
-                ${className}
-            `}
+        relative items-center rounded-full transition-colors
+        ${sizes[size]}
+        ${checked ? "bg-green-500" : "bg-gray-300"}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        ${className}
+      `}
         >
-
-            {/* 
-                "Knob" del switch (el círculo que se mueve de izquierda a derecha)
-            */}
             <span
                 className={`
-                    absolute left-0.5 flex items-center justify-center
-                    
-                    //Forma del knob
-                    rounded-full bg-white shadow
-
-                    //Animación de movimiento
-                    transition-transform
-
-                    // Tamaño dinámico del knob
-                    ${knobSizes[size]}
-
-                    // Posición dependiendo del estado
-                    ${isActive ? "translate-x-full" : "translate-x-0"}
-                `}
+          absolute left-0.5 flex items-center justify-center
+          rounded-full bg-white shadow transition-transform
+          ${knobSizes[size]}
+          ${checked ? "translate-x-full" : "translate-x-0"}
+        `}
             >
-                {/* 
-                    Icono que cambia dependiendo del estado
-                    ✔️activo 
-                    inactivo
-                */}
-                {isActive ? (
+                {/* Icono dinámico según estado */}
+                {checked ? (
                     <Check size={12} className="text-green-600" />
                 ) : (
                     <X size={12} className="text-gray-500" />
                 )}
             </span>
         </button>
-    )
+    );
 }

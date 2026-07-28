@@ -66,6 +66,17 @@ export async function updateReturn(id, data) {
     return response.json();
 }
 
+export async function updateReturnStatus(id, isAvailable) {
+    const response = await fetch(`${API_URL}/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isAvailable }),
+    });
+    if (!response.ok) throw new Error("Error al actualizar estado");
+    return response.json();
+}
+
+
 
 
 

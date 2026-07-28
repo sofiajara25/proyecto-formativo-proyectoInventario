@@ -3,12 +3,12 @@
 import { pool } from "../../config/db.js";
 
 
-// Exportamos el repositorio de usuarios.
-// El repository encapsula todas las consultas SQL relacionadas con users.
+// Exportamos el repositorio de préstamos.
+// El repository encapsula todas las consultas SQL relacionadas con loans.
 export const loanRepository = {
 
 
-    // Método encargado de crear un usuario en la base de datos
+    // Método encargado de crear un préstamo en la base de datos
     // Recibe un objeto con los datos ya validados y procesados por el service
     async create(loanData) {
 
@@ -22,6 +22,7 @@ export const loanRepository = {
             loanDate,
             loanReturnDate,
             loanDescription,
+            loanQuantity,
             photo
         } = loanData;
 
@@ -36,10 +37,11 @@ export const loanRepository = {
         loan_date,
         return_date,
         description,
+        quantity,
         photo_url
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
-      RETURNING loan_id;
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      RETURNING *;
     `;
 
 
@@ -52,6 +54,7 @@ export const loanRepository = {
             loanDate,
             loanReturnDate,
             loanDescription,
+            loanQuantity,
             photo,
         ];
 
@@ -61,20 +64,29 @@ export const loanRepository = {
         const result = await pool.query(query, values);
 
 
-        // Devolvemos únicamente el primer registro retornado
-        // En este caso contiene el loan_id del usuario recién creado
+        // Devolvemos el registro completo recién creado (incluye loan_id y status por defecto)
         return result.rows[0];
     },
 
+    // Trae todos los préstamos, más recientes primero.
+    // Usado por GET /api/loan
     async findAll() {
-        const result = await pool.query("SELECT * FROM loans");
+        const query = `SELECT * FROM loans ORDER BY loan_id DESC;`;
+        const result = await pool.query(query);
         return result.rows;
     },
 
+    // Trae un préstamo por loan_id. Devuelve null si no existe.
+    // Usado por GET /api/loan/:loan_id
     async findById(loan_id) {
-        const result = await pool.query("SELECT * FROM loans WHERE loan_id = $1", [loan_id]);
-        return result.rows[0]; // debe incluir user_photo
+        const query = `SELECT * FROM loans WHERE loan_id = $1;`;
+        const result = await pool.query(query, [loan_id]);
+        return result.rows[0] || null;
     },
+
+    // Actualiza los campos editables de un préstamo.
+    // Solo actualiza photo_url si se envía una foto nueva (COALESCE conserva la anterior).
+    // Usado por PUT /api/loan/:loan_id
     async update(loan_id, loanData) {
         const {
             loanUser,
@@ -83,21 +95,24 @@ export const loanRepository = {
             loanDate,
             loanReturnDate,
             loanDescription,
-            photo
+            loanQuantity,
+            photo,
         } = loanData;
 
         const query = `
-            UPDATE loans
-            SET loan_user = $1,
-                category = $2,
-                product_name = $3,
-                loan_date = $4,
-                return_date = $5,
-                description = $6,
-                photo_url = COALESCE($7, photo_url)
-            WHERE loan_id = $8
-            RETURNING *;
-        `;
+      UPDATE loans
+      SET
+        loan_user = $1,
+        category = $2,
+        product_name = $3,
+        loan_date = $4,
+        return_date = $5,
+        description = $6,
+        quantity = $7,
+        photo_url = COALESCE($8, photo_url)
+      WHERE loan_id = $9
+      RETURNING *;
+    `;
 
         const values = [
             loanUser,
@@ -106,11 +121,25 @@ export const loanRepository = {
             loanDate,
             loanReturnDate,
             loanDescription,
+            loanQuantity,
             photo ?? null,
             loan_id,
         ];
 
         const result = await pool.query(query, values);
-        return result.rows[0];
-    }
+        return result.rows[0] || null;
+    },
+
+    // Actualiza únicamente el estado del préstamo (activo/devuelto/cancelado/atrasado).
+    // Usado por PUT /api/loan/:loan_id/status
+    async updateStatus(loan_id, is_active) {
+        const query = `
+      UPDATE loans
+      SET is_active = $1
+      WHERE loan_id = $2
+      RETURNING *;
+    `;
+        const result = await pool.query(query, [is_active, loan_id]);
+        return result.rows[0] || null;
+    },
 };

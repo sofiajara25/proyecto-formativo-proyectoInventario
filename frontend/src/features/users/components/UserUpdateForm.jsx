@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
-import { userSchema } from "../schemas/userSchema";
+// import { userSchema } from "../schemas/userSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getUserById, updateUser } from "../services/userService";
-import { z } from "zod";
+// import { z } from "zod";
 import { Pencil } from "lucide-react";
 import { TasksUpdateForm } from "@/features/tasks";
 import { getTasksByUserId } from "../../tasks/services/taskService.js";
 import { getGroups } from "../../access/services/groupService.js";
+import { updateUserSchema } from "../schemas/updateUserSchema.js";
 
-
-const updateUserSchema = userSchema.safeExtend({
-    userPassword: z.union([userSchema.shape.userPassword, z.literal("")]),
-});
 
 export default function UserUpdateForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +22,7 @@ export default function UserUpdateForm() {
     const [documentType, setDocumentType] = useState([]);
     const [formData, setFormData] = useState({
         userName: "",
+        userLastname: "",
         userDocumentType: "",
         userDocumentNumber: "",
         groupId: "",
@@ -63,6 +61,7 @@ export default function UserUpdateForm() {
         getUserById(id).then((data) => {
             setFormData({
                 userName: data.user_name || "",
+                userLastname: data.user_lastname || "",
                 userDocumentType: data.document_type || "",
                 userDocumentNumber: data.document_number || "",
                 groupId: data.group_id ? String(data.group_id) : "",
@@ -112,6 +111,7 @@ export default function UserUpdateForm() {
         setIsSubmitting(true);
 
         const result = updateUserSchema.safeParse(formData);
+
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
@@ -165,7 +165,7 @@ export default function UserUpdateForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-2 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-10 py-1 gap-1 justify-center">
 
                 {/* Título */}
                 <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
@@ -173,14 +173,14 @@ export default function UserUpdateForm() {
                 </h1>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-6 lg:w-6xl  mx-auto" style={{ padding: "32px 36px" }}>
+                <div className="bg-white rounded-2xl flex flex-col gap-1 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
 
                     <form
                         onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                         className="
                             flex 
                             flex-col 
-                            gap-4 
+                            gap-2 
                             lg:mx-5
                             md:mx-2
                         ">
@@ -203,6 +203,15 @@ export default function UserUpdateForm() {
                                 value={formData.userName}
                                 onChange={handleChange}
                                 error={errors.userName}
+                            />
+                            <Input
+                                label="Apellido"
+                                name="userLastname"
+                                placeholder="Ingrese su apellido"
+                                type="text"
+                                value={formData.userLastname}
+                                onChange={handleChange}
+                                error={errors.userLastname}
                             />
                             <Select
                                 label="Tipo de documento"
@@ -349,7 +358,7 @@ export default function UserUpdateForm() {
                         </div>
 
                         {/* Acciones */}
-                        <div className="flex justify-end gap-3 pt-2">
+                        <div className="flex justify-end gap-3 pt-1">
                             <Button
                                 type="button"
                                 variant="secondary"

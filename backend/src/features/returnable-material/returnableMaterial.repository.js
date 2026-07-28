@@ -31,6 +31,7 @@ export const returnableMaterialRepository = {
             materialTechnicalSheet,
             materialLocation,
             photo,
+            brandId
         } = returnableMaterialData;
 
         // Definimos la consulta SQL parametrizada
@@ -52,9 +53,10 @@ export const returnableMaterialRepository = {
         description,
         technical_sheet,
         location,
-        photo_url
+        photo_url,
+        brand_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
       RETURNING id;
     `;
 
@@ -77,6 +79,7 @@ export const returnableMaterialRepository = {
             materialTechnicalSheet,
             materialLocation,
             photo,
+            brandId
         ];
 
 
@@ -91,14 +94,63 @@ export const returnableMaterialRepository = {
     },
 
     async findAll() {
-        const result = await pool.query("SELECT * FROM returnable_materials");
+        const query = `
+    SELECT 
+      r.id,
+      r.tool_id,
+      r.sena_plate,
+      r.serial,
+      r.material_name,
+      r.model,
+      r.unit_value,
+      r.custodian,
+      r.quantity,
+      r.status,
+      r.total_value,
+      r.dimensions,
+      r.description,
+      r.technical_sheet,
+      r.location,
+      r.photo_url,
+      r.brand_id,
+      b.marca AS brand_name
+    FROM returnable_materials r
+    LEFT JOIN brands b ON r.brand_id = b.id
+    ORDER BY r.id;
+  `;
+        const result = await pool.query(query);
         return result.rows;
     },
 
     async findById(id) {
-        const result = await pool.query("SELECT * FROM returnable_materials WHERE id = $1", [id]);
+        const query = `
+    SELECT 
+      r.id,
+      r.tool_id,
+      r.sena_plate,
+      r.serial,
+      r.material_name,
+      r.model,
+      r.unit_value,
+      r.custodian,
+      r.quantity,
+      r.status,
+      r.total_value,
+      r.dimensions,
+      r.description,
+      r.technical_sheet,
+      r.location,
+      r.photo_url,
+      r.brand_id,
+      b.marca AS brand_name
+    FROM returnable_materials r
+    LEFT JOIN brands b ON r.brand_id = b.id
+    WHERE r.id = $1;
+  `;
+        const result = await pool.query(query, [id]);
         return result.rows[0];
     },
+
 
     async update(id, returnableMaterialData) {
         const {
@@ -117,6 +169,7 @@ export const returnableMaterialRepository = {
             materialTechnicalSheet,
             materialLocation,
             photo,
+            brandId
         } = returnableMaterialData;
 
         const query = `
@@ -135,8 +188,9 @@ export const returnableMaterialRepository = {
                 description = $12,
                 technical_sheet = COALESCE($13, technical_sheet),
                 location = $14,
-                photo_url = COALESCE($15, photo_url)
-            WHERE id = $16
+                photo_url = COALESCE($15, photo_url),
+                brand_id = $16
+            WHERE id = $17
             RETURNING *;
         `;
         const values = [
@@ -155,10 +209,37 @@ export const returnableMaterialRepository = {
             materialTechnicalSheet ?? null,
             materialLocation,
             photo ?? null,
+            brandId,
             id
         ];
         const result = await pool.query(query, values);
         return result.rows[0];
+    },
+
+    async adjustQuantity(id, amount) {
+        const query = `
+      UPDATE returnable_materials
+      SET quantity = quantity - $2
+      WHERE id = $1
+      RETURNING id, quantity;
+    `;
+
+        const result = await pool.query(query, [id, amount]);
+        return result.rows[0];
+    },
+
+    // returnableMaterial.repository.js
+    async updateStatus(id, status) {
+        const query = `
+            UPDATE returnable_materials
+            SET status = $1
+            WHERE id = $2
+            RETURNING *;
+         `;
+        const values = [status, id];
+        const result = await pool.query(query, values);
+        return result.rows[0];
     }
+
 
 };

@@ -122,6 +122,7 @@ export default function ViewReturMaterialPage() {
                         <p><strong>Cantidad:</strong> {retornable.quantity}</p>
                         <p><strong>Valor total:</strong> ${retornable.total_value}</p>
                         <p><strong>Dimenciones:</strong> {retornable.dimensions}</p>
+                        <p><strong>Marca:</strong> {retornable.brand_name}</p>
                         <p><strong>Descripción:</strong> {retornable.description}</p>
                         <p>
                             <strong>Ficha Tecnica:</strong>{" "}

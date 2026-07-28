@@ -1,6 +1,7 @@
 // Componente reutilizable que muestra un switch para activar o desactivar estados
 import { Switch } from "@/shared";
 import ConsumableRowActions from "../components/ConsumableRowActions";
+import ConsumableStatusSwitch from "../components/ConsumableStatusSwitch";
 
 export const consumablesColumns = [
     {
@@ -22,19 +23,7 @@ export const consumablesColumns = [
     {
         accessorKey: "status",
         header: "Estado",
-        cell: ({ row }) => {
-            const consumable = row.original;
-            const handleChange = (value) => {
-                console.log("Actualizar estado:", consumable.id, value);
-            };
-            return (
-                <Switch
-                    checked={consumable.status}
-                    onChange={handleChange}
-                    className="inline-flex"
-                />
-            );
-        },
+        cell: ({ row }) => <ConsumableStatusSwitch consumable={row.original} />,
     },
 
     {

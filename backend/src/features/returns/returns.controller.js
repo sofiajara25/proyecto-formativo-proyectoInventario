@@ -85,5 +85,17 @@ export const returnController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  },
+
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { isAvailable } = req.body;
+      const updated = await returnService.updateReturnStatus(id, isAvailable);
+      if (!updated) return res.status(404).json({ error: "Retorno no encontrado" });
+      res.status(200).json(updated);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 };

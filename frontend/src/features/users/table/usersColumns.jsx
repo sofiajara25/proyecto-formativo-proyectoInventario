@@ -4,6 +4,7 @@ import { Switch } from "@/shared";
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
 import UserRowActions from "../components/UserRowActions";
+import UserStatusSwitch from "../components/UserStatusSwitch";
 
 
 // Definición de las columnas de la tabla de usuarios
@@ -16,8 +17,8 @@ export const usersColumns = [
         header: "Nombre",    // Encabezado visible
     },
     {
-        accessorKey: "document_type",
-        header: "Tipo documento",
+        accessorKey: "user_lastname", // Campo del objeto user
+        header: "Apellido",    // Encabezado visible
     },
     {
         accessorKey: "document_number",
@@ -35,10 +36,6 @@ export const usersColumns = [
     },
     // Columna Dirección
     {
-        accessorKey: "user_address",
-        header: "Dirección",
-    },
-    {
         accessorKey: "user_phone",
         header: "Teléfono",
     },
@@ -46,22 +43,7 @@ export const usersColumns = [
     {
         accessorKey: "user_status",
         header: "Estado",
-        cell: ({ row }) => {
-            const user = row.original;
-
-            const handleChange = (value) => {
-                console.log("Actualizar estado usuario:", user.id, value);
-                // Aquí llamas a tu API updateUserStatus(user.id, value)
-            };
-
-            return (
-                <Switch
-                    checked={user.userStatus === "Activo"}
-                    onChange={(checked) => handleChange(checked ? "Activo" : "Inactivo")}
-                    className="inline-flex"
-                />
-            );
-        },
+        cell: ({ row }) => <UserStatusSwitch user={row.original} />,
     },
 
     // Columna de acciones (editar / eliminar)

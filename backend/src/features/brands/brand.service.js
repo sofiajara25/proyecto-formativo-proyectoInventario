@@ -37,6 +37,10 @@ export const brandService = {
 
     async updateBrand(id, data) {
         return await brandRepository.update(id, data);
+    },
+
+    async updateBrandStatus(id, status) {
+        return await brandRepository.updateStatus(id, status);
     }
 
 };

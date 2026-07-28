@@ -26,6 +26,8 @@ router.get("/:id", returnController.getById);
 
 router.put("/:id", returnController.update);
 
+router.patch("/:id/status", returnController.updateStatus);
+
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

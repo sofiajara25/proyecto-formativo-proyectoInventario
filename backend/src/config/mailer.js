@@ -1,19 +1,37 @@
-// Cliente de Resend usado para el envío de correos transaccionales
+// Cliente de correo usado para el envío de emails transaccionales
 // (por ahora: recuperación de contraseña)
+//
+// Usamos Gmail + Nodemailer porque no requiere verificar un dominio propio:
+// con una cuenta de Gmail y una "contraseña de aplicación" puedes enviar
+// correos a CUALQUIER destinatario real, totalmente gratis.
 
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 // Cargamos las variables definidas en el archivo .env
 dotenv.config();
 
-// Creamos y exportamos una instancia única de Resend
-// Esta instancia se reutiliza en toda la aplicación
-export const resend = new Resend(process.env.RESEND_API_KEY);
+// Validamos al iniciar que las variables necesarias existan.
+// Falla rápido y con un mensaje claro, en vez de fallar silenciosamente
+// la primera vez que alguien pida recuperar su contraseña.
+if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn(
+        "⚠️  Faltan GMAIL_USER y/o GMAIL_APP_PASSWORD en el .env. " +
+        "El envío de correos (recuperar contraseña) no funcionará hasta que las configures."
+    );
+}
 
-// Remitente de los correos.
-// En desarrollo (sin dominio verificado en Resend) se debe usar "onboarding@resend.dev",
-// que solo permite enviar al correo con el que te registraste en Resend.
-// En producción, cambia esto por un correo de tu propio dominio verificado, ej:
-// "no-reply@tudominio.com"
-export const MAIL_FROM = process.env.MAIL_FROM || "onboarding@resend.dev";
+// Creamos y exportamos un transporter único de Nodemailer, configurado
+// para usar el servicio SMTP de Gmail
+export const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        // Tu correo de Gmail (el que generó la contraseña de aplicación)
+        user: process.env.GMAIL_USER,
+        // La contraseña de aplicación de 16 caracteres (NO tu contraseña normal de Gmail)
+        pass: process.env.GMAIL_APP_PASSWORD,
+    },
+});
+
+// Remitente que verán los usuarios en el correo recibido
+export const MAIL_FROM = process.env.MAIL_FROM || process.env.GMAIL_USER;

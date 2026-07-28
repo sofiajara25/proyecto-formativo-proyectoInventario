@@ -58,7 +58,11 @@ export const materialSchema = z.object({
     .min(5, "La descripción debe tener mínimo 5 caracteres")
     .max(200, "La descripción es demasiado larga"),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
+  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional(),
+
+  brandId: z
+    .number({ invalid_type_error: "La marca es requerida" }).optional()
+
 }).refine((data) => {
   if (!data.materialEntryDate) return false;
   const today = new Date();

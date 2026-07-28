@@ -4,8 +4,7 @@ import { Switch } from "@/shared";
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
 import LoanRowActions from "../components/LoanRowActions";
-import { updateLoanStatus } from "../services/loanService";
-
+import LoanStatusSwitch from "../components/LoanStatusSwitch";
 
 // Definición de las columnas de la tabla de usuarios
 // Este arreglo suele usarse en librerías de tablas como TanStack Table
@@ -48,38 +47,8 @@ export const loansColumns = [
     {
         accessorKey: "is_active",
         header: "Estado",
-
-
-        // Render personalizado de la celda
-        // Permite mostrar un componente en lugar de solo texto
-        cell: ({ row }) => {
-
-
-            // Se obtiene el objeto completo del usuario de la fila
-            const loan = row.original;
-
-
-            // Función que se ejecuta cuando cambia el switch
-            const handleChange = async (value) => {
-                try {
-                    await updateLoanStatus(loan.loan_id, value); // 👈 llamada al servicio
-                    console.log("Estado actualizado en BD:", loan.loan_id, value);
-                } catch (error) {
-                    console.error("Error actualizando estado:", error.message);
-                }
-            };
-
-            return (
-                // Componente reutilizable para mostrar el switch
-                <Switch
-                    checked={loan.is_active} // Estado actual del usuario
-                    onChange={handleChange}  // Función que maneja el cambio
-                    className="inline-flex"
-                />
-            );
-        },
+        cell: ({ row }) => <LoanStatusSwitch loan={row.original} />,
     },
-
 
     // Columna de acciones (editar / eliminar)
     {

@@ -27,6 +27,7 @@ export const consumableMaterialRepository = {
             materialStatus,
             materialDescription,
             photo,
+            brandId,
         } = consumableMaterialData;
 
         // Definimos la consulta SQL parametrizada
@@ -45,9 +46,10 @@ export const consumableMaterialRepository = {
         total_value,
         status,
         description,
-        photo_url
+        photo_url,
+        brand_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING id;
     `;
 
@@ -67,6 +69,7 @@ export const consumableMaterialRepository = {
             materialStatus,
             materialDescription,
             photo,
+            brandId,
         ];
 
 
@@ -104,6 +107,7 @@ export const consumableMaterialRepository = {
             materialStatus,
             materialDescription,
             photo,
+            brandId,
         } = consumableData;
 
         const query = `
@@ -119,8 +123,9 @@ export const consumableMaterialRepository = {
                 total_value = $9,
                 status = $10,
                 description = $11,
-                photo_url = COALESCE($12, photo_url)
-            WHERE id = $13
+                photo_url = COALESCE($12, photo_url),
+                brand_id = $13
+            WHERE id = $14
             RETURNING *;
         `;
 
@@ -137,9 +142,36 @@ export const consumableMaterialRepository = {
             materialStatus,
             materialDescription,
             photo ?? null,
+            brandId,
             id,
         ];
 
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    },
+
+    // Descuenta (o repone, si amount es negativo) la cantidad disponible de un material.
+    // Se usa al aprobar un préstamo para reflejar que esas unidades ya no están libres.
+    async adjustQuantity(id, amount) {
+        const query = `
+      UPDATE consumable_materials
+      SET quantity = quantity - $2
+      WHERE id = $1
+      RETURNING id, quantity;
+    `;
+
+        const result = await pool.query(query, [id, amount]);
+        return result.rows[0];
+    },
+
+    async updateStatus(id, status) {
+        const query = `
+            UPDATE consumable_materials
+            SET status = $1
+            WHERE id = $2
+            RETURNING *;
+        `;
+        const values = [status, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     }

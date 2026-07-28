@@ -39,6 +39,10 @@ export const consumableMaterialService = {
 
     async updateConsumable(id, data) {
         return await consumableMaterialRepository.update(id, data);
+    },
+
+    async updateConsumableStatus(id, status) {
+        return await consumableMaterialRepository.updateStatus(id, status);
     }
 
 };

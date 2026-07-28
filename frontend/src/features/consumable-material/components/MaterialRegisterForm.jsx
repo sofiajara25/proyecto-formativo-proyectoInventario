@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input, Button, Navbar, FileInput, Select, Modal, TextArea } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate } from "react-router-dom";
@@ -21,16 +21,29 @@ export default function MaterialRegisterForm() {
         materialTotalValue: "",
         materialStatus: "",
         materialDescription: "",
+        brandId: "",
         photo: [],
     });
 
     const estados = [
         { value: "", label: "Selecciona una opción" },
-        { value: "activo", label: "Activo" },
-        { value: "inactivo", label: "Inactivo" },
+        { value: "Activo", label: "Activo" },
+        { value: "Inactivo", label: "Inactivo" },
     ];
 
     const [errors, setErrors] = useState({});
+
+    const [brands, setBrands] = useState([]);
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/brands")
+            .then(res => res.json())
+            .then(data => {
+                const options = data.map(b => ({ value: b.id, label: b.marca }));
+                setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
+            })
+            .catch(err => console.error("Error cargando marcas:", err));
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -58,6 +71,7 @@ export default function MaterialRegisterForm() {
 
         const parsedData = {
             ...formData,
+            brandId: Number(formData.brandId),
             materialQuantity: Number(formData.materialQuantity),
             materialUnitValue: Number(formData.materialUnitValue),
             materialTotalValue: Number(formData.materialTotalValue),
@@ -107,7 +121,7 @@ export default function MaterialRegisterForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-4 sm:px-10 py-4 sm:py-6 gap-4 justify-center">
+            <div className="flex flex-col flex-1 px-4 sm:px-10 py-2 sm:py-1 gap-1 justify-center">
 
                 {/* Título */}
                 <h1
@@ -125,13 +139,13 @@ export default function MaterialRegisterForm() {
                 {/* Card */}
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto"
-                    style={{ padding: "20px 16px" }}
+                    style={{ padding: "16px 16px" }}
                 >
                     <form
                         onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                         className="grid grid-cols-1 place-items-center gap-4"
                     >
-                        <div className="grid gap-4 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-2 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
@@ -249,6 +263,16 @@ export default function MaterialRegisterForm() {
                                     rows={1}
                                 />
                             </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Select
+                                    label="Marca"
+                                    name="brandId"
+                                    options={brands}
+                                    value={formData.brandId}
+                                    onChange={handleChange}
+                                    error={errors.brandId}
+                                />
+                            </div>
 
                             <div>
                                 <h4 className="text-xs mb-1">Foto</h4>
@@ -267,7 +291,7 @@ export default function MaterialRegisterForm() {
                         </div>
 
                         {/* Acciones */}
-                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2 w-full">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-1 w-full">
                             <Button
                                 type="button"
                                 variant="secondary"

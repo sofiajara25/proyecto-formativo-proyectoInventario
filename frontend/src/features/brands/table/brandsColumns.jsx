@@ -3,13 +3,9 @@ import { Switch } from "@/shared";
 
 // Componente que contiene los botones de acciones (editar y eliminar) para cada marca
 import BrandRowActions from "../components/BrandRowActions";
+import BrandStatusSwitch from "../components/BrandStatusSwitch";
 
 export const brandsColumns = [
-    // Columna ID
-    {
-        accessorKey: "id", // Propiedad del objeto brand
-        header: "Id",
-    },
 
     // Columna Nombre
     {
@@ -19,25 +15,9 @@ export const brandsColumns = [
 
     // Columna Estado (activo / inactivo)
     {
-        accessorKey: "brand_status", // Campo real en la base
+        accessorKey: "status",
         header: "Estado",
-        cell: ({ row }) => {
-            const brand = row.original;
-
-            const handleChange = (value) => {
-                console.log("Actualizar estado marca:", brand.id, value);
-                // Aquí normalmente se llamaría a la API:
-                // updateBrandStatus(brand.id, value)
-            };
-
-            return (
-                <Switch
-                    checked={brand.brand_status === "activo"} // o true/false según tu modelo
-                    onChange={handleChange}
-                    className="inline-flex"
-                />
-            );
-        },
+        cell: ({ row }) => <BrandStatusSwitch brand={row.original} />,
     },
 
     // Columna de acciones (editar / eliminar)

@@ -31,5 +31,9 @@ export const returnService = {
 
     async updateReturn(id, data) {
         return await returnRepository.update(id, data);
+    },
+
+    async updateReturnStatus(id, isAvailable) {
+        return await returnRepository.updateStatus(id, isAvailable);
     }
 };

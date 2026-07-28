@@ -17,6 +17,7 @@ export const userRepository = {
     // Esto hace el contrato de datos claro y evita acceder a propiedades inexistentes
     const {
       userName,
+      userLastname,
       userDocumentType,
       userDocumentNumber,
       groupId,
@@ -36,6 +37,7 @@ export const userRepository = {
     const query = `
       INSERT INTO users (
         user_name,
+        user_lastname,
         document_type,
         document_number,
         group_id, 
@@ -48,7 +50,7 @@ export const userRepository = {
         password,
         photo_url
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING id;
     `;
 
@@ -57,6 +59,7 @@ export const userRepository = {
     // El orden debe coincidir EXACTAMENTE con los placeholders del SQL
     const values = [
       userName,
+      userLastname,
       userDocumentType,
       userDocumentNumber,
       groupId,
@@ -86,6 +89,7 @@ export const userRepository = {
     SELECT 
       u.id,
       u.user_name,
+      u.user_lastname,
       u.document_type,
       u.document_number,
       g.group_name,
@@ -109,6 +113,7 @@ export const userRepository = {
   async update(id, userData) {
     const {
       userName,
+      userLastname,
       userDocumentType,
       userDocumentNumber,
       groupId,
@@ -125,23 +130,25 @@ export const userRepository = {
     const query = `
     UPDATE users
     SET user_name = $1,
-        document_type = $2,
-        document_number = $3,
-        group_id = $4,
-        start_date = $5,
-        end_date = $6,
-        user_email = $7,
-        user_phone = $8,
-        user_address = $9,
-        user_status = $10,
-        password = COALESCE($11, password),
-        photo_url = COALESCE($12, photo_url)
-    WHERE id = $13
+        user_lastname = $2,
+        document_type = $3,
+        document_number = $4,
+        group_id = $5,
+        start_date = COALESCE($6, start_date),
+        end_date = COALESCE($7, end_date),
+        user_email = $8,
+        user_phone = $9,
+        user_address = $10,
+        user_status = $11,
+        password = COALESCE($12, password),
+        photo_url = COALESCE($13, photo_url)
+    WHERE id = $14
     RETURNING *;
   `;
 
     const values = [
       userName,
+      userLastname,
       userDocumentType,
       userDocumentNumber,
       groupId,
@@ -211,7 +218,20 @@ export const userRepository = {
     } finally {
       client.release();
     }
+  },
+
+  async updateStatus(id, status) {
+    const query = `
+        UPDATE users
+        SET user_status = $1
+        WHERE id = $2
+        RETURNING *;
+    `;
+    const values = [status, id];
+    const result = await pool.query(query, values);
+    return result.rows[0];
   }
+
 
 
 };

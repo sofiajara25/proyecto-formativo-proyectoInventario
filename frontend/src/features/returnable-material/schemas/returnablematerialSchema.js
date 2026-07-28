@@ -72,5 +72,9 @@ export const returnablematerialSchema = z.object({
     .min(3, "La ubicación debe tener mínimo 3 caracteres")
     .max(100, "La ubicación es demasiado larga"),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
+  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional(),
+
+  brandId: z
+    .number({ invalid_type_error: "La marca es requerida" }).optional()
+
 });

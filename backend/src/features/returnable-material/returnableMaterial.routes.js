@@ -59,6 +59,8 @@ router.put(
     returnableMaterialController.update
 );
 
+router.patch("/:id/status", returnableMaterialController.updateStatus);
+
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

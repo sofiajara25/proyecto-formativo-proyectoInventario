@@ -118,5 +118,19 @@ export const returnRepository = {
         ];
         const result = await pool.query(query, values);
         return result.rows[0];
+    },
+
+    async updateStatus(id, isAvailable) {
+        const query = `
+            UPDATE returns
+            SET is_available = $1,
+                is_low = $2
+            WHERE id = $3
+            RETURNING *;
+        `;
+        const values = [isAvailable, !isAvailable, id];
+        const result = await pool.query(query, values);
+        return result.rows[0];
     }
+
 };

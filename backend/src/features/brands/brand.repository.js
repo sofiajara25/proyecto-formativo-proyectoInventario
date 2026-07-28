@@ -71,7 +71,18 @@ export const brandRepository = {
         const values = [marca, id];
         const result = await pool.query(query, values);
         return result.rows[0];
-    }
+    },
 
+    async updateStatus(id, status) {
+        const query = `
+            UPDATE brands
+            SET status = $1
+            WHERE id = $2
+            RETURNING *;
+        `;
+        const values = [status, id];
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    }
 
 };

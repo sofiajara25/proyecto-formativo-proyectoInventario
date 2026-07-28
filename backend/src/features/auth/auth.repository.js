@@ -1,4 +1,4 @@
-// bankend/scr/features/auth/auth.repository.js
+// backend/src/features/auth/auth.repository.js
 
 import { pool } from "../../config/db.js";
 
@@ -34,9 +34,10 @@ export const authRepository = {
         return result.rows[0];
     },
 
-    // Guarda el hash del código de recuperación (6 dígitos) y su fecha de
-    // expiración para el usuario indicado. Reinicia el contador de intentos.
-    async saveResetCode(userId, hashedCode, expiresAt) {
+    // Guarda el hash del código de recuperación (paso 1) o del resetToken
+    // (paso 2) y su fecha de expiración para el usuario indicado.
+    // Reinicia el contador de intentos.
+    async saveResetToken(userId, hashedValue, expiresAt) {
         const query = `
             UPDATE users
             SET reset_token = $1,
@@ -45,7 +46,25 @@ export const authRepository = {
             WHERE id = $3;
         `;
 
-        await pool.query(query, [hashedCode, expiresAt, userId]);
+        await pool.query(query, [hashedValue, expiresAt, userId]);
+    },
+
+    // Busca un usuario a partir del código/token hasheado guardado en
+    // reset_token. Se usa tanto para verificar el código (paso 2) como
+    // para validar el resetToken antes de cambiar la contraseña (paso 3).
+    // Solo devuelve el usuario si el token no ha expirado.
+    async findByResetToken(hashedValue) {
+        const query = `
+            SELECT id, user_email, reset_token_expires
+            FROM users
+            WHERE reset_token = $1
+              AND reset_token_expires > NOW()
+            LIMIT 1;
+        `;
+
+        const result = await pool.query(query, [hashedValue]);
+
+        return result.rows[0];
     },
 
     // Busca la información de recuperación (código hasheado, expiración e

@@ -40,5 +40,11 @@ export const returnableMaterialService = {
 
     async updateReturnable(id, data) {
         return await returnableMaterialRepository.update(id, data);
+    },
+
+    // returnableMaterial.service.js
+    async updateReturnableStatus(id, status) {
+        return await returnableMaterialRepository.updateStatus(id, status);
     }
+
 };

@@ -108,7 +108,19 @@ export const returnableMaterialController = {
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
-    }
+    },
 
+    // returnableMaterial.controller.js
+    async updateStatus(req, res) {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const updated = await returnableMaterialService.updateReturnableStatus(id, status);
+            if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });
+            res.status(200).json(updated);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
 
 };

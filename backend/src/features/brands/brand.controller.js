@@ -95,7 +95,18 @@ export const brandController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  }
+  },
 
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await brandService.updateBrandStatus(id, status);
+      if (!updated) return res.status(404).json({ error: "Marca no encontrada" });
+      res.status(200).json(updated);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 
 };
