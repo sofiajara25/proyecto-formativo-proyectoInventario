@@ -23,6 +23,10 @@ export const loansColumns = [
         header: "Usuario",    // Encabezado visible
     },
 
+    {
+        accessorKey: "user_identification", // Campo del objeto user
+        header: "Identificación del Usuario",    // Encabezado visible
+    },
 
     // Columna Email
     {

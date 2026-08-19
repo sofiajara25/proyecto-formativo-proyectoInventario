@@ -14,7 +14,7 @@ export function generateExcelReport({
 
 
     const currenDate = new Date().toLocaleDateString();
-    const reportTitle = `   **********   REPORTE DE Marcas - ${currenDate}  **********`;
+    const reportTitle = `   **********   REPORTE DE MARCAS - ${currenDate}  **********`;
 
     //Estructura Final de la hoja
 

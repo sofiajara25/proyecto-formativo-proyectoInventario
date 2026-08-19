@@ -21,17 +21,16 @@ export { default as TextArea } from "./components/TextArea";
 export { default as Modal } from "./components/Modal";
 export { default as PageLayout } from "./layouts/PageLayout";
 
-
-
-
 // schemas
-export { fileSchema } from "./schemas/fileSchema"
+export { fileSchema, singleFileSchema  } from "./schemas/fileSchema"
 
 // auth
 export {default as ProtectedRoute} from "./auth/ProtectedRoute"
+export {default as GuestRoute} from "./auth/GuestRoute"
 
 //Tasks
 export {default as TaskCard} from "./components/TaskCard"
 
 // utils
 export { formatDate } from "./utils/formatDate"
+

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoSena from "@/assets/images/logoSena.png";
-import { login } from "../services/authService";
+import { login as loginRequest } from "../services/authService";
+import { getMyAccess } from "../../access/services/accessService";
+import { saveAccess } from "@/shared/utils/permissions";
+// import { useAuth } from "@/shared/context/useAuth";
 import { loginSchema } from "../schemas/loginSchema"
 import {
     Input,
@@ -11,6 +14,7 @@ import {
 
 export default function Login() {
     const navigate = useNavigate();
+    // const { login } = useAuth();
 
     const [formData, setFormData] = useState({
         userEmail: "",
@@ -69,9 +73,24 @@ export default function Login() {
         setErrors({});
 
         try {
-            const data = await login(result.data);
+            const data = await loginRequest(result.data);
 
+            // Guarda el token de forma centralizada (localStorage + avisa
+            // al resto de la app vía AuthContext, incluidas otras pestañas)
+            // login(data.token);
             sessionStorage.setItem("token", data.token); // clave 
+
+            // Consultamos y guardamos los permisos del usuario para que
+            // el menú y las rutas sepan qué módulos puede ver/usar.
+            // Si esto falla, dejamos seguir el login pero sin permisos
+            // (por seguridad, el usuario simplemente no verá módulos extra).
+            try {
+                const access = await getMyAccess();
+                saveAccess(access);
+            } catch (accessError) {
+                console.error("No se pudo obtener el acceso del usuario:", accessError);
+                saveAccess({ userType: null, isAdmin: false, permissions: [] });
+            }
 
             // navigate("/"); // o dashboard
             navigate("/dashboard/home");
@@ -110,7 +129,7 @@ export default function Login() {
                         />
 
                         <Input
-                            label="Contraseña"
+                            label="Contreseña"
                             name="userPassword"
                             placeholder="Ingrese su contraseña"
                             type="password"
@@ -120,8 +139,8 @@ export default function Login() {
                         />
                         {/* Olvidaste contraseña */}
                         <a
-                            onClick={() => navigate("recovery")}
-                            className="text-right text-xs text-green-700 cursor-pointer underline place-self-center"
+                            onClick={() => navigate("/auth/recovery")}
+                            className="text-center text-xs text-green-700 cursor-pointer underline"
                         >
                             ¿Olvidaste tu contraseña?
                         </a>

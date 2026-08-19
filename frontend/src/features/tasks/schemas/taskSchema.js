@@ -6,6 +6,7 @@ export const taskSchema = (userStartDate, userEndDate) =>
         taskDescription: z.string().min(5, "La descripción debe tener mínimo 5 caracteres").max(200),
         taskDeliveryDate: z.string().min(1, "La fecha de entrega es requerida"),
         taskCreationDate: z.string().min(1, "La fecha de inicio es requerida"),
+        userId: z.string().min(1, "El usuario es obligatorio"), // 👈 agregado
     })
         .refine((data) => new Date(data.taskCreationDate) >= new Date(userStartDate), {
             message: "La fecha de creación no puede ser antes de la fecha de inicio del usuario",

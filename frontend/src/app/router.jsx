@@ -1,6 +1,7 @@
 // src/app/router.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout, ProtectedRoute } from "@/shared";
+// import { getToken } from "@/shared/utils/tokenStorage";
 import { Login, ForgotPassword, VerifyCode, ResetPassword } from "@/features/auth";
 import { CreateUserPage, ListUserPage, UpdateUserPage, ViewUserPage } from "@/features/users";
 import { HomePage, ListPage, SettingsPage } from "@/features/home";
@@ -13,8 +14,9 @@ import { CreateMaterialPage, ListConsumablePage, UpdateMaterialPage, ViewConsuma
 import { CreateReturnableMaterialPage, ListReturMaterialPage, UpdateReturnablePage, ViewReturMaterialPage } from "@/features/returnable-material";
 import { CreateBrandsPage, ListBrandPage, UpdateBrandPage, ViewBrandPage } from "@/features/brands";
 import { CreateReturnPage, UpdateReturnPage, ListReturnPage, ViewReturnPage } from "@/features/returns"
+import { CreateInventoryNamePage, ListInventoryNamePage, UpdateInventoryNamePage, ViewInventoryNamePage } from "@/features/inventory-name"
 
-import {TasksPage} from "@/features/tasks"
+import { TasksPage } from "@/features/tasks"
 
 const router = createBrowserRouter([
   {
@@ -48,7 +50,7 @@ const router = createBrowserRouter([
 
       // Tarea
       { path: "/dashboard/tasks/search", element: <TasksPage /> },
-    
+
       // Rutas de los 4 formularios de crear
       { path: "/dashboard/prestamo", element: <CreateLoansPage /> },
       { path: "/dashboard/consumo", element: <CreateMaterialPage /> },
@@ -56,7 +58,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/usuarios", element: <CreateUserPage /> },
       { path: "/dashboard/retorno", element: <CreateReturnPage /> },
       { path: "/dashboard/marca", element: <CreateBrandsPage /> },
-
+      { path: "/dashboard/nombreInventario", element: <CreateInventoryNamePage /> },
 
       // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo", element: <ListLoansPage /> },
@@ -65,23 +67,26 @@ const router = createBrowserRouter([
       { path: "/dashboard/list-usuarios", element: <ListUserPage /> },
       { path: "/dashboard/list-retorno", element: <ListReturnPage /> },
       { path: "/dashboard/list-marca", element: <ListBrandPage /> },
+      { path: "/dashboard/list-nombreInventario", element: <ListInventoryNamePage /> },
 
       // Rutas de Actulizar
-      { path: "/dashboard/loans/:id/edit", element: <UpdateLoansPage /> },
+      { path: "/dashboard/loans/:loan_id/edit", element: <UpdateLoansPage /> },
       { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
       { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
       { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage /> },
       { path: "/dashboard/users/:id/edit", element: <UpdateUserPage /> },
       { path: "/dashboard/retorno/:id/edit", element: <UpdateReturnPage /> },
+      { path: "/dashboard/inventory-names/:id/edit", element: <UpdateInventoryNamePage /> },
 
       // Rutas de Ver
-      { path: "/dashboard/loans/:id/view", element: <ViewLoanPage /> },
+      { path: "/dashboard/loans/:loan_id/view", element: <ViewLoanPage /> },
       { path: "/dashboard/users/:id/view", element: <ViewUserPage /> },
       { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
       { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
       { path: "/dashboard/retorno/:id/view", element: <ViewReturnPage /> },
 
       { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
+      { path: "/dashboard/inventory-names/:id/view", element: <ViewInventoryNamePage /> },
 
       {
         path: "/dashboard/access",

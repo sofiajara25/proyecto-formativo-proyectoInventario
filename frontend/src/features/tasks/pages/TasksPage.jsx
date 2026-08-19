@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Navbar, Input, Button } from "@/shared";
 import TaskCard from "@/shared/components/TaskCard";
 import { getTasksByUserName, getAllTasks } from "../services/taskService";
+import { getUsers } from "../../users/services/userService";
+import TasksRegisterForm from "../components/TasksRegisterForm"
 
 export default function TasksPage() {
     const navigate = useNavigate();
@@ -11,6 +13,20 @@ export default function TasksPage() {
     const [name, setName] = useState("");
     const [nameError, setNameError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        getUsers()
+            .then(setUsers)
+            .catch(err => console.error("Error al cargar usuarios:", err));
+    }, []);
+
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);;
+
+    const handleSaveTask = (task) => {
+        // Aquí puedes llamar a createTask(task) para guardar en BD
+        setTasks((prev) => [...prev, task]);
+    };
 
     // 👇 cargar todas las tareas al montar
     useEffect(() => {
@@ -56,31 +72,61 @@ export default function TasksPage() {
         >
             <Navbar />
 
+            <div>
+                <h2 className="text-2xl font-medium text-center text-white">
+                    Tareas
+                </h2>
+            </div>
+
             <main className="flex-1 flex flex-col lg:flex-row items-stretch lg:items-start gap-6 p-4 sm:p-6">
 
-                <div className="w-full lg:w-72 lg:flex-shrink-0 bg-white rounded-xl shadow-lg p-5 flex flex-col gap-3">
-                    <h2
-                        className="text-sm font-semibold"
-                        style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
-                    >
-                        Buscar tarea por persona
-                    </h2>
+                <div className="flex flex-col">
+                    <div className="w-full lg:w-72 lg:flex-shrink-0 bg-white rounded-xl shadow-lg p-5 flex flex-col gap-3">
+                        <h2
+                            className="text-sm font-semibold"
+                            style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
+                        >
+                            Buscar tarea por persona
+                        </h2>
 
-                    <Input
-                        label="Nombre de usuario"
-                        type="text"
-                        placeholder="Ingrese el nombre"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                        error={nameError}
-                        containerClassName="w-full"
-                    />
+                        <Input
+                            label="Nombre de usuario"
+                            type="text"
+                            placeholder="Ingrese el nombre"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                            error={nameError}
+                            containerClassName="w-full"
+                        />
 
 
-                    <Button variant="secondary" size="sm" onClick={handleSearch} disabled={loading}>
-                        {loading ? "Buscando..." : "Buscar"}
-                    </Button>
+                        <Button variant="secondary" size="sm" onClick={handleSearch} disabled={loading}>
+                            {loading ? "Buscando..." : "Buscar"}
+                        </Button>
+                    </div>
+
+                    {/* 👇 Nuevo bloque para asignar tarea */}
+                    <div className="w-full lg:w-72 lg:flex-shrink-0 bg-white rounded-xl shadow-lg p-5 flex flex-col gap-3 mt-4">
+                        <h2
+                            className="text-sm font-semibold"
+                            style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
+                        >
+                            Asignar nueva tarea
+                        </h2>
+
+                        <Button variant="primary" size="sm" onClick={() => setIsRegisterOpen(true)}>
+                            Crear tarea
+                        </Button>
+                    </div>
+
+                    {isRegisterOpen && (
+                        <TasksRegisterForm
+                            users={users} // 👈 lista de usuarios
+                            onClose={() => setIsRegisterOpen(false)}
+                            onSaveTask={handleSaveTask}
+                        />
+                    )}
                 </div>
 
                 <div className="flex-1 bg-white rounded-xl shadow-lg p-5 min-h-[300px]">

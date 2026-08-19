@@ -86,28 +86,49 @@ export const userRepository = {
 
   async findAll() {
     const query = `
-    SELECT 
-      u.id,
-      u.user_name,
-      u.user_lastname,
-      u.document_type,
-      u.document_number,
-      g.group_name,
-      u.user_email,
-      u.user_address,
-      u.user_phone,
-      u.user_status
-    FROM users u
-    LEFT JOIN groups g ON u.group_id = g.group_id
-    ORDER BY u.id;
-  `;
+      SELECT 
+        u.id,
+        u.user_name,
+        u.user_lastname,
+        u.document_type,
+        u.document_number,
+        u.start_date,
+        u.end_date,
+        u.user_email,
+        u.user_phone,
+        u.user_address,
+        u.user_status,
+        u.photo_url,
+        g.group_name AS group_name
+      FROM users u
+      LEFT JOIN groups g ON u.group_id = g.group_id
+      ORDER BY u.id;
+    `;
     const result = await pool.query(query);
     return result.rows;
   },
-
   async findById(id) {
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-    return result.rows[0]; // debe incluir user_photo
+    const query = `
+      SELECT 
+        u.id, 
+        u.user_name, 
+        u.user_lastname,
+        u.document_type, 
+        u.document_number,
+        u.start_date, 
+        u.end_date,
+        u.user_email,
+        u.user_phone,
+        u.user_address,
+        u.user_status,
+        u.photo_url,
+        g.group_name AS group_name
+      FROM users u
+      LEFT JOIN groups g ON u.group_id = g.group_id
+      WHERE u.id = $1;
+    `;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   },
 
   async update(id, userData) {

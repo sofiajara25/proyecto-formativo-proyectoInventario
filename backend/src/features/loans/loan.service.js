@@ -1,20 +1,31 @@
-// Importamos el repositorio de usuarios.
+// Importamos el repositorio de préstamos.
 // El service depende del repository para acceder a la persistencia,
 // pero el repository NO debe conocer el service.
 import { loanRepository } from "./loan.repository.js";
 import { pool } from "../../config/db.js";
 
-import bcrypt from "bcrypt";
-
-// Exportamos el servicio de usuarios.
+// Exportamos el servicio de préstamos.
 // El service representa la capa de lógica de negocio de la aplicación.
 export const loanService = {
-    // Crear un préstamo
+    // Crear un préstamo con uno o más materiales.
     async createLoan(data) {
+
+        // "materials" llega como arreglo de { loanCategory, loanProductName, loanQuantity }.
+        // Normalizamos la categoría de cada material a minúsculas, igual que
+        // se hacía antes con el único material del préstamo.
+        const materials = (data.materials ?? []).map((material) => ({
+            ...material,
+            loanCategory: material.loanCategory?.toLowerCase(),
+            loanQuantity: Number(material.loanQuantity),
+        }));
+
+        if (materials.length === 0) {
+            throw new Error("Debe agregar al menos un material al préstamo");
+        }
 
         const loanData = {
             ...data,
-            loanCategory: data.loanCategory?.toLowerCase(),
+            materials,
         };
 
         console.log("SERVICE DATA:", loanData);
@@ -30,14 +41,21 @@ export const loanService = {
         return await loanRepository.findById(loan_id);
     },
     async updateLoan(loan_id, data) {
-        return await loanRepository.update(loan_id, data);
+        const materials = Array.isArray(data.materials)
+            ? data.materials.map((material) => ({
+                ...material,
+                loanCategory: material.loanCategory?.toLowerCase(),
+                loanQuantity: Number(material.loanQuantity),
+            }))
+            : undefined;
+
+        return await loanRepository.update(loan_id, { ...data, materials });
     },
     async updateLoanStatus(loan_id, is_active) {
         const result = await pool.query(
-            "UPDATE loans SET is_active = $1 WHERE loan_id = $2 RETURNING *",
+            "UPDATE loans SET is_active = $1 WHERE id = $2 RETURNING *",
             [is_active, loan_id]
         );
         return result.rows[0];
     },
 };
-    

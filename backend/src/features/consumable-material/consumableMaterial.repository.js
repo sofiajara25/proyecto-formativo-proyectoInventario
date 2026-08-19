@@ -26,6 +26,7 @@ export const consumableMaterialRepository = {
             materialTotalValue,
             materialStatus,
             materialDescription,
+            materialTechnicalSheet,
             photo,
             brandId,
         } = consumableMaterialData;
@@ -46,10 +47,11 @@ export const consumableMaterialRepository = {
         total_value,
         status,
         description,
+        technical_sheet,
         photo_url,
         brand_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
       RETURNING id;
     `;
 
@@ -68,6 +70,7 @@ export const consumableMaterialRepository = {
             materialTotalValue,
             materialStatus,
             materialDescription,
+            materialTechnicalSheet,
             photo,
             brandId,
         ];
@@ -106,6 +109,7 @@ export const consumableMaterialRepository = {
             materialTotalValue,
             materialStatus,
             materialDescription,
+            materialTechnicalSheet,
             photo,
             brandId,
         } = consumableData;
@@ -123,9 +127,10 @@ export const consumableMaterialRepository = {
                 total_value = $9,
                 status = $10,
                 description = $11,
-                photo_url = COALESCE($12, photo_url),
-                brand_id = $13
-            WHERE id = $14
+                technical_sheet = COALESCE($12, technical_sheet),
+                photo_url = COALESCE($13, photo_url),
+                brand_id = $14
+            WHERE id = $15
             RETURNING *;
         `;
 
@@ -141,6 +146,7 @@ export const consumableMaterialRepository = {
             materialTotalValue,
             materialStatus,
             materialDescription,
+            materialTechnicalSheet ?? null,
             photo ?? null,
             brandId,
             id,

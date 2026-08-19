@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fileSchema } from "@/shared";
+import { singleFileSchema } from "@/shared";
 
 export const userSchema = z.object({
 
@@ -39,11 +39,13 @@ export const userSchema = z.object({
     userAddress: z
         .string()
         .min(5, "La dirección debe tener mínimo 5 caracteres")
-        .max(100, "La dirección es demasiado larga"),
+        .max(100, "La dirección es demasiado larga")
+        .optional(),
 
     userPhone: z
         .string()
-        .regex(/^[0-9]{10}$/, "El teléfono debe tener 10 dígitos"),
+        .regex(/^[0-9]{10}$/, "El teléfono debe tener 10 dígitos")
+        .optional(),
 
     userStatus: z
         .string()
@@ -58,22 +60,23 @@ export const userSchema = z.object({
         .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
 
 
-    userPhoto: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
+    userPhoto: singleFileSchema.optional()
 }).refine((data) => {
     if (!data.userStartDate) return false;
     const today = new Date();
-    const userStartDate = new Date(data.userStartDate);
-    if (isNaN(userStartDate.getTime())) return false; // fecha inválida
+    const start = new Date(data.userStartDate);
+
     today.setHours(0, 0, 0, 0);
-    userStartDate.setHours(0, 0, 0, 0);
-    return userStartDate >= today;
+    start.setHours(0, 0, 0, 0);
+
+    return start.getTime() >= today.getTime(); // 👈 hoy permitido
 }, { path: ["userStartDate"], message: "La fecha de inicio no puede ser anterior a hoy" })
+
     .refine((data) => {
-        if (!data.userStartDate || !data.userEndDate) return false;
-        const userStartDate = new Date(data.userStartDate);
-        const returnDate = new Date(data.userEndDate);
-        if (isNaN(userStartDate.getTime()) || isNaN(returnDate.getTime())) return false; // fechas inválidas
-        userStartDate.setHours(0, 0, 0, 0);
-        returnDate.setHours(0, 0, 0, 0);
-        return returnDate >= userStartDate;
+        if (!data.userEndDate) return true; // 👈 si no hay fecha fin, no valida
+        const start = new Date(data.userStartDate);
+        const end = new Date(data.userEndDate);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return end >= start;
     }, { path: ["userEndDate"], message: "La fecha de finalización no puede ser anterior a la fecha de inicio" });

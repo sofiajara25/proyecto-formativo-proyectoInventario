@@ -90,13 +90,13 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                         onChange={(e) => setScope(e.target.value)}
                         options={[
                             { label: "Todos los prestamos", value: "all" },
-                            { label: "Filtrar por nombre", value: "name" },
+                            { label: "Filtrar por identificación del Usuario", value: "name" },
                         ]}
                     />
 
                     {scope === "name" && (
                         <Input
-                            label="Nombre"
+                            label="Identificación del Usuario"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Ingrese el nombre"

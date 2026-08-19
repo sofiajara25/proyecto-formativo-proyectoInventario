@@ -17,7 +17,7 @@ export function generatePdfReport({
 
     // Configuracion del titulo
     doc.setFontSize(16);
-    doc.text("Reporte de prestamos", 14, 20) // Posicion (x, y)
+    doc.text("Reporte de marcas", 14, 20) // Posicion (x, y)
 
     // Generacion de tabla automatica
     autoTable(doc, {

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS loan_items (
+  id SERIAL PRIMARY KEY,
+  loan_id INT NOT NULL REFERENCES loans(loan_id) ON DELETE CASCADE,
+  category VARCHAR(30) NOT NULL,
+  product_name VARCHAR(100) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1
+);

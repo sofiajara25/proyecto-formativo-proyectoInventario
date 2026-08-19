@@ -22,6 +22,7 @@ export default function MaterialRegisterForm() {
         materialStatus: "",
         materialDescription: "",
         brandId: "",
+        materialTechnicalSheet: [],
         photo: [],
     });
 
@@ -149,7 +150,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Cuentadante"
+                                    label={<span>Cuentadante<span style={{ color: "red" }}>*</span></span>}
                                     name="materialAccountant"
                                     value={formData.materialAccountant}
                                     onChange={handleChange}
@@ -159,7 +160,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="ID Herramienta"
+                                    label={<span>Id del material<span style={{ color: "red" }}>*</span></span>}
                                     name="materialToolId"
                                     value={formData.materialToolId}
                                     onChange={handleChange}
@@ -179,7 +180,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Nombre del material"
+                                    label={<span>Nombre del material<span style={{ color: "red" }}>*</span></span>}
                                     name="materialName"
                                     value={formData.materialName}
                                     onChange={handleChange}
@@ -189,7 +190,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Fecha de ingreso"
+                                    label={<span>Fecha Ingreso<span style={{ color: "red" }}>*</span></span>}
                                     type="date"
                                     name="materialEntryDate"
                                     value={formData.materialEntryDate}
@@ -200,7 +201,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Cantidad"
+                                    label={<span>Cantidad<span style={{ color: "red" }}>*</span></span>}
                                     name="materialQuantity"
                                     type="number"
                                     value={formData.materialQuantity}
@@ -221,7 +222,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Valor Unitario"
+                                    label={<span>Valor unitario<span style={{ color: "red" }}>*</span></span>}
                                     name="materialUnitValue"
                                     type="number"
                                     value={formData.materialUnitValue}
@@ -232,7 +233,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Valor Total"
+                                    label={<span>Valor total<span style={{ color: "red" }}>*</span></span>}
                                     name="materialTotalValue"
                                     type="number"
                                     value={formData.materialTotalValue}
@@ -244,7 +245,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>select]:w-full">
                                 <Select
-                                    label="Estado"
+                                    label={<span>Estado<span style={{ color: "red" }}>*</span></span>}
                                     name="materialStatus"
                                     options={estados}
                                     value={formData.materialStatus}
@@ -255,7 +256,7 @@ export default function MaterialRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>textarea]:w-full">
                                 <TextArea
-                                    label="Descripción"
+                                    label={<span>Descripcion<span style={{ color: "red" }}>*</span></span>}
                                     name="materialDescription"
                                     value={formData.materialDescription}
                                     onChange={handleChange}
@@ -274,18 +275,35 @@ export default function MaterialRegisterForm() {
                                 />
                             </div>
 
-                            <div>
-                                <h4 className="text-xs mb-1">Foto</h4>
-                                <FileInput
-                                    value={formData.photo}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({ ...prev, photo: files }))
-                                    }
-                                    multiple={true}
-                                />
-                                {errors.photo && (
-                                    <span className="text-red-500 text-sm">{errors.photo}</span>
-                                )}
+                            <div className=" flex flex-row gap-8">
+                                {/* Fila 6 — Archivos */}
+                                <div>
+                                    <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
+                                    <FileInput
+                                        value={formData.materialTechnicalSheet}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                                        }
+                                        multiple={true}
+                                    />
+                                    {errors.materialTechnicalSheet && (
+                                        <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <span>Foto <span style={{ color: "red" }}>*</span></span>
+                                    <FileInput
+                                        value={formData.photo}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, photo: files }))
+                                        }
+                                        multiple={true}
+                                    />
+                                    {errors.photo && (
+                                        <span className="text-red-500 text-sm">{errors.photo}</span>
+                                    )}
+                                </div>
                             </div>
 
                         </div>

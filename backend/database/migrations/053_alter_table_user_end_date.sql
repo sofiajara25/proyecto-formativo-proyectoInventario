@@ -1,0 +1,2 @@
+ALTER TABLE users
+ALTER COLUMN end_date SET NOT NULL;

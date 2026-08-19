@@ -1,4 +1,4 @@
-import { Dices, Users2, UserRoundCheck } from "lucide-react"
+import { Dices, Users2, UserRoundCheck, ShelvingUnit } from "lucide-react"
 
 export const settings = [
     {
@@ -21,5 +21,12 @@ export const settings = [
         logo: UserRoundCheck,
         category: "perifericos",
         path: "/dashboard/list-usuarios",
+    },
+    {
+        id: 4,
+        title: "Nombre del Inventario",
+        logo: ShelvingUnit,
+        category: "perifericos",
+        path: "/dashboard/list-nombreInventario",
     },
 ]

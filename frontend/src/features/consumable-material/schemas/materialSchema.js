@@ -15,7 +15,7 @@ export const materialSchema = z.object({
 
   materialSenaPlate: z
     .string()
-    .min(1, "La placa SENA es requerida"),
+    .optional(),
 
   materialName: z
     .string()
@@ -34,8 +34,7 @@ export const materialSchema = z.object({
 
   materialLocation: z
     .string()
-    .min(3, "La ubicación debe tener mínimo 3 caracteres")
-    .max(100, "La ubicación es demasiado larga"),
+    .optional(),
 
   materialUnitValue: z
     .number({
@@ -58,7 +57,10 @@ export const materialSchema = z.object({
     .min(5, "La descripción debe tener mínimo 5 caracteres")
     .max(200, "La descripción es demasiado larga"),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional(),
+  materialTechnicalSheet: fileSchema.shape.files
+    .or(z.array(z.instanceof(File)).max(0)),
+
+  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)),
 
   brandId: z
     .number({ invalid_type_error: "La marca es requerida" }).optional()

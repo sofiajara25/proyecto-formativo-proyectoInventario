@@ -22,11 +22,22 @@ export const loanController = {
 
 
     try {
+      // "materials" llega como un string JSON dentro del multipart/form-data
+      // (FormData no soporta arreglos anidados), así que hay que parsearlo
+      // antes de pasarlo al service.
+      let materials = [];
+      try {
+        materials = JSON.parse(req.body.materials ?? "[]");
+      } catch {
+        return res.status(400).json({ error: "El formato de materials no es válido" });
+      }
+
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
       const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
       const loan = await loanService.createLoan({
         ...req.body,
+        materials,
         photo: photoPath,
       });
 
@@ -38,7 +49,7 @@ export const loanController = {
         message: "Prestamo creado correctamente",
 
 
-        // Retornamos únicamente el ID del usuario creado
+        // Retornamos únicamente el ID del préstamo creado
         // Evita exponer información sensible innecesaria
         loanId: loan.loan_id,
       });

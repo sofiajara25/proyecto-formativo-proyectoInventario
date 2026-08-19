@@ -1,0 +1,1 @@
+ALTER TABLE consumable_materials ADD COLUMN technical_sheet TEXT;

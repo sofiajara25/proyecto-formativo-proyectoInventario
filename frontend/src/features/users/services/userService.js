@@ -1,3 +1,5 @@
+// import { getToken } from "@/shared/utils/tokenStorage";
+
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
@@ -8,8 +10,8 @@ const API_URL = "http://localhost:5000/api/users";
 // Recibe un objeto con los datos del usuario
 // Retorna la respuesta JSON del servidor
 export async function createUser(userData) {
-    const formData = new FormData();
     const token = sessionStorage.getItem("token");
+    const formData = new FormData();
 
     // SOLO UNA PASADA CONTROLADA
     formData.append("userName", userData.userName);
@@ -26,11 +28,10 @@ export async function createUser(userData) {
     formData.append("userPassword", userData.userPassword);
 
     // archivos
-    if (userData.userPhoto?.length) {
-        userData.userPhoto.forEach((file) => {
-            formData.append("userPhoto", file);
-        });
+    if (userData.userPhoto) {
+        formData.append("userPhoto", userData.userPhoto);
     }
+
 
     const response = await fetch(API_URL, {
         method: "POST",
@@ -88,9 +89,11 @@ export async function updateUser(id, userData) {
         formData.append("userPassword", userData.userPassword);
     }
 
-    if (Array.isArray(userData.userPhoto) && userData.userPhoto.length) {
-        formData.append("userPhoto", userData.userPhoto[0]);
+    if (userData.userPhoto) {
+        formData.append("userPhoto", userData.userPhoto);
     }
+
+
 
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",

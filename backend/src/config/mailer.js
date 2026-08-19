@@ -1,37 +1,45 @@
-// Cliente de correo usado para el envío de emails transaccionales
-// (por ahora: recuperación de contraseña)
-//
-// Usamos Gmail + Nodemailer porque no requiere verificar un dominio propio:
-// con una cuenta de Gmail y una "contraseña de aplicación" puedes enviar
-// correos a CUALQUIER destinatario real, totalmente gratis.
-
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
 
-// Cargamos las variables definidas en el archivo .env
-dotenv.config();
-
-// Validamos al iniciar que las variables necesarias existan.
-// Falla rápido y con un mensaje claro, en vez de fallar silenciosamente
-// la primera vez que alguien pida recuperar su contraseña.
-if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn(
-        "⚠️  Faltan GMAIL_USER y/o GMAIL_APP_PASSWORD en el .env. " +
-        "El envío de correos (recuperar contraseña) no funcionará hasta que las configures."
-    );
-}
-
-// Creamos y exportamos un transporter único de Nodemailer, configurado
-// para usar el servicio SMTP de Gmail
+// El transporter se conecta a Gmail usando una "contraseña de aplicación",
+// NO la contraseña normal de la cuenta.
+// Guía: https://myaccount.google.com/apppasswords
 export const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        // Tu correo de Gmail (el que generó la contraseña de aplicación)
-        user: process.env.GMAIL_USER,
-        // La contraseña de aplicación de 16 caracteres (NO tu contraseña normal de Gmail)
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user: process.env.GMAIL_USER,       // ej: tuapp@gmail.com
+        pass: process.env.GMAIL_APP_PASSWORD, // la contraseña de aplicación de 16 caracteres
     },
 });
 
-// Remitente que verán los usuarios en el correo recibido
+/**
+ * Envía el correo de recuperación de contraseña con un código de verificación.
+ * @param {string} to - correo del usuario
+ * @param {string} code - código numérico (ej: "482913")
+ */
+export async function sendPasswordResetEmail(to, code) {
+    const mailOptions = {
+        from: `"Soporte" <${process.env.GMAIL_USER}>`,
+        to,
+        subject: "Código de recuperación de contraseña",
+        html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+        <h2>Recuperación de contraseña</h2>
+        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+        <p>Usa el siguiente código para continuar. Expira en 15 minutos.</p>
+        <p style="text-align: center; margin: 24px 0;">
+          <span style="display:inline-block; background:#2563eb; color:white; padding:14px 28px; border-radius:8px; font-size:28px; letter-spacing:6px; font-weight:bold;">
+            ${code}
+          </span>
+        </p>
+        <p>Si no solicitaste esto, puedes ignorar este correo.</p>
+      </div>
+    `,
+    };
+
+    await transporter.sendMail(mailOptions);
+}
+// 👇 exportamos ambas cosas
 export const MAIL_FROM = process.env.MAIL_FROM || process.env.GMAIL_USER;
+export default transporter;
+
+

@@ -117,7 +117,7 @@
                 { label: "Nombre", value: user.user_name },
                 { label: "Tipo documento", value: user.document_type },
                 { label: "Número documento", value: user.document_number },
-                { label: "Tipo usuario", value: user.user_type },
+                { label: "Grupo de usuario", value: user.group_name },
                 { label: "Fecha de inicio", value: formatDate(user.start_date) },
                 { label: "Fecha de finalización", value: formatDate(user.end_date) },
                 { label: "Correo", value: user.user_email },

@@ -42,7 +42,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                 {/* Header */}
                 <div className="flex flex-col gap-1">
                     <h2 style={{ fontSize: "var(--fs-sm)", fontWeight: "var(--font-weight-bold)", color: "var(--color-gray-900)", margin: 0 }}>
-                        Generar reporte de prestamo
+                        Generar reporte de marca
                     </h2>
                     <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-500)", margin: 0 }}>
                         Configura los parámetros del reporte

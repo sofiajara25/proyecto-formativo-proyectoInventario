@@ -20,3 +20,8 @@ export const fileSchema = z.object({
         .min(1, "Requerido")
         .max(12, "Máx 12 archivos")
 });
+
+export const singleFileSchema = z.instanceof(File)
+    .refine((f) => ACCEPTED_TYPES.includes(f.type), "Tipo inválido")
+    .refine((f) => f.size <= MAX_SIZE, "Máx 10MB");
+

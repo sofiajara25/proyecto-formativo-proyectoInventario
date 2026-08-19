@@ -75,7 +75,6 @@ export default function AccessSidebar({
       const payload = result.data;
       const response = await createGroup(payload); // 🔹 enviar objeto con group_name
       console.log("Grupo creado:", response);
-      alert("Grupo creado correctamente");
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
@@ -90,7 +89,7 @@ export default function AccessSidebar({
   if (isSubmitting) {
     label = "Creando...";
   } else {
-    label = "Crear Material Devolutivo";
+    label = "Crear grupo";
   }
 
 

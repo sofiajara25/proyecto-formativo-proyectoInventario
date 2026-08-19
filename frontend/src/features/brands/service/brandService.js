@@ -2,6 +2,7 @@
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
 const API_URL = "http://localhost:5000/api/brands";
+// import { getToken } from "@/shared/utils/tokenStorage";
 
 
 // Función para crear un usuario en el backend
@@ -9,6 +10,7 @@ const API_URL = "http://localhost:5000/api/brands";
 // Retorna la respuesta JSON del servidor
 export async function createBrand(brandData) {
 
+    const token = sessionStorage.getItem("token");
 
     // Realizamos la petición HTTP usando fetch
     const response = await fetch(API_URL, {
@@ -20,6 +22,7 @@ export async function createBrand(brandData) {
         // Indicamos que enviamos JSON
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
 
 

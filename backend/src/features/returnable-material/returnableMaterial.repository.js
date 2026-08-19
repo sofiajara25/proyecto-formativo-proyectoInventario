@@ -18,6 +18,7 @@ export const returnableMaterialRepository = {
         const {
             materialToolId,
             materialSenaPlate,
+            materialCategory,
             materialSerial,
             materialName,
             materialModel,
@@ -41,6 +42,7 @@ export const returnableMaterialRepository = {
       INSERT INTO returnable_materials (
         tool_id,
         sena_plate,
+        category,
         serial,
         material_name,
         model,
@@ -56,7 +58,7 @@ export const returnableMaterialRepository = {
         photo_url,
         brand_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
       RETURNING id;
     `;
 
@@ -66,6 +68,7 @@ export const returnableMaterialRepository = {
         const values = [
             materialToolId,
             materialSenaPlate,
+            materialCategory,
             materialSerial,
             materialName,
             materialModel,
@@ -99,6 +102,7 @@ export const returnableMaterialRepository = {
       r.id,
       r.tool_id,
       r.sena_plate,
+      r.category,
       r.serial,
       r.material_name,
       r.model,
@@ -128,6 +132,7 @@ export const returnableMaterialRepository = {
       r.id,
       r.tool_id,
       r.sena_plate,
+      r.category,
       r.serial,
       r.material_name,
       r.model,
@@ -156,6 +161,7 @@ export const returnableMaterialRepository = {
         const {
             materialToolId,
             materialSenaPlate,
+            materialCategory,
             materialSerial,
             materialName,
             materialModel,
@@ -176,26 +182,28 @@ export const returnableMaterialRepository = {
             UPDATE returnable_materials
             SET tool_id = $1,
                 sena_plate = $2,
-                serial = $3,
-                material_name = $4,
-                model = $5,
-                unit_value = $6,
-                custodian = $7,
-                quantity = $8,
-                status = $9,
-                total_value = $10,
-                dimensions = $11,
-                description = $12,
-                technical_sheet = COALESCE($13, technical_sheet),
-                location = $14,
-                photo_url = COALESCE($15, photo_url),
-                brand_id = $16
-            WHERE id = $17
+                category =$3,
+                serial = $4,
+                material_name = $5,
+                model = $6,
+                unit_value = $7,
+                custodian = $8,
+                quantity = $9,
+                status = $10,
+                total_value = $11,
+                dimensions = $12,
+                description = $13,
+                technical_sheet = COALESCE($14, technical_sheet),
+                location = $15,
+                photo_url = COALESCE($16, photo_url),
+                brand_id = $17
+            WHERE id = $18
             RETURNING *;
         `;
         const values = [
             materialToolId,
             materialSenaPlate,
+            materialCategory,
             materialSerial,
             materialName,
             materialModel,

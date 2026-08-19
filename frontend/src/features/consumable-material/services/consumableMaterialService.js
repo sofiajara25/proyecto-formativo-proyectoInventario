@@ -2,6 +2,7 @@
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
 const API_URL = "http://localhost:5000/api/consumableMaterial";
+// import { getToken } from "@/shared/utils/tokenStorage";
 
 
 // Función para crear un usuario en el backend
@@ -9,6 +10,7 @@ const API_URL = "http://localhost:5000/api/consumableMaterial";
 // Retorna la respuesta JSON del servidor
 export async function createConsumableMaterial(consumableMaterialData) {
     const formData = new FormData();
+    const token = sessionStorage.getItem("token");
 
     formData.append("materialAccountant", consumableMaterialData.materialAccountant);
     formData.append("materialToolId", consumableMaterialData.materialToolId);
@@ -23,6 +25,10 @@ export async function createConsumableMaterial(consumableMaterialData) {
     formData.append("materialDescription", consumableMaterialData.materialDescription);
     formData.append("brandId", consumableMaterialData.brandId);
 
+    if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {
+        formData.append("materialTechnicalSheet", consumableMaterialData.materialTechnicalSheet[0]);
+    }
+
     // archivos
     if (consumableMaterialData.photo?.length) {
         consumableMaterialData.photo.forEach((file) => {
@@ -35,17 +41,18 @@ export async function createConsumableMaterial(consumableMaterialData) {
         // Método HTTP según convención REST
         method: "POST",
 
+
         // Cabeceras de la petición
         // Indicamos que enviamos JSON
-        // headers: {
-        //     "Content-Type": "application/json",
-        // },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
 
 
         // Convertimos el objeto userData a JSON
-        body: formData,
+        body: JSON.stringify(consumableMaterialData),
     });
-
 
     // Verificamos si la respuesta NO fue exitosa (status != 2xx)
     if (!response.ok) {
@@ -97,6 +104,11 @@ export async function updateConsumable(id, consumableMaterialData) {
     formData.append("materialStatus", consumableMaterialData.materialStatus);
     formData.append("materialDescription", consumableMaterialData.materialDescription);
     formData.append("brandId", consumableMaterialData.brandId);
+
+    // 📌 Aquí agregas la ficha técnica
+    if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {
+        formData.append("materialTechnicalSheet", consumableMaterialData.materialTechnicalSheet[0]);
+    }
 
     if (Array.isArray(consumableMaterialData.photo) && consumableMaterialData.photo.length) {
         formData.append("photo", consumableMaterialData.photo[0]);

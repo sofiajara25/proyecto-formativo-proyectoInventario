@@ -5,18 +5,11 @@ import { userSchema } from "../schemas/userSchema";
 import { useNavigate } from "react-router-dom";
 import { createUser } from "../services/userService.js";
 import { CirclePlus } from "lucide-react"
-import { TasksRegisterForm } from "@/features/tasks"
-import { createTask } from "../../tasks/services/taskService.js";
 import { getGroups } from "../../access/services/groupService.js";
 
 export default function UserRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
-    const [isTaskOpen, setIsTaskOpen] = useState(false);
-
-    const [pendingUserData, setPendingUserData] = useState(null);
-    const [pendingTaskData, setPendingTaskData] = useState(null);
-
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
@@ -33,11 +26,18 @@ export default function UserRegisterForm() {
         userPhone: "",
         userStatus: "",
         userPassword: "",
-        userPhoto: [],
+        userPhoto: null,
     });
     const [errors, setErrors] = useState({});
 
     const [groups, setGroups] = useState([]);
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const localToday = `${yyyy}-${mm}-${dd}`;
+
 
     const estados = [
         { value: "", label: "Selecciona tu opción" },
@@ -59,21 +59,6 @@ export default function UserRegisterForm() {
     }, []);
 
 
-    const validateUserForm = () => {
-        const result = userSchema.safeParse(formData);
-        if (!result.success) {
-            const fieldErrors = {};
-            result.error.issues.forEach((issue) => {
-                fieldErrors[issue.path[0]] = issue.message;
-            });
-            setErrors(fieldErrors);
-            return null;
-        }
-
-        setErrors({});
-        return result.data;
-    };
-
     //=========================
     //      Handle Genérico
     //* Función que se ejecuta cada vez que cambia el valor de un input del formulario
@@ -87,70 +72,44 @@ export default function UserRegisterForm() {
         }));
     };
 
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
 
-    const handleOpenTask = (e) => {
-        e.preventDefault();
-        const result = userSchema.safeParse(formData);
+        // 🔹 Normalizar y convertir datos antes de validar
+        const parsedData = {
+            ...formData,
+            groupId: Number(formData.groupId), // convertir a número si es id
+            userPhone: String(formData.userPhone), // asegurar tipo string
+        };
+
+        // 🔹 Validación con Zod
+        const result = userSchema.safeParse(parsedData);
         if (!result.success) {
             const fieldErrors = {};
             result.error.issues.forEach((issue) => {
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+            setIsSubmitting(false);
             return;
         }
+
         setErrors({});
-        setPendingUserData(result.data); // ✅ solo guardar en memoria
-        setIsTaskOpen(true);             // abrir modal de tarea
-    };
-
-
-    const handleCreateAll = async () => {
-        setIsSubmitting(true);
-        setIsModalOpen(false);
-
         try {
-            if (!pendingUserData) {
-                throw new Error("No hay datos de usuario validados en memoria");
-            }
+            // 🔹 Crear usuario en backend
+            const response = await createUser(result.data);
+            console.log("Usuario creado:", response);
 
-            // Crear usuario en backend
-            const userResponse = await createUser(pendingUserData);
-            const userId = userResponse.id ?? userResponse.userId;
-
-            if (!userId) {
-                throw new Error("El backend no devolvió el id del usuario creado");
-            }
-
-            // Crear tarea vinculada al usuario (ahora sí en BD)
-            if (pendingTaskData) {
-                await createTask({ ...pendingTaskData, userId });
-            }
-
+            // 🔹 Redirigir al listado
             navigate(-1);
         } catch (error) {
+            console.error("Error:", error.message);
             alert(error.message);
         } finally {
             setIsSubmitting(false);
+            setIsModalOpen(false);
         }
     };
-
-
-    const handleSubmitWithModal = (e) => {
-        e.preventDefault();
-        const validUserData = validateUserForm();
-        if (!validUserData) return;
-
-        if (!pendingTaskData) {
-            alert("Debes asignar una tarea antes de crear el usuario");
-            return;
-        }
-
-        setPendingUserData(validUserData); // guardar usuario validado
-        setIsModalOpen(true);              // abrir modal de confirmación
-    };
-
-
 
     // =======================================================
 
@@ -185,7 +144,7 @@ export default function UserRegisterForm() {
                 <div className="bg-white rounded-2xl flex flex-col gap-1 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
 
                     <form
-                        onSubmit={handleSubmitWithModal}
+                        onSubmit={handleSubmit}
                         className="
                                 flex 
                                 flex-col 
@@ -205,7 +164,7 @@ export default function UserRegisterForm() {
 
                             {/* Fila 1 */}
                             <Input
-                                label="Nombre"
+                                label={<span>Nombres <span style={{ color: "red" }}>*</span></span>}
                                 name="userName"
                                 placeholder="Ingrese su nombre"
                                 type="text"
@@ -214,7 +173,7 @@ export default function UserRegisterForm() {
                                 error={errors.userName}
                             />
                             <Input
-                                label="Apellido"
+                                label={<span>Apellidos <span style={{ color: "red" }}>*</span></span>}
                                 name="userLastname"
                                 placeholder="Ingrese su apellido"
                                 type="text"
@@ -223,7 +182,7 @@ export default function UserRegisterForm() {
                                 error={errors.userLastname}
                             />
                             <Select
-                                label="Tipo de documento"
+                                label={<span>Tipo de documento <span style={{ color: "red" }}>*</span></span>}
                                 name="userDocumentType"
                                 options={documentType}
                                 value={formData.userDocumentType}
@@ -231,7 +190,7 @@ export default function UserRegisterForm() {
                                 error={errors.userDocumentType}
                             />
                             <Input
-                                label="Número de documento"
+                                label={<span>Número de documento <span style={{ color: "red" }}>*</span></span>}
                                 name="userDocumentNumber"
                                 placeholder="Ingrese su número de documento"
                                 type="text"
@@ -242,7 +201,7 @@ export default function UserRegisterForm() {
 
                             {/* Fila 2 */}
                             <Select
-                                label="Grupo"
+                                label={<span>Grupo <span style={{ color: "red" }}>*</span></span>}
                                 name="groupId"
                                 options={groupOptions}
                                 value={formData.groupId}
@@ -251,25 +210,27 @@ export default function UserRegisterForm() {
                             />
 
                             <Input
-                                label="Fecha de inicio"
+                                label={<span>Fecha de inicio <span style={{ color: "red" }}>*</span></span>}
                                 name="userStartDate"
                                 type="date"
                                 value={formData.userStartDate}
                                 onChange={handleChange}
                                 error={errors.userStartDate}
+                                min={localToday} // 👈 ahora sí permite hoy
                             />
+
                             <Input
-                                label="Fecha de finalización"
+                                label={<span>Fecha de finalización <span style={{ color: "red" }}>*</span></span>}
                                 name="userEndDate"
                                 type="date"
                                 value={formData.userEndDate}
                                 onChange={handleChange}
                                 error={errors.userEndDate}
+                                min={localToday}
                             />
-
                             {/* Fila 3 */}
                             <Input
-                                label="Correo electrónico"
+                                label={<span>Correo electrónico <span style={{ color: "red" }}>*</span></span>}
                                 name="userEmail"
                                 placeholder="Ingrese su correo"
                                 type="email"
@@ -298,7 +259,7 @@ export default function UserRegisterForm() {
 
                             {/* Fila 4 */}
                             <Select
-                                label="Estado"
+                                label={<span>Esatdo<span style={{ color: "red" }}>*</span></span>}
                                 name="userStatus"
                                 options={estados}
                                 value={formData.userStatus}
@@ -306,7 +267,7 @@ export default function UserRegisterForm() {
                                 error={errors.userStatus}
                             />
                             <Input
-                                label="Contraseña"
+                                label={<span>Contraseña <span style={{ color: "red" }}>*</span></span>}
                                 name="userPassword"
                                 placeholder="Ingrese su contraseña"
                                 type="password"
@@ -316,37 +277,6 @@ export default function UserRegisterForm() {
                             />
 
                             <div className="flex flex-row gap-16">
-                                <div>
-                                    <h4 className="text-[10px]">
-                                        Asignar tarea
-                                    </h4>
-                                    <Button
-                                        type="button"
-                                        variant="tertiary"
-                                        size="sm"
-                                        onClick={handleOpenTask}
-                                    >
-                                        Tarea
-                                        <CirclePlus />
-                                    </Button>
-                                    {/* Mostrar TaskForm encima */}
-                                    {isTaskOpen && (
-                                        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/30">
-                                            <TasksRegisterForm
-                                                userId={pendingUserData.id}
-                                                userStartDate={pendingUserData.userStartDate}
-                                                userEndDate={pendingUserData.userEndDate}
-                                                onClose={() => setIsTaskOpen(false)}
-                                                onSaveTask={(taskData) => {
-                                                    setPendingTaskData(taskData); // ✅ solo guardar en memoria
-                                                    setIsTaskOpen(false);         // cerrar modal
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-
-
-                                </div>
 
                                 {/* Contenedor del input */}
                                 <div>
@@ -354,11 +284,14 @@ export default function UserRegisterForm() {
                                         Foto
                                     </h4>
                                     <FileInput
-                                        value={formData.userPhoto}
+                                        value={formData.userPhoto ? [formData.userPhoto] : []} // 👈 guardamos como array de 1
                                         onChange={(files) =>
-                                            setFormData((prev) => ({ ...prev, userPhoto: files }))
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                userPhoto: files[0] || null // 👈 solo el primer archivo
+                                            }))
                                         }
-                                        multiple={true}
+                                        multiple={false}
                                     />
                                     {errors.userPhoto && (
                                         <span className="text-red-500 text-sm">{errors.userPhoto}</span>
@@ -391,7 +324,7 @@ export default function UserRegisterForm() {
                         isOpen={isModalOpen}
                         title="Confirmar creación de usuario"
                         onClose={() => setIsModalOpen(false)}
-                        onConfirm={handleCreateAll}
+                        onConfirm={handleSubmit}
                         confirmText="Crear"
                         cancelText="Cancelar"
                     >

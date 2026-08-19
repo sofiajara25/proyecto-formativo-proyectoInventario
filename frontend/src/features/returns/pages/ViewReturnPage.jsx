@@ -110,8 +110,8 @@ export default function ViewReturnPage() {
                         <p><strong>Tipo de Material:</strong> {returns.material_type}</p>
                         <p><strong>ID del Préstamo:</strong> {returns.loan_id}</p>
                         <p><strong>Fecha de Devolución:</strong> {formatDate(returns.return_date)}</p>
-                        <p><strong>Cantidad Devuelta:</strong> {returns.description}</p>
-                        <p><strong>Descripción / Observaciones:</strong> ${returns.quantity}</p>
+                        <p><strong>Cantidad Devuelta:</strong> {returns.quantity}</p>
+                        <p><strong>Descripción / Observaciones:</strong> {returns.description}</p>
                     </div>
 
                     {/* Divider */}

@@ -2,7 +2,6 @@ import { useRef, useState, useMemo, useEffect } from "react";
 import { Infinity as InfinityLoader } from "ldrs/react";
 import "ldrs/react/Infinity.css";
 
-
 export default function FileInput({
     value = [],
     onChange,
@@ -17,7 +16,7 @@ export default function FileInput({
 
     const previews = useMemo(
         () => value.map((file) => (isFile(file) ? URL.createObjectURL(file) : null)),
-        [value],
+        [value]
     );
 
     useEffect(() => {
@@ -32,8 +31,13 @@ export default function FileInput({
         setIsLoading(true);
         const list = Array.from(files);
         await new Promise((r) => setTimeout(r, 500));
-        const data = multiple ? [...value, ...list] : [list[0]];
-        onChange(data.slice(0, 12));
+
+        if (multiple) {
+            onChange([...value, ...list].slice(0, 12)); // máximo 12
+        } else {
+            onChange(list.length ? [list[0]] : []); // máximo 1 archivo
+        }
+
         setIsLoading(false);
     };
 
@@ -55,7 +59,7 @@ export default function FileInput({
             {value.map((file, i) => (
                 <div
                     key={i}
-                    draggable
+                    draggable={multiple} // solo arrastrar si es múltiple
                     onDragStart={() => setDragIndex(i)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => reorder(dragIndex, i)}
@@ -70,29 +74,33 @@ export default function FileInput({
                         </div>
                     )}
                     <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
-                        <button type="button" className="w-7 h-7 bg-white rounded-full text-black text-xs">🔛</button>
                         <button type="button" onClick={() => remove(i)} className="w-7 h-7 bg-white rounded-full text-black text-xs">❌</button>
                     </div>
                 </div>
             ))}
 
-            <div
-                onClick={() => !isLoading && inputRef.current.click()}
-                className="w-24 h-24 border-2 border-dashed rounded flex items-center justify-center cursor-pointer"
-            >
-                {isLoading ? (
-                    <InfinityLoader
-                        size="55"
-                        stroke="4"
-                        strokeLength="0.15"
-                        bgOpacity="0.1"
-                        speed="1.3"
-                        color="black"
-                    />
-                ) : (
-                    <span className="text-blue-500 text-sm">Seleccionar</span>
-                )}
-            </div>
+            {/* 👇 Mostrar el cuadro “Seleccionar” solo si:
+        - multiple=true (galería) → siempre
+        - multiple=false (perfil) → solo si no hay foto */}
+            {(multiple || value.length === 0) && (
+                <div
+                    onClick={() => !isLoading && inputRef.current.click()}
+                    className="w-24 h-24 border-2 border-dashed rounded flex items-center justify-center cursor-pointer"
+                >
+                    {isLoading ? (
+                        <InfinityLoader
+                            size="55"
+                            stroke="4"
+                            strokeLength="0.15"
+                            bgOpacity="0.1"
+                            speed="1.3"
+                            color="black"
+                        />
+                    ) : (
+                        <span className="text-blue-500 text-sm">Seleccionar</span>
+                    )}
+                </div>
+            )}
 
             <input
                 ref={inputRef}
@@ -104,4 +112,5 @@ export default function FileInput({
             />
         </div>
     );
+
 }

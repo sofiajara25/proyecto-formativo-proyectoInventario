@@ -16,6 +16,7 @@ export default function LoansRegisterForm() {
         loanDate: "",
         loanReturnDate: "",
         loanDescription: "",
+        loanState: "",
         photo: [],
     });
 
@@ -28,6 +29,11 @@ export default function LoansRegisterForm() {
         { value: "consumible", label: "Consumible" },
     ];
 
+    const estados = [
+        { value: "Activo", label: "Activo" },
+        { value: "Inactivo", label: "Inactivo" },
+    ];
+
     useEffect(() => {
         getLoanById(loan_id)
             .then((data) =>
@@ -38,6 +44,7 @@ export default function LoansRegisterForm() {
                     loanDate: data.loan_date?.slice(0, 10) || "",
                     loanReturnDate: data.return_date?.slice(0, 10) || "",
                     loanDescription: data.description,
+                    loanState: data.state,
                     photo: [],
                 })
             )
@@ -150,9 +157,9 @@ export default function LoansRegisterForm() {
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label="Usuario"
+                                    label="Documento del usuario"
                                     name="loanUser"
-                                    placeholder="Ingrese el usuario"
+                                    placeholder="Ingrese el número de documento"
                                     type="text"
                                     value={formData.loanUser}
                                     onChange={handleChange}
@@ -202,6 +209,17 @@ export default function LoansRegisterForm() {
                                     value={formData.loanReturnDate}
                                     onChange={handleChange}
                                     error={errors.loanReturnDate}
+                                />
+                            </div>
+
+                            <div className="w-full [&>div]:w-full [&>div>select]:w-full">
+                                <Select
+                                    label="Estado"
+                                    name="loanState"
+                                    options={estados}
+                                    value={formData.loanState}
+                                    onChange={handleChange}
+                                    error={errors.loanState}
                                 />
                             </div>
 

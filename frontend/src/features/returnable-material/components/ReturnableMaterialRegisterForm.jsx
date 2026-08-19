@@ -13,6 +13,7 @@ export default function ReturnableMaterialRegisterForm() {
   const [formData, setFormData] = useState({
     materialToolId: "",
     materialSenaPlate: "",
+    materialCategory: "",
     materialSerial: "",
     materialName: "",
     materialModel: "",
@@ -32,6 +33,13 @@ export default function ReturnableMaterialRegisterForm() {
   const [errors, setErrors] = useState({});
 
   const [brands, setBrands] = useState([]);
+
+  const categorias = [
+    { value: "", label: "Seleccione una opcion" },
+    { value: "herramienta", label: "Herramienta" },
+    { value: "equipo", label: "Equipo" },
+    { value: "muebles", label: "Muebles y enseres" },
+  ];
 
   useEffect(() => {
     fetch("http://localhost:5000/api/brands")
@@ -69,9 +77,6 @@ export default function ReturnableMaterialRegisterForm() {
     });
   };
 
-
-
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
@@ -108,11 +113,7 @@ export default function ReturnableMaterialRegisterForm() {
     }
   };
 
-
-  // =======================================================
-
   let label;
-  // 😂 lógica fuera del JSX
   if (isSubmitting) {
     label = "Creando...";
   } else {
@@ -130,8 +131,7 @@ export default function ReturnableMaterialRegisterForm() {
     >
       <Navbar />
 
-      <div className="flex flex-col flex-1 px-10 py-2 gap-2 justify-center">
-        {/* Título */}
+      <div className="flex flex-col flex-1 px-10 py-0 gap-0 justify-center">
         <h1
           className="lg:pl-[70px]"
           style={{
@@ -139,118 +139,59 @@ export default function ReturnableMaterialRegisterForm() {
             fontSize: "var(--fs-md)",
             fontWeight: "var(--font-weight-bold)",
             margin: 0,
-
           }}
         >
           Crear Material Devolutivo
         </h1>
 
-        {/* Card */}
         <div
-          className="bg-white rounded-2xl flex flex-col gap-2 lg:w-6xl mx-auto"
-          style={{ padding: "12px" }}
+          className="bg-white rounded-2xl flex flex-col gap-0 lg:w-6xl mx-auto"
+          style={{ padding: "6px" }}
         >
-
           <form
             onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
-            className="flex flex-col gap-2 lg:mx-5 md:mx-2"
+            className="flex flex-col gap-1 lg:mx-5 md:mx-2"
           >
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-2">
-              {/* Fila 1 */}
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-1">
+
+              {/* Fila 1 — Identificadores del bien */}
               <Input
-                label="ID Herramienta"
+                label={<span>ID Herramienta <span style={{ color: "red" }}>*</span></span>}
                 name="materialToolId"
                 value={formData.materialToolId}
                 onChange={handleChange}
                 error={errors.materialToolId}
               />
               <Input
-                label="Placa SENA"
+                label={<span>Placa SENA <span style={{ color: "red" }}>*</span></span>}
                 name="materialSenaPlate"
                 value={formData.materialSenaPlate}
                 onChange={handleChange}
                 error={errors.materialSenaPlate}
               />
+              <Select
+                label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
+                name="materialCategory"
+                options={categorias}
+                value={formData.materialCategory}
+                onChange={handleChange}
+                error={errors.materialCategory}
+              />
               <Input
-                label="Serial"
+                label="Serial Number (SN)"
                 name="materialSerial"
                 value={formData.materialSerial}
                 onChange={handleChange}
                 error={errors.materialSerial}
               />
 
-              {/* Fila 2 */}
+              {/* Fila 2 — Datos del producto */}
               <Input
-                label="Nombre del Material"
+                label={<span>Nombre del Material <span style={{ color: "red" }}>*</span></span>}
                 name="materialName"
                 value={formData.materialName}
                 onChange={handleChange}
                 error={errors.materialName}
-              />
-              <Input
-                label="Modelo"
-                name="materialModel"
-                value={formData.materialModel}
-                onChange={handleChange}
-                error={errors.materialModel}
-              />
-              <Input
-                label="Valor Unitario"
-                name="materialUnitValue"
-                type="number"
-                value={formData.materialUnitValue}
-                onChange={handleChange}
-                error={errors.materialUnitValue}
-              />
-
-              {/* Fila 3 */}
-              <Input
-                label="Cuentadante"
-                name="materialCustodian"
-                value={formData.materialCustodian}
-                onChange={handleChange}
-                error={errors.materialCustodian}
-              />
-              <Input
-                label="Cantidad"
-                name="materialQuantity"
-                type="number"
-                value={formData.materialQuantity}
-                onChange={handleChange}
-                error={errors.materialQuantity}
-              />
-              <Select
-                label="Estado"
-                name="materialStatus"
-                options={estados}
-                value={formData.materialStatus}
-                onChange={handleChange}
-                error={errors.materialStatus}
-              />
-
-              {/* Fila 4 */}
-              <Input
-                label="Valor Total"
-                name="materialTotalValue"
-                type="number"
-                value={formData.materialTotalValue}
-                onChange={handleChange}
-                error={errors.materialTotalValue}
-              />
-              <Input
-                label="Dimensiones"
-                name="materialDimensions"
-                value={formData.materialDimensions}
-                onChange={handleChange}
-                error={errors.materialDimensions}
-              />
-              <TextArea
-                label="Descripción"
-                name="materialDescription"
-                value={formData.materialDescription}
-                onChange={handleChange}
-                error={errors.materialDescription}
-                rows={1}
               />
               <Select
                 label="Marca"
@@ -261,48 +202,112 @@ export default function ReturnableMaterialRegisterForm() {
                 error={errors.brandId}
               />
               <Input
+                label="Modelo"
+                name="materialModel"
+                value={formData.materialModel}
+                onChange={handleChange}
+                error={errors.materialModel}
+              />
+
+              {/* Fila 3 — Cantidades y valores */}
+              <Input
+                label={<span>Cantidad <span style={{ color: "red" }}>*</span></span>}
+                name="materialQuantity"
+                type="number"
+                value={formData.materialQuantity}
+                onChange={handleChange}
+                error={errors.materialQuantity}
+              />
+              <Input
+                label={<span>Valor Unitario <span style={{ color: "red" }}>*</span></span>}
+                name="materialUnitValue"
+                type="number"
+                value={formData.materialUnitValue}
+                onChange={handleChange}
+                error={errors.materialUnitValue}
+              />
+              <Input
+                label={<span>Valor Total <span style={{ color: "red" }}>*</span></span>}
+                name="materialTotalValue"
+                type="number"
+                value={formData.materialTotalValue}
+                onChange={handleChange}
+                error={errors.materialTotalValue}
+              />
+
+              {/* Fila 4 — Gestión / asignación */}
+              <Input
+                label={<span>Cuentadante <span style={{ color: "red" }}>*</span></span>}
+                name="materialCustodian"
+                value={formData.materialCustodian}
+                onChange={handleChange}
+                error={errors.materialCustodian}
+              />
+              <Input
                 label="Ubicación"
                 name="materialLocation"
                 value={formData.materialLocation}
                 onChange={handleChange}
                 error={errors.materialLocation}
               />
+              <Select
+                label={<span>Estado <span style={{ color: "red" }}>*</span></span>}
+                name="materialStatus"
+                options={estados}
+                value={formData.materialStatus}
+                onChange={handleChange}
+                error={errors.materialStatus}
+              />
 
-              {/* Fila 5 */}
-              <div>
-                <h4>Ficha Técnica</h4>
-                <FileInput
-                  value={formData.materialTechnicalSheet}
-                  onChange={(files) =>
-                    setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
-                  }
-                  multiple={false}   // 👈 solo un archivo
-                />
-                {errors.materialTechnicalSheet && (
-                  <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
-                )}
-              </div>
+              {/* Fila 5 — Detalles */}
+              <Input
+                label="Dimensiones"
+                name="materialDimensions"
+                value={formData.materialDimensions}
+                onChange={handleChange}
+                error={errors.materialDimensions}
+              />
+              <TextArea
+                label={<span>Descripción <span style={{ color: "red" }}>*</span></span>}
+                name="materialDescription"
+                value={formData.materialDescription}
+                onChange={handleChange}
+                error={errors.materialDescription}
+                rows={1}
+              />
+              <div className=" flex flex-row gap-8">
+                {/* Fila 6 — Archivos */}
+                <div>
+                  <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
+                  <FileInput
+                    value={formData.materialTechnicalSheet}
+                    onChange={(files) =>
+                      setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                    }
+                    multiple={true}
+                  />
+                  {errors.materialTechnicalSheet && (
+                    <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                  )}
+                </div>
 
-              {/* Contenedor del input */}
-              <div>
-                <h4>
-                  Foto
-                </h4>
-                <FileInput
-                  value={formData.photo}
-                  onChange={(files) =>
-                    setFormData((prev) => ({ ...prev, photo: files }))
-                  }
-                  multiple={true}
-                />
-                {errors.photo && (
-                  <span className="text-red-500 text-sm">{errors.photo}</span>
-                )}
+                <div>
+                  <span>Foto <span style={{ color: "red" }}>*</span></span>
+                  <FileInput
+                    value={formData.photo}
+                    onChange={(files) =>
+                      setFormData((prev) => ({ ...prev, photo: files }))
+                    }
+                    multiple={true}
+                  />
+                  {errors.photo && (
+                    <span className="text-red-500 text-sm">{errors.photo}</span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Acciones */}
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-3 pt-1">
               <Button
                 type="button"
                 variant="secondary"
@@ -313,10 +318,10 @@ export default function ReturnableMaterialRegisterForm() {
               </Button>
               <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
                 {label}
-                {/* {isSubmitting ? "Guardando..." : "Guardar"} */}
               </Button>
             </div>
           </form>
+
           <Modal
             isOpen={isModalOpen}
             title="Confirmar creación de material devolutivo"
@@ -327,7 +332,6 @@ export default function ReturnableMaterialRegisterForm() {
           >
             <p>¿Seguro que deseas crear este material devolutivo?</p>
           </Modal>
-
         </div>
       </div>
     </div>

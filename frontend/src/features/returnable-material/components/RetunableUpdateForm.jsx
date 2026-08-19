@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout } from "@/shared";
-import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
+import { updateReturnableSchema } from "../schemas/updateReturnableSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getReturnableById, updateReturnable } from "../services/returnableMaterialService";
 import { useEffect } from "react";
@@ -14,6 +14,7 @@ export default function ReturnableMaterialRegisterForm() {
   const [formData, setFormData] = useState({
     materialToolId: "",
     materialSenaPlate: "",
+    materialCategory: "",
     materialSerial: "",
     materialName: "",
     materialModel: "",
@@ -33,6 +34,13 @@ export default function ReturnableMaterialRegisterForm() {
   const [errors, setErrors] = useState({});
 
   const [brands, setBrands] = useState([]);
+
+  const categorias = [
+    { value: "", label: "Seleccione una opcion" },
+    { value: "herramienta", label: "Herramienta" },
+    { value: "equipo", label: "Equipo" },
+    { value: "consumible", label: "Consumible" },
+  ];
 
   useEffect(() => {
     fetch("http://localhost:5000/api/brands")
@@ -57,6 +65,7 @@ export default function ReturnableMaterialRegisterForm() {
       .then((data) => setFormData({
         materialToolId: data.tool_id,
         materialSenaPlate: data.sena_plate,
+        materialCategory: data.category,
         materialSerial: data.serial,
         materialName: data.material_name,
         materialModel: data.model,
@@ -108,7 +117,7 @@ export default function ReturnableMaterialRegisterForm() {
       materialTotalValue: Number(formData.materialTotalValue),
     };
 
-    const result = returnablematerialSchema.safeParse(parsedData);
+    const result = updateReturnable.safeParse(parsedData);
     if (!result.success) {
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
@@ -121,7 +130,7 @@ export default function ReturnableMaterialRegisterForm() {
 
     setErrors({});
     try {
-      const response = await updateReturnable(id, result.data);
+      const response = await updateReturnableSchema(id, result.data);
       console.log("Material actualizado:", response);
       navigate(-1);
     } catch (error) {
@@ -193,8 +202,16 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialSenaPlate}
               />
+              <Select
+                label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
+                name="materialCategory"
+                options={categorias}
+                value={formData.materialCategory}
+                onChange={handleChange}
+                error={errors.materialCategory}
+              />
               <Input
-                label="Serial"
+                label="Serial Number (SN)"
                 name="materialSerial"
                 value={formData.materialSerial}
                 onChange={handleChange}
@@ -289,37 +306,38 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialLocation}
               />
+              <div className="flex flex-row gap-8">
+                {/* Fila 5 */}
+                <div>
+                  <h4>Ficha Técnica</h4>
+                  <FileInput
+                    value={formData.materialTechnicalSheet}
+                    onChange={(files) =>
+                      setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                    }
+                    multiple={false}   // 👈 solo un archivo
+                  />
+                  {errors.materialTechnicalSheet && (
+                    <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                  )}
+                </div>
 
-              {/* Fila 5 */}
-              <div>
-                <h4>Ficha Técnica</h4>
-                <FileInput
-                  value={formData.materialTechnicalSheet}
-                  onChange={(files) =>
-                    setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
-                  }
-                  multiple={false}   // 👈 solo un archivo
-                />
-                {errors.materialTechnicalSheet && (
-                  <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
-                )}
-              </div>
-
-              {/* Contenedor del input */}
-              <div>
-                <h4>
-                  Foto
-                </h4>
-                <FileInput
-                  value={formData.photo}
-                  onChange={(files) =>
-                    setFormData((prev) => ({ ...prev, photo: files }))
-                  }
-                  multiple={true}
-                />
-                {errors.photo && (
-                  <span className="text-red-500 text-sm">{errors.photo}</span>
-                )}
+                {/* Contenedor del input */}
+                <div>
+                  <h4>
+                    Foto
+                  </h4>
+                  <FileInput
+                    value={formData.photo}
+                    onChange={(files) =>
+                      setFormData((prev) => ({ ...prev, photo: files }))
+                    }
+                    multiple={true}
+                  />
+                  {errors.photo && (
+                    <span className="text-red-500 text-sm">{errors.photo}</span>
+                  )}
+                </div>
               </div>
             </div>
 

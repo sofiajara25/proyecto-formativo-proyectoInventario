@@ -11,10 +11,19 @@ export const returnablematerialSchema = z.object({
     .string()
     .min(1, "La placa SENA es requerida"),
 
+  materialCategory: z
+    .string()
+    .min(1, "La categoría es obligatoria"),
+
   materialSerial: z
     .string()
-    .min(3, "El serial debe tener mínimo 3 caracteres")
-    .max(50, "El serial es demasiado largo"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 3 && val.length <= 50),
+      {
+        message: "El serial debe tener entre 3 y 50 caracteres",
+      }
+    ),
 
   materialName: z
     .string()
@@ -23,8 +32,13 @@ export const returnablematerialSchema = z.object({
 
   materialModel: z
     .string()
-    .min(2, "El modelo debe tener mínimo 2 caracteres")
-    .max(50, "El modelo es demasiado largo"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 2 && val.length <= 50),
+      {
+        message: "El modelo debe tener entre 2 y 50 caracteres",
+      }
+    ),
 
   materialUnitValue: z
     .number({
@@ -55,8 +69,13 @@ export const returnablematerialSchema = z.object({
 
   materialDimensions: z
     .string()
-    .min(2, "Las dimensiones deben tener mínimo 2 caracteres")
-    .max(50, "Las dimensiones son demasiado largas"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 2 && val.length <= 50),
+      {
+        message: "Las dimensiones deben tener entre 2 y 50 caracteres",
+      }
+    ),
 
   materialDescription: z
     .string()
@@ -64,15 +83,19 @@ export const returnablematerialSchema = z.object({
     .max(200, "La descripción es demasiado larga"),
 
   materialTechnicalSheet: fileSchema.shape.files
-    .or(z.array(z.instanceof(File)).max(1)) // 👈 solo un archivo
-    .optional(),
+    .or(z.array(z.instanceof(File)).max(0)),
 
   materialLocation: z
     .string()
-    .min(3, "La ubicación debe tener mínimo 3 caracteres")
-    .max(100, "La ubicación es demasiado larga"),
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 3 && val.length <= 100),
+      {
+        message: "La ubicación debe tener entre 3 y 100 caracteres",
+      }
+    ),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional(),
+  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)),
 
   brandId: z
     .number({ invalid_type_error: "La marca es requerida" }).optional()

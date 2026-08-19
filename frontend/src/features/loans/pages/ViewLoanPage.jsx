@@ -65,7 +65,10 @@ export default function ViewLoanPage() {
 
                     {/* Detalles */}
                     <div className="grid grid-cols-2 gap-4">
+                        <p><strong>Tipo de Material:</strong> {loan.material_type}</p>
                         <p><strong>Usuario:</strong> {loan.loan_user}</p>
+                        <p><strong>Identificación del Usuario:</strong> {loan.user_identification}</p>
+                        <p><strong>Grupo de Aprendices:</strong> {loan.apprentice_group}</p>
                         <p><strong>Categoria:</strong> {loan.category}</p>
                         <p><strong>Material:</strong> {loan.product_name}</p>
                         <p><strong>Fecha préstamo:</strong> {formatDate(loan.loan_date)}</p>
@@ -73,6 +76,7 @@ export default function ViewLoanPage() {
                         {loan.description && (
                             <p className="col-span-2"><strong>Descripción:</strong> {loan.description}</p>
                         )}
+                        <p><strong>Tipo de Prestamo:</strong> {loan.loan_type}</p>
                     </div>
 
                     {/* Divider */}

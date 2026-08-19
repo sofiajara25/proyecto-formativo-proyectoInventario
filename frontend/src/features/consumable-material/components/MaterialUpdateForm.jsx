@@ -23,6 +23,7 @@ export default function MaterialRegisterForm() {
         materialStatus: "",
         materialDescription: "",
         brandId: "",
+        materialTechnicalSheet: [],
         photo: [],
     });
 
@@ -56,6 +57,7 @@ export default function MaterialRegisterForm() {
                     materialStatus: data.status,
                     materialDescription: data.description,
                     brandId: data.brand_id,
+                    materialTechnicalSheet: [],
                     photo: [],
                 })
             )
@@ -287,18 +289,38 @@ export default function MaterialRegisterForm() {
                                     error={errors.brandId}
                                 />
                             </div>
-                            <div>
-                                <h4 className="text-xs mb-1">Foto</h4>
-                                <FileInput
-                                    value={formData.photo}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({ ...prev, photo: files }))
-                                    }
-                                    multiple={true}
-                                />
-                                {errors.photo && (
-                                    <span className="text-red-500 text-sm">{errors.photo}</span>
-                                )}
+                            <div className="flex flex-row gap-8">
+                                {/* Fila 5 */}
+                                <div>
+                                    <h4>Ficha Técnica</h4>
+                                    <FileInput
+                                        value={formData.materialTechnicalSheet}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                                        }
+                                        multiple={false}   // 👈 solo un archivo
+                                    />
+                                    {errors.materialTechnicalSheet && (
+                                        <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                                    )}
+                                </div>
+
+                                {/* Contenedor del input */}
+                                <div>
+                                    <h4>
+                                        Foto
+                                    </h4>
+                                    <FileInput
+                                        value={formData.photo}
+                                        onChange={(files) =>
+                                            setFormData((prev) => ({ ...prev, photo: files }))
+                                        }
+                                        multiple={true}
+                                    />
+                                    {errors.photo && (
+                                        <span className="text-red-500 text-sm">{errors.photo}</span>
+                                    )}
+                                </div>
                             </div>
 
                         </div>

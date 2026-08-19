@@ -1,10 +1,13 @@
 const API_URL = "http://localhost:5000/api/returnableMaterial";
+// import { getToken } from "@/shared/utils/tokenStorage";
+
 
 function buildReturnableFormData(returnableMaterialData) {
     const formData = new FormData();
 
     formData.append("materialToolId", returnableMaterialData.materialToolId);
     formData.append("materialSenaPlate", returnableMaterialData.materialSenaPlate);
+    formData.append("materialCategory", returnableMaterialData.materialCategory);
     formData.append("materialSerial", returnableMaterialData.materialSerial);
     formData.append("materialName", returnableMaterialData.materialName);
     formData.append("materialModel", returnableMaterialData.materialModel);
@@ -31,9 +34,24 @@ function buildReturnableFormData(returnableMaterialData) {
 }
 
 export async function createReturnableMaterial(returnableMaterialData) {
+    // Realizamos la petición HTTP usando fetch
+    const token = sessionStorage.getItem("token");
+
     const response = await fetch(API_URL, {
+        // Método HTTP según convención REST
         method: "POST",
-        body: buildReturnableFormData(returnableMaterialData),
+
+
+        // Cabeceras de la petición
+        // Indicamos que enviamos JSON
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+
+
+        // Convertimos el objeto userData a JSON
+        body: JSON.stringify(returnableMaterialData),
     });
 
     if (!response.ok) {

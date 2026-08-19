@@ -25,10 +25,14 @@ export const consumableMaterialController = {
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
       const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+      const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
+        ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
+        : null;
       // pasamos todos los datos al service
       const consumable = await consumableMaterialService.createConsumableMaterial({
         ...req.body,
         photo: photoPath,
+        materialTechnicalSheet: technicalSheetPath,
       });
 
       // Respuesta HTTP en caso de éxito
@@ -85,10 +89,14 @@ export const consumableMaterialController = {
       const { id } = req.params;
       // ruta de la nueva foto si se subió
       const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+      const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
+        ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
+        : null;
 
       const updatedConsumable = await consumableMaterialService.updateConsumable(id, {
         ...req.body,
         photo: photoPath,
+        materialTechnicalSheet: technicalSheetPath,
       });
 
       if (!updatedConsumable) return res.status(404).json({ error: "Material de consumo no encontrado" });
