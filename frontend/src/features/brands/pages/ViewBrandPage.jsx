@@ -45,7 +45,7 @@ export default function ViewBrandPage() {
             <div className="flex flex-1 items-center justify-center px-10 py-8">
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6"
-                    style={{ padding: "36px 40px", width: "100%", maxWidth: "680px" }}
+                    style={{ padding: "36px 40px", width: "100%", maxWidth: "350px" }}
                 >
                     {/* Header */}
                     <div className="flex items-center gap-6">

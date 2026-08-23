@@ -5,6 +5,16 @@
 // En producción debería provenir de variables de entorno
 const API_URL = "http://localhost:5000/api/users";
 
+// El formulario de creación guarda userPhoto como un File suelto (o null),
+// mientras que el de edición lo guarda como arreglo (File nuevo, string con
+// la ruta ya existente, o vacío). Esta función normaliza ambos casos y solo
+// devuelve un File real para subir; si no hay uno nuevo, devuelve null.
+function resolvePhotoFile(userPhoto) {
+    if (userPhoto instanceof File) return userPhoto;
+    if (Array.isArray(userPhoto) && userPhoto[0] instanceof File) return userPhoto[0];
+    return null;
+}
+
 
 // Función para crear un usuario en el backend
 // Recibe un objeto con los datos del usuario
@@ -27,9 +37,10 @@ export async function createUser(userData) {
     formData.append("userStatus", userData.userStatus);
     formData.append("userPassword", userData.userPassword);
 
-    // archivos
-    if (userData.userPhoto) {
-        formData.append("userPhoto", userData.userPhoto);
+    // archivos. El backend solo acepta un archivo (upload.single).
+    const newPhoto = resolvePhotoFile(userData.userPhoto);
+    if (newPhoto) {
+        formData.append("userPhoto", newPhoto);
     }
 
 
@@ -89,8 +100,11 @@ export async function updateUser(id, userData) {
         formData.append("userPassword", userData.userPassword);
     }
 
-    if (userData.userPhoto) {
-        formData.append("userPhoto", userData.userPhoto);
+    // Si sigue siendo el string original (no se tocó el campo), no se
+    // reenvía nada y el backend conserva la foto actual.
+    const newPhoto = resolvePhotoFile(userData.userPhoto);
+    if (newPhoto) {
+        formData.append("userPhoto", newPhoto);
     }
 
 

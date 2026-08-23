@@ -1,5 +1,5 @@
     import { useNavigate, useParams } from "react-router-dom";
-    import { Navbar, Button, formatDate } from "@/shared";
+    import { Navbar, Button, formatDate, PhotoViewer } from "@/shared";
     import { User } from "lucide-react";
     import { useState, useEffect } from "react";
     import { getUserById } from "../services/userService";
@@ -56,24 +56,12 @@
             >
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                <div
-                className="flex items-center justify-center rounded-full shrink-0"
-                style={{
-                    width: "70px",
-                    height: "70px",
-                    background: "var(--color-primary-950)",
-                }}
-                >
-                {user.photo_url ? (
-                    <img
-                    src={`http://localhost:5000/${user.photo_url}`}
-                    alt="Foto del usuario"
-                    className="rounded-full w-full h-full object-cover"
-                    />
-                ) : (
-                    <User size={36} color="white" />
-                )}
-                </div>
+                <PhotoViewer
+                photos={user.photo_url ? [user.photo_url] : []}
+                fallbackIcon={<User size={36} color="white" />}
+                size={70}
+                alt="Foto del usuario"
+                />
 
                 <div className="flex flex-col gap-1 text-center sm:text-left">
                 <p

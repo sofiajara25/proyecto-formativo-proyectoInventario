@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button } from "@/shared";
+import { Navbar, Button, PhotoViewer, FileViewer } from "@/shared";
 import { Package } from "lucide-react"; // ícono para materiales devolutivos
 // import { returnables } from "../data/returnables";
 import { getReturnableById } from "../services/returnableMaterialService"
@@ -56,25 +56,12 @@ export default function ViewReturMaterialPage() {
                 >
                     {/* Header */}
                     <div className="flex items-center gap-6">
-                        <div
-                            className="flex items-center justify-center rounded-full"
-                            style={{
-                                width: "80px",
-                                height: "80px",
-                                background: "var(--color-primary-950)",
-                                flexShrink: 0,
-                            }}
-                        >
-                            {retornable.photo_url ? (
-                                <img
-                                    src={`http://localhost:5000/${retornable.photo_url}`}
-                                    alt="Foto del material de consumo"
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                            ) : (
-                                <Package size={40} color="white" />
-                            )}
-                        </div>
+                        <PhotoViewer
+                            photos={Array.isArray(retornable.photos) ? retornable.photos : (retornable.photo_url ? [retornable.photo_url] : [])}
+                            fallbackIcon={<Package size={40} color="white" />}
+                            size={80}
+                            alt="Foto del material devolutivo"
+                        />
 
                         <div className="flex flex-col gap-1">
                             <p
@@ -118,30 +105,26 @@ export default function ViewReturMaterialPage() {
                         <p><strong>Placa SENA:</strong> {retornable.sena_plate}</p>
                         <p><strong>Categoria:</strong> {retornable.category}</p>
 
-                        <p><strong>Serial:</strong> {retornable.serial}</p>
-                        <p><strong>Modelo:</strong> {retornable.model}</p>
+                        <p><strong>Serial:</strong> {retornable.serial || "—"}</p>
+                        <p><strong>Modelo:</strong> {retornable.model || "—"}</p>
                         <p><strong>Valor unitario:</strong> ${retornable.unit_value}</p>
                         <p><strong>Cantidad:</strong> {retornable.quantity}</p>
                         <p><strong>Valor total:</strong> ${retornable.total_value}</p>
-                        <p><strong>Dimenciones:</strong> {retornable.dimensions}</p>
-                        <p><strong>Marca:</strong> {retornable.brand_name}</p>
+                        <p><strong>Dimenciones:</strong> {retornable.dimensions || "—"}</p>
+                        <p><strong>Marca:</strong> {retornable.brand_name || "—"}</p>
                         <p><strong>Descripción:</strong> {retornable.description}</p>
-                        <p>
-                            <strong>Ficha Tecnica:</strong>{" "}
-                            {retornable.technical_sheet ? (
-                                <a
-                                    href={`http://localhost:5000/${retornable.technical_sheet}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-blue-600 underline"
-                                >
-                                    Ver archivo
-                                </a>
-                            ) : (
-                                "Sin archivo"
-                            )}
-                        </p>
-                        <p><strong>Ubicación:</strong> {retornable.location}</p>
+                        <p><strong>Nombre del inventario:</strong> {retornable.inventory_name || "—"}</p>
+                        <p><strong>Ubicación:</strong> {retornable.location || "—"}</p>
+                    </div>
+
+                    {/* Ficha técnica: miniatura clicable que abre el archivo en grande */}
+                    <div>
+                        <p className="mb-2"><strong>Ficha Tecnica:</strong></p>
+                        {retornable.technical_sheet ? (
+                            <FileViewer file={retornable.technical_sheet} label="Ficha técnica" />
+                        ) : (
+                            <p className="text-sm text-gray-500">Sin archivo</p>
+                        )}
                     </div>
 
 

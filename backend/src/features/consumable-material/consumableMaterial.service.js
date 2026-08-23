@@ -29,6 +29,13 @@ export const consumableMaterialService = {
         return await consumableMaterialRepository.create(materialData);
     },
 
+    // Vista previa del tool_id que se asignará al próximo material creado.
+    // Debe usar el mismo formato que consumableMaterial.repository.create().
+    async previewNextToolId() {
+        const nextId = await consumableMaterialRepository.getNextId();
+        return `CON-${String(nextId).padStart(4, "0")}`;
+    },
+
     async getAllConsumables() {
         return await consumableMaterialRepository.findAll();
     },

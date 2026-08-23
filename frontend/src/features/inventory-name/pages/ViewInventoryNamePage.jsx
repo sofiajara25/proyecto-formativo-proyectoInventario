@@ -6,14 +6,14 @@ import { getInventoryNameById } from "../services/inventoryNameService";
 
 export default function ViewBrandPage() {
     const navigate = useNavigate();
-    const { inventoryName_id } = useParams();
+    const { id } = useParams();
     const [inventoryName, setInventoryName] = useState(null);
 
     useEffect(() => {
-        getInventoryNameById(inventoryName_id)
+        getInventoryNameById(id)
             .then(setInventoryName)
             .catch((err) => console.error("Error cargando nombre de inventario:", err));
-    }, [inventoryName_id]);
+    }, [id]);
 
     if (!inventoryName) {
         return (
@@ -45,7 +45,7 @@ export default function ViewBrandPage() {
             <div className="flex flex-1 items-center justify-center px-10 py-8">
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6"
-                    style={{ padding: "36px 40px", width: "100%", maxWidth: "680px" }}
+                    style={{ padding: "36px 40px", width: "100%", maxWidth: "400px" }}
                 >
                     {/* Header */}
                     <div className="flex items-center gap-6">

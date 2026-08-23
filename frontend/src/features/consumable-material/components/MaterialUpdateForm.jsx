@@ -17,6 +17,7 @@ export default function MaterialRegisterForm() {
         materialName: "",
         materialEntryDate: "",
         materialQuantity: "",
+        inventoryNameId: "",
         materialLocation: "",
         materialUnitValue: "",
         materialTotalValue: "",
@@ -31,6 +32,8 @@ export default function MaterialRegisterForm() {
 
     const [brands, setBrands] = useState([]);
 
+    const [inventoryNames, setInventoryNames] = useState([]);
+
     useEffect(() => {
         fetch("http://localhost:5000/api/brands")
             .then(res => res.json())
@@ -39,6 +42,16 @@ export default function MaterialRegisterForm() {
                 setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
             })
             .catch(err => console.error("Error cargando marcas:", err));
+    }, []);
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/inventory-names")
+            .then(res => res.json())
+            .then(data => {
+                const options = data.map(n => ({ value: n.inventory_name_id, label: n.inventory_name }));
+                setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
+            })
+            .catch(err => console.error("Error cargando nombre de inventarios:", err));
     }, []);
 
     useEffect(() => {
@@ -51,14 +64,27 @@ export default function MaterialRegisterForm() {
                     materialName: data.material_name,
                     materialEntryDate: data.entry_date?.slice(0, 10) || "",
                     materialQuantity: data.quantity,
+                    // Si no hay marca / nombre de inventario asignado, el
+                    // backend devuelve null. El <select> de React no acepta
+                    // "value={null}" (advertencia en consola), así que
+                    // caemos a "" para que se vea la opción "Selecciona...".
+                    inventoryNameId: data.inventory_name_id ?? "",
                     materialLocation: data.location,
                     materialUnitValue: data.unit_value,
                     materialTotalValue: data.total_value,
                     materialStatus: data.status,
                     materialDescription: data.description,
-                    brandId: data.brand_id,
-                    materialTechnicalSheet: [],
-                    photo: [],
+                    brandId: data.brand_id ?? "",
+                    // Precargamos el archivo/foto ya guardados para que se
+                    // vean en el formulario y el usuario sepa qué va a
+                    // reemplazar. Si no toca el campo, se conservan tal cual.
+                    materialTechnicalSheet: data.technical_sheet ? [data.technical_sheet] : [],
+                    // El backend devuelve "photos" con TODAS las fotos
+                    // (portada + galería). Si por algún motivo no viene,
+                    // caemos a mostrar solo la portada.
+                    photo: Array.isArray(data.photos)
+                        ? data.photos
+                        : (data.photo_url ? [data.photo_url] : []),
                 })
             )
             .catch((err) => console.error("Error cargando material:", err));
@@ -90,7 +116,9 @@ export default function MaterialRegisterForm() {
 
         const parsedData = {
             ...formData,
-            brandId: Number(formData.brandId),
+            // Si no hay marca seleccionada, null (no 0): brandId=0 no existe
+            // en la tabla brands y rompe la llave foránea.
+            brandId: formData.brandId ? Number(formData.brandId) : null,
             materialQuantity: Number(formData.materialQuantity),
             materialUnitValue: Number(formData.materialUnitValue),
             materialTotalValue: Number(formData.materialTotalValue),
@@ -228,6 +256,17 @@ export default function MaterialRegisterForm() {
                             </div>
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Select
+                                    label="Nombre de inventario"
+                                    name="inventoryNameId"
+                                    options={inventoryNames}
+                                    value={formData.inventoryNameId}
+                                    onChange={handleChange}
+                                    error={errors.inventoryNameId}
+                                />
+                            </div>
+
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
                                     label="Ubicación"
                                     name="materialLocation"
@@ -289,37 +328,39 @@ export default function MaterialRegisterForm() {
                                     error={errors.brandId}
                                 />
                             </div>
-                            <div className="flex flex-row gap-8">
-                                {/* Fila 5 */}
-                                <div>
-                                    <h4>Ficha Técnica</h4>
-                                    <FileInput
-                                        value={formData.materialTechnicalSheet}
-                                        onChange={(files) =>
-                                            setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
-                                        }
-                                        multiple={false}   // 👈 solo un archivo
-                                    />
-                                    {errors.materialTechnicalSheet && (
-                                        <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
-                                    )}
-                                </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 col-span-full">
+                                    {/* Fila 5 */}
+                                    <div className="min-w-0">
+                                        <h4>Ficha Técnica</h4>
+                                        <FileInput
+                                            value={formData.materialTechnicalSheet}
+                                            onChange={(files) =>
+                                                setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                                            }
+                                            multiple={false}   // 👈 solo un archivo
+                                        />
+                                        {errors.materialTechnicalSheet && (
+                                            <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                                        )}
+                                    </div>
 
-                                {/* Contenedor del input */}
-                                <div>
-                                    <h4>
-                                        Foto
-                                    </h4>
-                                    <FileInput
-                                        value={formData.photo}
-                                        onChange={(files) =>
-                                            setFormData((prev) => ({ ...prev, photo: files }))
-                                        }
-                                        multiple={true}
-                                    />
-                                    {errors.photo && (
-                                        <span className="text-red-500 text-sm">{errors.photo}</span>
-                                    )}
+                                    {/* Contenedor del input */}
+                                    <div className="min-w-0 flex-1">
+                                        <h4>
+                                            Foto
+                                        </h4>
+                                        <FileInput
+                                            value={formData.photo}
+                                            onChange={(files) =>
+                                                setFormData((prev) => ({ ...prev, photo: files }))
+                                            }
+                                            multiple={true}
+                                        />
+                                        {errors.photo && (
+                                            <span className="text-red-500 text-sm">{errors.photo}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

@@ -7,7 +7,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
 
     const [format, setFormat] = useState("pdf");
     const [scope, setScope] = useState("all");
-    const [materialType, setReturnDate] = useState("");
+    const [documentNumber, setDocumentNumber] = useState("");
     const [selectedFields, setSelectedFields] = useState(
         () => returnReportFields.filter((f) => f.default),
     );
@@ -24,7 +24,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
     };
 
     const handleGenerateReport = () => {
-        generateReturnReport({ format, selectedFields, scope, materialType });
+        generateReturnReport({ format, selectedFields, scope, documentNumber });
         onClose();
     };
 
@@ -90,16 +90,16 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                         onChange={(e) => setScope(e.target.value)}
                         options={[
                             { label: "Todos los retornos", value: "all" },
-                            { label: "Filtrar por Tipo de material", value: "materialType" },
+                            { label: "Filtrar por N° de documento", value: "document" },
                         ]}
                     />
 
-                    {scope === "materialType" && (
+                    {scope === "document" && (
                         <Input
-                            label="Tipo de material"
-                            value={materialType}
-                            onChange={(e) => setReturnDate(e.target.value)}
-                            placeholder="Ingrese la Tipo de material"
+                            label="Número de documento"
+                            value={documentNumber}
+                            onChange={(e) => setDocumentNumber(e.target.value)}
+                            placeholder="Ingrese el número de documento del usuario"
                         />
                     )}
                 </div>

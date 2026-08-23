@@ -7,7 +7,7 @@ import { getInventoryNameById, updateInventoryName } from "../services/inventory
 export default function UpdateInventoryNamePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
-    const { inventory_name_id } = useParams();
+    const { id } = useParams();
 
     const [formData, setFormData] = useState({ inventoryName: "" });
     const [errors, setErrors] = useState({});
@@ -15,10 +15,10 @@ export default function UpdateInventoryNamePage() {
 
     // Cargar inventoryName existente
     useEffect(() => {
-        getInventoryNameById(inventory_name_id)
-            .then((brand) => setFormData({ inventoryName: brand.inventoryName }))
+        getInventoryNameById(id)
+            .then((data) => setFormData({ inventoryName: data.inventory_name }))
             .catch((err) => console.error("Error cargando inventoryName:", err));
-    }, [inventory_name_id]);
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -41,7 +41,7 @@ export default function UpdateInventoryNamePage() {
 
         setErrors({});
         try {
-            await updateInventoryName(inventory_name_id, result.data);
+            await updateInventoryName(id, result.data);
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
@@ -57,45 +57,51 @@ export default function UpdateInventoryNamePage() {
             style={{ background: "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))", fontFamily: "var(--main-font)" }}>
             <Navbar />
             <div className="flex flex-col flex-1 px-10 py-8 gap-4 justify-center">
-                <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", marginLeft: "450px" }}>
-                    Actualizar Nombre de Inventario
-                </h1>
-                <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-sm mx-auto shadow justify-center items-center" style={{ padding: "32px 36px" }}>
-                    <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-6 w-full">
-                        <div className="flex flex-col gap-2">
-                            <label className="block text-sm font-medium text-gray-700" htmlFor="inventoryName">
-                                Nombre del Inventario
-                            </label>
-                            <input
-                                inventory_name_id="inventoryName"
-                                name="Nombre de inventario"
-                                type="text"
-                                value={formData.inventoryName}
-                                onChange={handleChange}
-                                className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 ${errors.inventoryName ? "border-red-400" : ""}`}
-                            />
-                            {errors.inventoryName && <p className="text-red-500 text-xs mt-1">{errors.inventoryName}</p>}
-                        </div>
-                        <div className="flex justify-end gap-3 pt-2">
-                            <Button type="button" variant="secondary" size="md" onClick={() => navigate(-1)}>
-                                Cancelar
-                            </Button>
-                            <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? "Guardando..." : "Actualizar"}
-                            </Button>
-                        </div>
-                    </form>
-                    <Modal
-                        isOpen={isModalOpen}
-                        title="Confirmar actualización de nombre de inventario"
-                        onClose={() => setIsModalOpen(false)}
-                        onConfirm={handleSubmit}
-                        confirmText="Actualizar"
-                        cancelText="Cancelar"
-                    >
-                        <p>¿Seguro que deseas actualizar este nombre de inventario?</p>
-                    </Modal>
+                {/* Título y tarjeta comparten el mismo ancho máximo y quedan
+                    centrados juntos, así el título siempre queda a la par
+                    del borde izquierdo de la tarjeta sin importar el
+                    tamaño de pantalla. */}
+                <div className="w-full max-w-md mx-auto flex flex-col gap-4">
+                    <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0 }}>
+                        Actualizar Nombre de Inventario
+                    </h1>
+                    <div className="bg-white rounded-2xl flex flex-col gap-6 w-full shadow justify-center items-center" style={{ padding: "32px 36px" }}>
+                        <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-6 w-full">
+                            <div className="flex flex-col gap-2">
+                                <label className="block text-sm font-medium text-gray-700" htmlFor="inventoryName">
+                                    Nombre del Inventario
+                                </label>
+                                <input
+                                    id="inventoryName"
+                                    name="inventoryName"
+                                    type="text"
+                                    value={formData.inventoryName}
+                                    onChange={handleChange}
+                                    className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 ${errors.inventoryName ? "border-red-400" : ""}`}
+                                />
+                                {errors.inventoryName && <p className="text-red-500 text-xs mt-1">{errors.inventoryName}</p>}
+                            </div>
+                            <div className="flex flex-wrap justify-end gap-3 pt-2">
+                                <Button type="button" variant="secondary" size="md" onClick={() => navigate(-1)}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+                                    {isSubmitting ? "Guardando..." : "Actualizar"}
+                                </Button>
+                            </div>
+                        </form>
+                        <Modal
+                            isOpen={isModalOpen}
+                            title="Confirmar actualización de nombre de inventario"
+                            onClose={() => setIsModalOpen(false)}
+                            onConfirm={handleSubmit}
+                            confirmText="Actualizar"
+                            cancelText="Cancelar"
+                        >
+                            <p>¿Seguro que deseas actualizar este nombre de inventario?</p>
+                        </Modal>
 
+                    </div>
                 </div>
             </div>
         </div>

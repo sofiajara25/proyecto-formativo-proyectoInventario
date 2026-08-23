@@ -1,0 +1,1 @@
+ALTER TABLE inventory_names ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Activo';

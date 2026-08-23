@@ -15,6 +15,7 @@ export default function ReturnForm() {
   const [formData, setFormData] = useState({
     materialType: "",
     loanId: "",
+    loanItemId: "",
     returnDate: "",
     returnDescription: "",
     returnQuantity: "",
@@ -27,13 +28,35 @@ export default function ReturnForm() {
 
   const [loans, setLoans] = useState([]);
 
+  // Fecha de hoy en formato YYYY-MM-DD usando la zona horaria local
+  // (evita el corrimiento de un día que da new Date().toISOString()).
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const localToday = `${yyyy}-${mm}-${dd}`;
+
   // Opciones del select definidas afuera
+  // Solo préstamos vigentes (is_active): uno ya devuelto no debería
+  // aparecer aquí de nuevo (el backend además lo rechaza si se intenta).
+  // Un préstamo puede tener varios materiales (ej. "Escritorio" + "Sillas"
+  // en el mismo préstamo); "product_name" en loans solo guarda el primero
+  // como respaldo, así que si el select lo usara solo, el resto de
+  // materiales del mismo préstamo "desaparecerían" de la lista. Usamos el
+  // arreglo "materials" completo para armar la etiqueta.
   const loanOptions = [
     { id: "", label: "Seleccionar una opción" }, // opción inicial
-    ...loans.map(l => ({
-      id: l.loan_id,
-      label: `${l.product_name} - ${l.loan_user}`
-    }))
+    ...loans
+      .filter((l) => l.is_active)
+      .map((l) => {
+        const names = Array.isArray(l.materials) && l.materials.length
+          ? l.materials.map((m) => m.product_name).join(", ")
+          : l.product_name;
+        return {
+          id: l.loan_id,
+          label: `${names} - ${l.loan_user}`,
+        };
+      }),
   ];
 
   const Options = [
@@ -48,6 +71,18 @@ export default function ReturnForm() {
       .catch((err) => console.error("Error cargando préstamos:", err));
   }, []);
 
+  // Materiales del préstamo elegido que todavía NO se han devuelto (un
+  // préstamo con "Escritorio" + "Sillas" ya devuelto solo debe seguir
+  // ofreciendo "Sillas").
+  const selectedLoan = loans.find((l) => String(l.loan_id) === String(formData.loanId));
+  const pendingMaterials = (selectedLoan?.materials || []).filter((m) => !m.returned);
+  const materialOptions = [
+    { id: "", label: "Seleccionar una opción" },
+    ...pendingMaterials.map((m) => ({
+      id: String(m.id),
+      label: `${m.product_name} (cantidad: ${m.quantity})`,
+    })),
+  ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,6 +95,46 @@ export default function ReturnForm() {
           : type === "number"
             ? Number(value)
             : value,
+    }));
+  };
+
+  // El tipo de material de la devolución no es una elección libre: depende
+  // de qué tipo de préstamo es (un préstamo "Devolutivo" solo puede tener
+  // materiales devolutivos prestados, y uno "Consumo" solo consumibles).
+  // Antes era un select aparte que el usuario podía dejar sin relación con
+  // el préstamo elegido.
+  function materialTypeForLoan(loan) {
+    if (loan?.material_type === "Devolutivo") return "devolutivo";
+    if (loan?.material_type === "Consumo") return "consumible";
+    return "";
+  }
+
+  // Al cambiar de préstamo, el material elegido antes ya no aplica (era de
+  // otro préstamo): limpiamos material y cantidad para no dejar una
+  // combinación inconsistente. El tipo de material se recalcula solo, a
+  // partir del préstamo elegido.
+  const handleLoanChange = (e) => {
+    const { value } = e.target;
+    const loan = loans.find((l) => String(l.loan_id) === String(value));
+    setFormData((prev) => ({
+      ...prev,
+      loanId: value,
+      loanItemId: "",
+      returnQuantity: "",
+      materialType: materialTypeForLoan(loan),
+    }));
+  };
+
+  // Al elegir el material, precargamos la cantidad devuelta con la cantidad
+  // que se prestó de ESE material (no se puede editar: la devolución es del
+  // ítem completo, no de una cantidad parcial).
+  const handleMaterialChange = (e) => {
+    const { value } = e.target;
+    const chosen = pendingMaterials.find((m) => String(m.id) === String(value));
+    setFormData((prev) => ({
+      ...prev,
+      loanItemId: value,
+      returnQuantity: chosen?.quantity ?? "",
     }));
   };
 
@@ -118,26 +193,41 @@ export default function ReturnForm() {
         </h2>
 
         <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-8">
-          {/* Tipo de material: campo destacado, separado del resto */}
-          <div className="flex justify-center pb-6 border-b border-gray-200">
-            <Select
+
+          {/* Datos del préstamo */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+             <Select
               label="Tipo de Material"
               name="materialType"
               value={formData.materialType}
               onChange={handleChange}
-              options={Options}
+              options={
+                formData.materialType
+                  ? Options
+                  : [{ id: "", label: "Selecciona un préstamo primero" }]
+              }
               error={errors.materialType}
+              disabled
             />
-          </div>
-
-          {/* Datos del préstamo */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Select
               label="Préstamo"
               name="loanId"
               value={formData.loanId}
-              onChange={handleChange}
+              onChange={handleLoanChange}
               options={loanOptions}
+            />
+
+            <Select
+              label="Material a devolver"
+              name="loanItemId"
+              value={formData.loanItemId}
+              onChange={handleMaterialChange}
+              options={
+                formData.loanId
+                  ? materialOptions
+                  : [{ id: "", label: "Primero selecciona un préstamo" }]
+              }
+              error={errors.loanItemId}
             />
 
             <Input
@@ -147,6 +237,7 @@ export default function ReturnForm() {
               value={formData.returnDate}
               onChange={handleChange}
               error={errors.returnDate}
+              min={localToday}
             />
 
             <Input
@@ -157,6 +248,7 @@ export default function ReturnForm() {
               value={formData.returnQuantity}
               onChange={handleChange}
               error={errors.returnQuantity}
+              disabled
             />
 
             <div className="md:col-span-1">

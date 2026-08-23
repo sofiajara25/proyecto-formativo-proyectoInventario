@@ -1,6 +1,40 @@
 import { useRef, useState, useMemo, useEffect } from "react";
 import { Infinity as InfinityLoader } from "ldrs/react";
 import "ldrs/react/Infinity.css";
+import Lightbox from "./Lightbox";
+
+// Origen del backend donde viven los archivos ya subidos (ej. "uploads/foto.jpg").
+const API_ORIGIN = "http://localhost:5000";
+
+// Un elemento de "value" puede ser:
+// - un File recién seleccionado por el usuario (aún no subido), o
+// - un string con la ruta que ya devolvió el backend (ej. "uploads/foto.jpg"),
+//   que representa un archivo que YA existe y se está mostrando para editar.
+const isExistingFile = (item) => typeof item === "string";
+
+const isPdfItem = (item) =>
+    isExistingFile(item) ? /\.pdf$/i.test(item) : item.type === "application/pdf";
+
+// Si el archivo ya existente no tiene una extensión reconocible (esto pasa
+// con fotos subidas antes de que el backend guardara la extensión, ej. las
+// fotos de usuario), no podemos saber con certeza si es imagen solo por el
+// nombre. En ese caso asumimos que sí lo es e intentamos mostrarla — si
+// falla al cargar, el <img onError> cae al ícono genérico igual.
+const looksLikeImage = (item) => {
+    if (isExistingFile(item)) {
+        if (/\.(png|jpe?g|webp|gif)$/i.test(item)) return true;
+        if (isPdfItem(item)) return false;
+        return true; // sin extensión reconocida: intentamos como imagen
+    }
+    return item.type?.startsWith("image/");
+};
+
+const getFileLabel = (item) =>
+    isExistingFile(item) ? item.split("/").pop() : item.name;
+
+const getFileKindLabel = (item) => (isPdfItem(item) ? "PDF" : "Archivo");
+
+const toAbsoluteUrl = (item) => `${API_ORIGIN}/${item.replace(/^\/+/, "")}`;
 
 export default function FileInput({
     value = [],
@@ -11,18 +45,33 @@ export default function FileInput({
     const inputRef = useRef();
     const [isLoading, setIsLoading] = useState(false);
     const [dragIndex, setDragIndex] = useState(null);
-
-    const isFile = (file) => file.type.startsWith("image/");
+    // URLs que intentamos mostrar como imagen pero fallaron al cargar (ver
+    // looksLikeImage): para esas caemos al ícono genérico en vez de un
+    // <img> roto.
+    const [failedUrls, setFailedUrls] = useState(() => new Set());
+    // Índice (dentro de las fotos visibles como imagen) que se está viendo
+    // en grande, o null si el visor está cerrado.
+    const [zoomIndex, setZoomIndex] = useState(null);
 
     const previews = useMemo(
-        () => value.map((file) => (isFile(file) ? URL.createObjectURL(file) : null)),
+        () =>
+            value.map((item) => {
+                if (!looksLikeImage(item)) return { url: null, isObjectUrl: false };
+                if (isExistingFile(item)) {
+                    return { url: toAbsoluteUrl(item), isObjectUrl: false };
+                }
+                return { url: URL.createObjectURL(item), isObjectUrl: true };
+            }),
         [value]
     );
 
     useEffect(() => {
         return () => {
-            previews.forEach((url) => {
-                if (url) URL.revokeObjectURL(url);
+            // Solo liberamos las URLs creadas con createObjectURL (archivos
+            // nuevos). Las URLs de archivos ya existentes apuntan al backend
+            // y no deben revocarse.
+            previews.forEach(({ url, isObjectUrl }) => {
+                if (isObjectUrl && url) URL.revokeObjectURL(url);
             });
         };
     }, [previews]);
@@ -54,8 +103,21 @@ export default function FileInput({
         onChange(copy);
     };
 
+    // Lista (en orden) de las URLs que sí se muestran como imagen, para que
+    // el visor en grande pueda navegar entre ellas con las flechas.
+    // "imagePositionByIndex[i]" traduce el índice dentro de "value" al
+    // índice dentro de esta lista de solo-imágenes.
+    const imageUrls = [];
+    const imagePositionByIndex = {};
+    value.forEach((file, i) => {
+        if (looksLikeImage(file) && !failedUrls.has(previews[i].url)) {
+            imagePositionByIndex[i] = imageUrls.length;
+            imageUrls.push(previews[i].url);
+        }
+    });
+
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 max-w-full">
             {value.map((file, i) => (
                 <div
                     key={i}
@@ -65,12 +127,19 @@ export default function FileInput({
                     onDrop={() => reorder(dragIndex, i)}
                     className="relative w-24 h-24 border rounded overflow-hidden group"
                 >
-                    {isFile(file) ? (
-                        <img src={previews[i]} className="w-full h-full object-cover" />
+                    {looksLikeImage(file) && !failedUrls.has(previews[i].url) ? (
+                        <img
+                            src={previews[i].url}
+                            className="w-full h-full object-cover cursor-zoom-in"
+                            onClick={() => setZoomIndex(imagePositionByIndex[i])}
+                            onError={() =>
+                                setFailedUrls((prev) => new Set(prev).add(previews[i].url))
+                            }
+                        />
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-[10px] px-1">
-                            <span className="font-semibold">PDF</span>
-                            <span className="truncate w-full text-center">{file.name}</span>
+                            <span className="font-semibold">{getFileKindLabel(file)}</span>
+                            <span className="truncate w-full text-center">{getFileLabel(file)}</span>
                         </div>
                     )}
                     <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
@@ -110,6 +179,15 @@ export default function FileInput({
                 accept={accept}
                 onChange={(e) => handleFiles(e.target.files)}
             />
+
+            {zoomIndex !== null && (
+                <Lightbox
+                    images={imageUrls}
+                    index={zoomIndex}
+                    onIndexChange={setZoomIndex}
+                    onClose={() => setZoomIndex(null)}
+                />
+            )}
         </div>
     );
 

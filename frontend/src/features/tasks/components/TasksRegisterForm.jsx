@@ -20,6 +20,14 @@ export default function TasksRegisterForm({ users, onClose }) {
     const [errors, setErrors] = useState({});
     const [userDates, setUserDates] = useState({ start_date: "", end_date: "" });
 
+    // Fecha de hoy en formato YYYY-MM-DD usando la zona horaria local
+    // (evita el corrimiento de un día que da new Date().toISOString()).
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const localToday = `${yyyy}-${mm}-${dd}`;
+
     const handleChange = (eOrValue, nameFromSelect) => {
         if (eOrValue?.target) {
             // caso input normal
@@ -136,6 +144,7 @@ export default function TasksRegisterForm({ users, onClose }) {
                             value={formData.taskCreationDate}
                             onChange={handleChange}
                             error={errors.taskCreationDate}
+                            min={localToday}
                         />
 
                         <TextArea
@@ -155,6 +164,7 @@ export default function TasksRegisterForm({ users, onClose }) {
                             value={formData.taskDeliveryDate}
                             onChange={handleChange}
                             error={errors.taskDeliveryDate}
+                            min={formData.taskCreationDate || localToday}
                         />
                         {/* 👇 Select de usuarios con filtro */}
                         {/* 👇 Select de usuarios con filtro */}

@@ -17,6 +17,11 @@ export default function ReturnForm() {
   const [formData, setFormData] = useState({
     materialType: "",
     loanId: "",
+    // A qué material puntual del préstamo corresponde esta devolución. Se
+    // fija al crear el retorno y no se puede cambiar aquí (el backend no lo
+    // permite: cambiarlo significaría mover el stock ya devuelto a otro
+    // material), así que este campo se muestra pero deshabilitado.
+    loanItemId: "",
     returnDate: "",
     returnDescription: "",
     returnQuantity: "",
@@ -34,6 +39,7 @@ export default function ReturnForm() {
       .then((data) => setFormData({
         materialType: data.material_type,
         loanId: data.loan_id,
+        loanItemId: data.loan_item_id ?? "",
         returnDate: data.return_date?.slice(0, 10) || "",
         returnDescription: data.description,
         returnQuantity: data.quantity,
@@ -46,13 +52,28 @@ export default function ReturnForm() {
 
   const [loans, setLoans] = useState([]);
 
-  // Opciones del select definidas afuera
+  // Un préstamo puede tener varios materiales; "product_name" en loans solo
+  // guarda el primero como respaldo, así que usamos el arreglo "materials"
+  // completo para armar la etiqueta (mismo criterio que en el crear).
   const loanOptions = [
     { id: "", label: "Seleccionar una opción" }, // opción inicial
-    ...loans.map(l => ({
-      id: l.loan_id,
-      label: `${l.product_name} - ${l.loan_user}`
-    }))
+    ...loans.map((l) => {
+      const names = Array.isArray(l.materials) && l.materials.length
+        ? l.materials.map((m) => m.product_name).join(", ")
+        : l.product_name;
+      return { id: l.loan_id, label: `${names} - ${l.loan_user}` };
+    }),
+  ];
+
+  // Material puntual vinculado a este retorno, solo para mostrarlo (no se
+  // puede editar aquí).
+  const selectedLoan = loans.find((l) => String(l.loan_id) === String(formData.loanId));
+  const materialOptions = [
+    { id: "", label: "Sin material vinculado" },
+    ...(selectedLoan?.materials || []).map((m) => ({
+      id: String(m.id),
+      label: `${m.product_name} (cantidad: ${m.quantity})`,
+    })),
   ];
 
   const Options = [
@@ -138,9 +159,10 @@ export default function ReturnForm() {
 
 
         <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-8">
-          {/* Tipo de material: campo destacado, separado del resto */}
-          <div className="flex justify-center pb-6 border-b border-gray-200">
-            <Select
+
+          {/* Datos del préstamo */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+             <Select
               label="Tipo de Material"
               name="materialType"
               value={formData.materialType}
@@ -148,16 +170,21 @@ export default function ReturnForm() {
               options={Options}
               error={errors.materialType}
             />
-          </div>
-
-          {/* Datos del préstamo */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Select
               label="Préstamo"
               name="loanId"
               value={formData.loanId}
               onChange={handleChange}
               options={loanOptions}
+            />
+
+            <Select
+              label="Material a devolver"
+              name="loanItemId"
+              value={formData.loanItemId ? String(formData.loanItemId) : ""}
+              onChange={() => {}}
+              options={materialOptions}
+              disabled
             />
 
             <Input

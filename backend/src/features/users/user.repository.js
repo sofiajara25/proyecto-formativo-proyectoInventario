@@ -122,6 +122,7 @@ export const userRepository = {
         u.user_address,
         u.user_status,
         u.photo_url,
+        u.group_id,
         g.group_name AS group_name
       FROM users u
       LEFT JOIN groups g ON u.group_id = g.group_id

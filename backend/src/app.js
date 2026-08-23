@@ -21,6 +21,7 @@ import groupsRoutes from "./features/groups/groups.routes.js";
 import tasksRoutes from "./features/tasks/task.routes.js";
 import permissionsRoutes from "./features/permissions/permissions.routes.js";
 import accessRoutes from "./features/access/access.routes.js";
+import inventoryNameRoutes from "./features/inventory-name/inventoryName.routes.js";
 
 // Creamos la instancia principal de la aplicación Express
 const app = express();
@@ -58,6 +59,8 @@ app.use("/api/groups", groupsRoutes);
 
 app.use("/api/tasks", tasksRoutes);
 
+app.use("/api/inventory-names", inventoryNameRoutes);
+
 app.get("/uploads/:filename", (req, res, next) => {
   const filename = path.basename(req.params.filename);
   const filePath = path.join(process.cwd(), "uploads", filename);
@@ -92,6 +95,26 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/permissions", permissionsRoutes);
 
 app.use("/api/access", accessRoutes);
+
+// Manejador de errores global.
+// Sin esto, cualquier error que ocurra ANTES de llegar a un controller
+// (ej. un middleware de multer que falla al procesar un archivo) es
+// atrapado por el manejador por defecto de Express, que responde con una
+// página HTML en vez de JSON — y eso rompe el "response.json()" del
+// frontend con el error "Unexpected token '<' is not valid JSON".
+// Este middleware debe ir SIEMPRE al final, después de todas las rutas.
+app.use((err, req, res, next) => {
+  console.error("ERROR NO CAPTURADO:", err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  res.status(err.status || 500).json({
+    error: err.message || "Error interno del servidor",
+  });
+});
+
 // Exportamos la aplicación configurada
 // El arranque del servidor se hace en server.js
 export default app;

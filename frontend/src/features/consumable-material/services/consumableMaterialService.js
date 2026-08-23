@@ -13,17 +13,25 @@ export async function createConsumableMaterial(consumableMaterialData) {
     const token = sessionStorage.getItem("token");
 
     formData.append("materialAccountant", consumableMaterialData.materialAccountant);
-    formData.append("materialToolId", consumableMaterialData.materialToolId);
+    // materialToolId ya no se envía: el backend lo genera automáticamente.
     formData.append("materialSenaPlate", consumableMaterialData.materialSenaPlate);
     formData.append("materialName", consumableMaterialData.materialName);
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);
+    formData.append("inventoryNameId", consumableMaterialData.inventoryNameId);
     formData.append("materialLocation", consumableMaterialData.materialLocation);
     formData.append("materialUnitValue", consumableMaterialData.materialUnitValue);
     formData.append("materialTotalValue", consumableMaterialData.materialTotalValue);
     formData.append("materialStatus", consumableMaterialData.materialStatus);
     formData.append("materialDescription", consumableMaterialData.materialDescription);
-    formData.append("brandId", consumableMaterialData.brandId);
+
+    // Solo enviamos brandId si hay una marca seleccionada. FormData convierte
+    // cualquier valor a texto, así que un null se volvería el string "null"
+    // y Postgres lo rechazaría al intentar guardarlo en una columna entera.
+    // Si el campo no viaja, el backend lo trata como ausente y guarda NULL.
+    if (consumableMaterialData.brandId) {
+        formData.append("brandId", consumableMaterialData.brandId);
+    }
 
     if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {
         formData.append("materialTechnicalSheet", consumableMaterialData.materialTechnicalSheet[0]);
@@ -37,21 +45,21 @@ export async function createConsumableMaterial(consumableMaterialData) {
     }
 
     // Realizamos la petición HTTP usando fetch
+    // IMPORTANTE: se envía "formData" (multipart/form-data), NO JSON.
+    // No se debe fijar manualmente el header Content-Type: el navegador
+    // necesita generar el boundary del multipart automáticamente. Si se
+    // envía como JSON, multer nunca recibe los archivos (req.files queda
+    // vacío) y la foto llega null al backend.
     const response = await fetch(API_URL, {
         // Método HTTP según convención REST
         method: "POST",
 
-
         // Cabeceras de la petición
-        // Indicamos que enviamos JSON
         headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
 
-
-        // Convertimos el objeto userData a JSON
-        body: JSON.stringify(consumableMaterialData),
+        body: formData,
     });
 
     // Verificamos si la respuesta NO fue exitosa (status != 2xx)
@@ -69,6 +77,15 @@ export async function createConsumableMaterial(consumableMaterialData) {
     // Si la petición fue exitosa, retornamos la respuesta parseada como JSON
     return response.json();
 };
+
+// Vista previa del tool_id que se le asignará al próximo material creado.
+// No reserva nada: solo consulta cuál sería.
+export async function getNextConsumableToolId() {
+    const response = await fetch(`${API_URL}/next-tool-id`);
+    if (!response.ok) throw new Error("Error al obtener el próximo ID");
+    const data = await response.json();
+    return data.toolId;
+}
 
 export async function getConsumables() {
     const token = sessionStorage.getItem("token");
@@ -98,21 +115,34 @@ export async function updateConsumable(id, consumableMaterialData) {
     formData.append("materialName", consumableMaterialData.materialName);
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);
+    formData.append("inventoryNameId", consumableMaterialData.inventoryNameId);
     formData.append("materialLocation", consumableMaterialData.materialLocation);
     formData.append("materialUnitValue", consumableMaterialData.materialUnitValue);
     formData.append("materialTotalValue", consumableMaterialData.materialTotalValue);
     formData.append("materialStatus", consumableMaterialData.materialStatus);
     formData.append("materialDescription", consumableMaterialData.materialDescription);
-    formData.append("brandId", consumableMaterialData.brandId);
+
+    // Solo enviamos brandId si hay una marca seleccionada (ver nota en
+    // createConsumableMaterial más arriba).
+    if (consumableMaterialData.brandId) {
+        formData.append("brandId", consumableMaterialData.brandId);
+    }
 
     // 📌 Aquí agregas la ficha técnica
     if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {
         formData.append("materialTechnicalSheet", consumableMaterialData.materialTechnicalSheet[0]);
     }
 
-    if (Array.isArray(consumableMaterialData.photo) && consumableMaterialData.photo.length) {
-        formData.append("photo", consumableMaterialData.photo[0]);
-    }
+    // "photo" puede traer una MEZCLA de fotos que ya existían (strings con
+    // la ruta) y fotos nuevas (File). Las que ya existían van en
+    // "keepPhotos" (como JSON, porque FormData no soporta arreglos
+    // anidados); las nuevas se suben como archivos.
+    const photoItems = Array.isArray(consumableMaterialData.photo) ? consumableMaterialData.photo : [];
+    const keepPhotos = photoItems.filter((item) => typeof item === "string");
+    const newPhotoFiles = photoItems.filter((item) => item instanceof File);
+
+    formData.append("keepPhotos", JSON.stringify(keepPhotos));
+    newPhotoFiles.forEach((file) => formData.append("photo", file));
 
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",

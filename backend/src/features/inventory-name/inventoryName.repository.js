@@ -2,87 +2,64 @@
 // Este pool es una instancia compartida configurada en la capa de infraestructura.
 import { pool } from "../../config/db.js";
 
-
-// Exportamos el repositorio de usuarios.
-// El repository encapsula todas las consultas SQL relacionadas con users.
+// Repositorio de nombres de inventario. Encapsula todas las consultas SQL
+// relacionadas con la tabla inventory_names.
+//
+// Nota: además de "inventory_name_id" (nombre real de la columna PK)
+// devolvemos un alias "id", porque algunas partes del frontend ya
+// consumen ese campo como ".id". Así evitamos tener que tocar cada
+// componente que lo usa.
 export const inventoryNameRepository = {
 
+  async create(data) {
+    const { inventory_name } = data;
 
-    // Método encargado de crear un usuario en la base de datos
-    // Recibe un objeto con los datos ya validados y procesados por el service
-    async create(inventoryNameData) {
-
-
-        // Desestructuramos explícitamente las propiedades esperadas
-        // Esto hace el contrato de datos claro y evita acceder a propiedades inexistentes
-        const {
-            inventoryName
-        } = inventoryNameData;
-
-        // Definimos la consulta SQL parametrizada
-        // Usar placeholders ($1, $2, ...) previene inyecciones SQL
-        // RETURNING permite obtener datos generados por la base de datos (inventory_name_id)
-        const query = `
-      INSERT INTO inventory_names (
-        inventory_name
-      )
+    const query = `
+      INSERT INTO inventory_names (inventory_name)
       VALUES ($1)
-      RETURNING inventory_name_id;
+      RETURNING *, inventory_name_id AS id;
     `;
+    const result = await pool.query(query, [inventory_name]);
+    return result.rows[0];
+  },
 
+  async findAll() {
+    const result = await pool.query(
+      "SELECT *, inventory_name_id AS id FROM inventory_names ORDER BY inventory_name_id DESC"
+    );
+    return result.rows;
+  },
 
-        // Array de valores que se pasan al query
-        // El orden debe coincidir EXACTAMENTE con los placeholders del SQL
-        const values = [
-            inventoryName
-        ];
+  async findById(id) {
+    const result = await pool.query(
+      "SELECT *, inventory_name_id AS id FROM inventory_names WHERE inventory_name_id = $1",
+      [id]
+    );
+    return result.rows[0];
+  },
 
+  async update(id, data) {
+    const { inventory_name } = data;
 
-        // Ejecutamos la consulta usando el pool
-        // pool.query retorna un objeto con metadata y filas resultantes
-        const result = await pool.query(query, values);
+    const query = `
+      UPDATE inventory_names
+      SET inventory_name = $1
+      WHERE inventory_name_id = $2
+      RETURNING *, inventory_name_id AS id;
+    `;
+    const result = await pool.query(query, [inventory_name, id]);
+    return result.rows[0];
+  },
 
-
-        // Devolvemos únicamente el primer registro retornado
-        // En este caso contiene el inventory_name_id del usuario recién creado
-        return result.rows[0];
-    },
-
-    async findAll() {
-        const result = await pool.query("SELECT * FROM inventory_names");
-        return result.rows;
-    },
-
-    async findById(inventory_name_id) {
-        const result = await pool.query("SELECT * FROM inventory_names WHERE inventory_name_id = $1", [inventory_name_id]);
-        return result.rows[0]; // debe incluir user_photo
-    },
-
-    async update(inventory_name_id, inventoryNameData) {
-        const { inventoryName } = inventoryNameData;
-
-        const query = `
-            UPDATE inventory_names
-            SET inventory_name = $1
-            WHERE inventory_name_id = $2
-            RETURNING *;
-        `;
-
-        const values = [inventoryName, inventory_name_id];
-        const result = await pool.query(query, values);
-        return result.rows[0];
-    },
-
-    async updateStatus(inventory_name_id, status) {
-        const query = `
-            UPDATE inventory_names
-            SET status = $1
-            WHERE inventory_name_id = $2
-            RETURNING *;
-        `;
-        const values = [status, inventory_name_id];
-        const result = await pool.query(query, values);
-        return result.rows[0];
-    }
+  async updateStatus(id, status) {
+    const query = `
+      UPDATE inventory_names
+      SET status = $1
+      WHERE inventory_name_id = $2
+      RETURNING *, inventory_name_id AS id;
+    `;
+    const result = await pool.query(query, [status, id]);
+    return result.rows[0];
+  },
 
 };

@@ -24,16 +24,16 @@ export const returnableMaterialController = {
         try {
             // Llamamos al servicio de usuario, pasando los datos recibidos
             // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-            const photoPath = req.files?.photo?.[0]
-                ? `uploads/${req.files.photo[0].filename}`
-                : null;
+            // Un material puede tener varias fotos: tomamos TODAS las que
+            // llegaron en el campo "photo" (no solo la primera).
+            const photos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
 
             const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
                 ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
                 : null;
             const returnableMaterial = await returnableMaterialService.createReturnableMaterial({
                 ...req.body,
-                photo: photoPath,
+                photos,
                 materialTechnicalSheet: technicalSheetPath,
             });
 
@@ -67,6 +67,15 @@ export const returnableMaterialController = {
         }
     },
 
+    async getNextToolId(req, res) {
+        try {
+            const toolId = await returnableMaterialService.previewNextToolId();
+            res.status(200).json({ toolId });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
     async list(req, res) {
         try {
             const returnables = await returnableMaterialService.getAllReturnable();
@@ -90,9 +99,23 @@ export const returnableMaterialController = {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const photoPath = req.files?.photo?.[0]
-                ? `uploads/${req.files.photo[0].filename}`
-                : null;
+
+            // Fotos nuevas que se acaban de subir en este submit.
+            const newPhotos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
+
+            // "keepPhotos" trae, en JSON, las rutas de las fotos que YA
+            // existían y el usuario decidió conservar (no les dio a la ❌).
+            let keepPhotos = [];
+            try {
+                keepPhotos = JSON.parse(req.body.keepPhotos ?? "[]");
+            } catch {
+                keepPhotos = [];
+            }
+            if (!Array.isArray(keepPhotos)) keepPhotos = [];
+
+            // Lista final: primero las que se mantienen, luego las nuevas.
+            const photos = [...keepPhotos, ...newPhotos];
+
             const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
                 ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
                 : null;
@@ -100,7 +123,7 @@ export const returnableMaterialController = {
             const updated = await returnableMaterialService.updateReturnable(id, {
                 ...req.body,
                 materialTechnicalSheet: technicalSheetPath,
-                photo: photoPath,
+                photos,
             });
 
             if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });

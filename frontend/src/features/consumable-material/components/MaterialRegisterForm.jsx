@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Input, Button, Navbar, FileInput, Select, Modal, TextArea } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate } from "react-router-dom";
-import { createConsumableMaterial } from "../services/consumableMaterialService";
+import { createConsumableMaterial, getNextConsumableToolId } from "../services/consumableMaterialService";
 
 export default function MaterialRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,11 +11,11 @@ export default function MaterialRegisterForm() {
 
     const [formData, setFormData] = useState({
         materialAccountant: "",
-        materialToolId: "",
         materialSenaPlate: "",
         materialName: "",
         materialEntryDate: "",
         materialQuantity: "",
+        inventoryNameId: "",
         materialLocation: "",
         materialUnitValue: "",
         materialTotalValue: "",
@@ -36,6 +36,20 @@ export default function MaterialRegisterForm() {
 
     const [brands, setBrands] = useState([]);
 
+    const [inventoryNames, setInventoryNames] = useState([]);
+
+    // Vista previa del ID que el backend le va a asignar al material al
+    // guardarlo (ej. "CON-0007"). No se puede editar, solo se muestra.
+    const [nextToolId, setNextToolId] = useState("Calculando...");
+
+    // Fecha de hoy en formato YYYY-MM-DD usando la zona horaria local
+    // (evita el corrimiento de un día que da new Date().toISOString()).
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const localToday = `${yyyy}-${mm}-${dd}`;
+
     useEffect(() => {
         fetch("http://localhost:5000/api/brands")
             .then(res => res.json())
@@ -44,6 +58,24 @@ export default function MaterialRegisterForm() {
                 setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
             })
             .catch(err => console.error("Error cargando marcas:", err));
+    }, []);
+    useEffect(() => {
+        fetch("http://localhost:5000/api/inventory-names")
+            .then(res => res.json())
+            .then(data => {
+                const options = data.map(i => ({ value: i.inventory_name_id, label: i.inventory_name }));
+                setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
+            })
+            .catch(err => console.error("Error cargando nombre de inventarios:", err));
+    }, []);
+
+    useEffect(() => {
+        getNextConsumableToolId()
+            .then(setNextToolId)
+            .catch((err) => {
+                console.error("Error obteniendo el próximo ID:", err);
+                setNextToolId("Se generará automáticamente");
+            });
     }, []);
 
     const handleChange = (e) => {
@@ -72,7 +104,9 @@ export default function MaterialRegisterForm() {
 
         const parsedData = {
             ...formData,
-            brandId: Number(formData.brandId),
+            // Si no se seleccionó marca, enviamos null (no 0): brandId=0 no
+            // existe en la tabla brands y rompe la llave foránea.
+            brandId: formData.brandId ? Number(formData.brandId) : null,
             materialQuantity: Number(formData.materialQuantity),
             materialUnitValue: Number(formData.materialUnitValue),
             materialTotalValue: Number(formData.materialTotalValue),
@@ -158,13 +192,16 @@ export default function MaterialRegisterForm() {
                                 />
                             </div>
 
+                            {/* El Id del material se muestra pero no es editable: el
+                                backend lo genera automáticamente al crear el registro.
+                                Aquí solo mostramos una vista previa del valor. */}
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <Input
-                                    label={<span>Id del material<span style={{ color: "red" }}>*</span></span>}
+                                    label="Id del material"
                                     name="materialToolId"
-                                    value={formData.materialToolId}
-                                    onChange={handleChange}
-                                    error={errors.materialToolId}
+                                    value={nextToolId}
+                                    disabled
+                                    readOnly
                                 />
                             </div>
 
@@ -196,6 +233,7 @@ export default function MaterialRegisterForm() {
                                     value={formData.materialEntryDate}
                                     onChange={handleChange}
                                     error={errors.materialEntryDate}
+                                    min={localToday}
                                 />
                             </div>
 
@@ -207,6 +245,16 @@ export default function MaterialRegisterForm() {
                                     value={formData.materialQuantity}
                                     onChange={handleChange}
                                     error={errors.materialQuantity}
+                                />
+                            </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Select
+                                    label={<span>Nombre de inventario<span style={{ color: "red" }}>*</span></span>}
+                                    name="inventoryNameId"
+                                    options={inventoryNames}
+                                    value={formData.inventoryNameId}
+                                    onChange={handleChange}
+                                    error={errors.inventoryNameId}
                                 />
                             </div>
 
@@ -274,37 +322,39 @@ export default function MaterialRegisterForm() {
                                     error={errors.brandId}
                                 />
                             </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 col-span-full">
+                                    {/* Fila 6 — Archivos */}
+                                    <div className="min-w-0">
+                                        <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
+                                        <FileInput
+                                            value={formData.materialTechnicalSheet}
+                                            onChange={(files) =>
+                                                setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                                            }
+                                            multiple={true}
+                                        />
+                                        {errors.materialTechnicalSheet && (
+                                            <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                                        )}
+                                    </div>
 
-                            <div className=" flex flex-row gap-8">
-                                {/* Fila 6 — Archivos */}
-                                <div>
-                                    <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
-                                    <FileInput
-                                        value={formData.materialTechnicalSheet}
-                                        onChange={(files) =>
-                                            setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
-                                        }
-                                        multiple={true}
-                                    />
-                                    {errors.materialTechnicalSheet && (
-                                        <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <span>Foto <span style={{ color: "red" }}>*</span></span>
-                                    <FileInput
-                                        value={formData.photo}
-                                        onChange={(files) =>
-                                            setFormData((prev) => ({ ...prev, photo: files }))
-                                        }
-                                        multiple={true}
-                                    />
-                                    {errors.photo && (
-                                        <span className="text-red-500 text-sm">{errors.photo}</span>
-                                    )}
+                                    <div className="min-w-0 flex-1">
+                                        <span>Foto <span style={{ color: "red" }}>*</span></span>
+                                        <FileInput
+                                            value={formData.photo}
+                                            onChange={(files) =>
+                                                setFormData((prev) => ({ ...prev, photo: files }))
+                                            }
+                                            multiple={true}
+                                        />
+                                        {errors.photo && (
+                                            <span className="text-red-500 text-sm">{errors.photo}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
+
 
                         </div>
 

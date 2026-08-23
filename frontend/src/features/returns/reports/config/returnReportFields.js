@@ -10,6 +10,16 @@ export const returnReportFields = [
         default: true,
     },
     {
+        key: "loan_user",
+        label: "Usuario",
+        default: false,
+    },
+    {
+        key: "user_identification",
+        label: "N° Documento del Usuario",
+        default: false,
+    },
+    {
         key: "return_date",
         label: "Fecha de Devolución",
         default: true,

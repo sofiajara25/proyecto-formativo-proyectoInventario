@@ -1,20 +1,26 @@
 // Function utilitaria  para construir el dataset de un reporte (tabla)
 // Patrón: transformacion de datos (input => output listo para exportar)
 
+import { formatDate } from "@/shared";
+
 export function buildReportDataset({
-    returns,          // Array de usuarios origen
+    returns,          // Array de retornos origen (ya cruzados con el préstamo)
     selectedFields, // Campos seleccionados para el reporte [{key,label}]
     scope,          // Alcance del reporte: "all" | "document"
-    materialType  // Numero de documentos para filtrar (si aplica)
+    documentNumber, // Número de documento del usuario para filtrar (si scope === "document")
 }) {
 
     // Copia inmutable del array original (evita mutaciones)
     let filteredReturns = [...returns];
 
-    // Filtro por alcance: si es documento, se aplica filtro especifico
-    if (scope === "materialType" && materialType) {
-        filteredReturns = filteredReturns.filter(
-            (brand) => brand.materialType === materialType  // Fix: typo "docuement_number" -> "document"
+    // Filtro por alcance
+    if (scope === "document" && documentNumber) {
+        // Coincidencia parcial e insensible a mayúsculas: el número de
+        // documento viene del préstamo asociado a cada retorno
+        // (user_identification), no de la tabla "returns" directamente.
+        const needle = documentNumber.trim().toLowerCase();
+        filteredReturns = filteredReturns.filter((r) =>
+            (r.user_identification ?? "").toLowerCase().includes(needle)
         );
     }
 
@@ -28,8 +34,14 @@ export function buildReportDataset({
 
     // Construccion de filas del reporte
     // Cada usuario se transforma en un arreglo de valores segun los campos seleccionados
+    // Los campos "*_date" vienen del backend como timestamp completo
+    // (ej. "2026-08-20T05:00:00.000Z"); en el reporte solo debe verse
+    // año-mes-día, no la hora ni la "T"/"Z" del ISO.
     const rows = filteredReturns.map((returnable) =>
-        uniqueFields.map((field) => returnable[field.key] ?? "")
+        uniqueFields.map((field) => {
+            const value = returnable[field.key] ?? "";
+            return field.key.toLowerCase().includes("date") ? formatDate(value) : value;
+        })
     );
 
     // Estructura final desacoplada de la UI

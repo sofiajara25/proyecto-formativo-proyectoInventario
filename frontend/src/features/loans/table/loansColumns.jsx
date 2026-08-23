@@ -28,17 +28,34 @@ export const loansColumns = [
         header: "Identificación del Usuario",    // Encabezado visible
     },
 
-    // Columna Email
+    // "category" y "product_name" en la fila son solo un respaldo del
+    // PRIMER material (para listados/reportes viejos) y es fácil que queden
+    // desincronizados si se edita el préstamo. La fuente real y siempre
+    // actualizada es "materials" (viene de loan_items en cada consulta), así
+    // que la lista arma estas dos columnas a partir de ahí directamente.
     {
-        accessorKey: "category",
+        id: "category",
         header: "Categoria",
+        cell: ({ row }) => {
+            const materials = row.original.materials;
+            if (!Array.isArray(materials) || materials.length === 0) {
+                return row.original.category || "—";
+            }
+            const categorias = [...new Set(materials.map((m) => m.category).filter(Boolean))];
+            return categorias.join(", ") || "—";
+        },
     },
 
-
-    // Columna Dirección
     {
-        accessorKey: "product_name",
+        id: "product_name",
         header: "Nombre del producto",
+        cell: ({ row }) => {
+            const materials = row.original.materials;
+            if (!Array.isArray(materials) || materials.length === 0) {
+                return row.original.product_name || "—";
+            }
+            return materials.map((m) => m.product_name).filter(Boolean).join(", ") || "—";
+        },
     },
 
     {

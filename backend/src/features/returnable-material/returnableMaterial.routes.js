@@ -40,7 +40,7 @@ const upload = multer({ storage });
 router.post(
     "/",
     upload.fields([
-        { name: "photo", maxCount: 5 },
+        { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     returnableMaterialController.create
@@ -48,12 +48,16 @@ router.post(
 
 router.get("/", returnableMaterialController.list);
 
+// Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"
+// como si fuera el parámetro :id.
+router.get("/next-tool-id", returnableMaterialController.getNextToolId);
+
 router.get("/:id", returnableMaterialController.getById);
 
 router.put(
     "/:id",
     upload.fields([
-        { name: "photo", maxCount: 5 },
+        { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     returnableMaterialController.update

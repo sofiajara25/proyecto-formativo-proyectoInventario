@@ -3,9 +3,8 @@ import { fileSchema } from "@/shared";
 
 export const returnablematerialSchema = z.object({
 
-  materialToolId: z
-    .string()
-    .min(1, "El ID de la herramienta es requerido"),
+  // materialToolId ya no se valida ni se envía: el backend lo genera
+  // automáticamente al crear el registro.
 
   materialSenaPlate: z
     .string()
@@ -82,8 +81,12 @@ export const returnablematerialSchema = z.object({
     .min(5, "La descripción debe tener mínimo 5 caracteres")
     .max(200, "La descripción es demasiado larga"),
 
-  materialTechnicalSheet: fileSchema.shape.files
-    .or(z.array(z.instanceof(File)).max(0)),
+  // Antes esto permitía enviar un arreglo vacío (".or(...max(0))"), así
+  // que el formulario dejaba crear el material sin adjuntar nada aunque el
+  // asterisco rojo dijera que era obligatorio. Ahora sí se exige mínimo 1.
+  materialTechnicalSheet: fileSchema.shape.files,
+
+  inventoryNameId: z.string().min(1, "Debe seleccionar un nombre de inventario"),
 
   materialLocation: z
     .string()
@@ -95,9 +98,9 @@ export const returnablematerialSchema = z.object({
       }
     ),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)),
+  photo: fileSchema.shape.files,
 
   brandId: z
-    .number({ invalid_type_error: "La marca es requerida" }).optional()
+    .number({ invalid_type_error: "La marca es requerida" }).nullable().optional()
 
 });

@@ -24,14 +24,16 @@ export const consumableMaterialController = {
     try {
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-      const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+      // Un material puede tener varias fotos: tomamos TODAS las que llegaron
+      // en el campo "photo" (no solo la primera).
+      const photos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
       const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
         ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
         : null;
       // pasamos todos los datos al service
       const consumable = await consumableMaterialService.createConsumableMaterial({
         ...req.body,
-        photo: photoPath,
+        photos,
         materialTechnicalSheet: technicalSheetPath,
       });
 
@@ -64,6 +66,15 @@ export const consumableMaterialController = {
     }
   },
 
+  async getNextToolId(req, res) {
+    try {
+      const toolId = await consumableMaterialService.previewNextToolId();
+      res.status(200).json({ toolId });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   async list(req, res) {
     try {
       const consumables = await consumableMaterialService.getAllConsumables();
@@ -87,15 +98,31 @@ export const consumableMaterialController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      // ruta de la nueva foto si se subió
-      const photoPath = req.file ? `uploads/${req.file.filename}` : null;
+
+      // Fotos nuevas que se acaban de subir en este submit.
+      const newPhotos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
+
+      // "keepPhotos" trae, en JSON, las rutas de las fotos que YA existían
+      // y el usuario decidió conservar (no les dio a la ❌). El frontend
+      // arma este campo a partir del arreglo que le muestra al usuario.
+      let keepPhotos = [];
+      try {
+        keepPhotos = JSON.parse(req.body.keepPhotos ?? "[]");
+      } catch {
+        keepPhotos = [];
+      }
+      if (!Array.isArray(keepPhotos)) keepPhotos = [];
+
+      // Lista final: primero las que se mantienen, luego las nuevas.
+      const photos = [...keepPhotos, ...newPhotos];
+
       const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
         ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
         : null;
 
       const updatedConsumable = await consumableMaterialService.updateConsumable(id, {
         ...req.body,
-        photo: photoPath,
+        photos,
         materialTechnicalSheet: technicalSheetPath,
       });
 

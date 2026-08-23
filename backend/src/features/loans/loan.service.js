@@ -52,8 +52,11 @@ export const loanService = {
         return await loanRepository.update(loan_id, { ...data, materials });
     },
     async updateLoanStatus(loan_id, is_active) {
+        // La tabla loans usa "loan_id" como llave primaria (se renombró desde
+        // "id" en una migración anterior); esta consulta seguía usando "id",
+        // que ya no existe, y eso rompía el switch de estado en la lista.
         const result = await pool.query(
-            "UPDATE loans SET is_active = $1 WHERE id = $2 RETURNING *",
+            "UPDATE loans SET is_active = $1 WHERE loan_id = $2 RETURNING *",
             [is_active, loan_id]
         );
         return result.rows[0];

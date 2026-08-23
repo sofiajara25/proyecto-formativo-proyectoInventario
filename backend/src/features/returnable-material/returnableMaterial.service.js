@@ -30,6 +30,13 @@ export const returnableMaterialService = {
         return await returnableMaterialRepository.create(materialData);
     },
 
+    // Vista previa del tool_id que se asignará al próximo material creado.
+    // Debe usar el mismo formato que returnableMaterial.repository.create().
+    async previewNextToolId() {
+        const nextId = await returnableMaterialRepository.getNextId();
+        return `DEV-${String(nextId).padStart(4, "0")}`;
+    },
+
     async getAllReturnable() {
         return await returnableMaterialRepository.findAll();
     },

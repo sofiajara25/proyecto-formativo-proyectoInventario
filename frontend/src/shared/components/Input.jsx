@@ -8,7 +8,11 @@ export default function Input({
     ...props
 }) {
     return (
-        <div className={`w-[320px] ${containerClassName}`}>
+        // "w-full max-w-[320px]" en vez de "w-[320px]" fijo: en pantallas
+        // normales se ve exactamente igual (320px, como siempre), pero si el
+        // espacio disponible es menor (pantallas angostas) se encoge en vez
+        // de desbordarse y romper el layout.
+        <div className={`w-full max-w-[320px] ${containerClassName}`}>
             {label && (
                 <label
                     className={`

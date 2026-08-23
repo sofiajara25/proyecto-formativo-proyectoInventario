@@ -1,6 +1,8 @@
 // Función utilitaria para construir el dataset de un reporte (tabla)
 // Patrón: transformación de datos (input => output listo para exportar)
 
+import { formatDate } from "@/shared";
+
 export function buildReportDataset({
     users,          // Array de usuarios origen
     selectedFields, // Campos seleccionados para el reporte [{ key, label }]
@@ -23,8 +25,8 @@ export function buildReportDataset({
     // Construcción de filas del reporte
     const rows = filteredUsers.map((user) =>
         selectedFields.map((field) => {
-            const value = user[field.key]; // acceso dinámico a la propiedad
-            return value ?? "";            // normalización: evita undefined/null
+            const value = user[field.key] ?? ""; // acceso dinámico a la propiedad, evita undefined/null
+            return field.key.toLowerCase().includes("date") ? formatDate(value) : value;
         })
     );
 

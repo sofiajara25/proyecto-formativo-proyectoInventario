@@ -135,13 +135,18 @@ export default function UserRegisterForm() {
 
             <div className="flex flex-col flex-1 px-10 py-1 gap-1 justify-center">
 
-                {/* Título */}
-                <h1 className=" lg:ml-40 " style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0, marginLeft: "64px" }}>
-                    Crear Cuenta
-                </h1>
+                {/* Título y tarjeta comparten el mismo ancho máximo y quedan
+                    centrados juntos, así el título siempre queda a la par
+                    del borde izquierdo de la tarjeta sin importar el
+                    tamaño de pantalla. */}
+                <div className="w-full lg:max-w-6xl mx-auto flex flex-col gap-1">
+                    {/* Título */}
+                    <h1 style={{ color: "var(--color-white)", fontSize: "var(--fs-md)", fontWeight: "var(--font-weight-bold)", margin: 0 }}>
+                        Crear Cuenta
+                    </h1>
 
-                {/* Card */}
-                <div className="bg-white rounded-2xl flex flex-col gap-1 lg:w-6xl  mx-auto" style={{ padding: "14px" }}>
+                    {/* Card */}
+                    <div className="bg-white rounded-2xl flex flex-col gap-1 w-full" style={{ padding: "14px" }}>
 
                     <form
                         onSubmit={handleSubmit}
@@ -331,6 +336,7 @@ export default function UserRegisterForm() {
                         <p>¿Seguro que deseas crear este usuario?</p>
                     </Modal>
 
+                    </div>
                 </div>
 
             </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button, formatDate } from "@/shared";
+import { Navbar, Button, formatDate, PhotoViewer } from "@/shared";
 import { FileText } from "lucide-react";
 import { getLoanById } from "../services/loanService";
 
@@ -38,24 +38,22 @@ export default function ViewLoanPage() {
 
                     {/* Header */}
                     <div className="flex items-center gap-6">
-                        <div className="flex items-center justify-center rounded-full"
-                            style={{ width: "80px", height: "80px", background: "var(--color-primary-950)", flexShrink: 0 }}>
-                            {loan.photo_url ? (
-                                <img
-                                    src={`http://localhost:5000/${loan.photo_url}`}
-                                    alt="Foto del prestamo"
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                            ) : (
-                                <FileText size={40} color="white" />
-                            )}
-                        </div>
+                        <PhotoViewer
+                            photos={Array.isArray(loan.photos) ? loan.photos : (loan.photo_url ? [loan.photo_url] : [])}
+                            fallbackIcon={<FileText size={40} color="white" />}
+                            size={80}
+                            alt="Foto del prestamo"
+                        />
 
                         <div className="flex flex-col gap-1">
-                            <p className="text-lg font-bold text-gray-900">{loan.product_name}</p>
-                            <p className="text-sm text-gray-500">Usuario: {loan.loan_user}</p>
+                            {/* El préstamo puede tener varios materiales, así que
+                                el título ya no muestra "el" producto (eso era
+                                solo el primero); usamos el usuario como
+                                identificador principal del préstamo. */}
+                            <p className="text-lg font-bold text-gray-900">Préstamo de {loan.loan_user}</p>
+                            <p className="text-sm text-gray-500">Tipo de material: {loan.material_type}</p>
                             <p className="text-sm font-bold text-primary-950">
-                                Estado: {loan.status ? "Activo" : "Inactivo"}
+                                Estado: {loan.is_active ? "Activo" : "Inactivo"}
                             </p>
                         </div>
                     </div>
@@ -65,18 +63,40 @@ export default function ViewLoanPage() {
 
                     {/* Detalles */}
                     <div className="grid grid-cols-2 gap-4">
-                        <p><strong>Tipo de Material:</strong> {loan.material_type}</p>
                         <p><strong>Usuario:</strong> {loan.loan_user}</p>
                         <p><strong>Identificación del Usuario:</strong> {loan.user_identification}</p>
-                        <p><strong>Grupo de Aprendices:</strong> {loan.apprentice_group}</p>
-                        <p><strong>Categoria:</strong> {loan.category}</p>
-                        <p><strong>Material:</strong> {loan.product_name}</p>
+                        <p><strong>Grupo de Aprendices:</strong> {loan.apprentice_group || "—"}</p>
+                        <p><strong>Tipo de Préstamo:</strong> {loan.loan_type}</p>
                         <p><strong>Fecha préstamo:</strong> {formatDate(loan.loan_date)}</p>
                         <p><strong>Fecha devolución:</strong> {formatDate(loan.return_date)}</p>
                         {loan.description && (
                             <p className="col-span-2"><strong>Descripción:</strong> {loan.description}</p>
                         )}
-                        <p><strong>Tipo de Prestamo:</strong> {loan.loan_type}</p>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{ borderTop: "1.5px solid var(--color-gray-100)" }} />
+
+                    {/* Materiales del préstamo: puede haber varios (categoría,
+                        nombre y cantidad de cada uno), no solo el primero. */}
+                    <div>
+                        <p className="mb-2"><strong>Materiales</strong></p>
+                        {Array.isArray(loan.materials) && loan.materials.length ? (
+                            <div className="flex flex-col gap-2">
+                                {loan.materials.map((material, index) => (
+                                    <div
+                                        key={material.id ?? index}
+                                        className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                                    >
+                                        <span className="font-medium text-gray-900">{material.product_name}</span>
+                                        <span className="text-gray-500 capitalize">{material.category}</span>
+                                        <span className="text-gray-700">Cantidad: {material.quantity}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">Sin materiales registrados.</p>
+                        )}
                     </div>
 
                     {/* Divider */}

@@ -1,6 +1,8 @@
 // funcion utilitaria para construir el dataset de un reporte (tabla)
 // patron: transformacion de datos (input => output listo para exportar)
 
+import { formatDate } from "@/shared";
+
 export function buildReportDataset({
     loans,          // array de prestamos origen
     selectedFields, // campos seleccionados [{key, label}]
@@ -28,7 +30,10 @@ export function buildReportDataset({
 
     // filas del reporte
     const rows = filteredLoans.map((loan) =>
-        uniqueFields.map((field) => loan[field.key] ?? "")
+        uniqueFields.map((field) => {
+            const value = loan[field.key] ?? "";
+            return field.key.toLowerCase().includes("date") ? formatDate(value) : value;
+        })
     );
 
     return { headers, rows };

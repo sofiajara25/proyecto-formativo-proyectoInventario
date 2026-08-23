@@ -4,7 +4,7 @@ import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { useEffect, useState } from "react";
-import { getInventoryNameById } from "../services/inventoryNameService";
+import { getInventoryName } from "../services/inventoryNameService";
 import { inventoryNamesColumns } from "../table/inventoryNameColumns";
 
 export default function ListInventoryNamePage() {
@@ -14,7 +14,7 @@ export default function ListInventoryNamePage() {
     const [inventoryNames, setinventoryNames] = useState([]);
 
     useEffect(() => {
-        getInventoryNameById()
+        getInventoryName()
             .then(setinventoryNames)
             .catch((err) => console.error("Error cargando nombre de inventario:", err));
     }, []);
@@ -68,7 +68,7 @@ export default function ListInventoryNamePage() {
                                 size="md"
                                 onClick={() => navigate("/dashboard/nombreInventario")}
                             >
-                                Crear marca
+                                Crear nombre inventario
                             </Button>
                         </div>
                     </div>

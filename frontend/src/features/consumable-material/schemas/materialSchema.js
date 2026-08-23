@@ -9,9 +9,8 @@ export const materialSchema = z.object({
     .min(3, "El cuentadante debe tener mínimo 3 caracteres")
     .max(60, "El cuentadante es demasiado largo"),
 
-  materialToolId: z
-    .string()
-    .min(1, "El ID de la herramienta es requerido"),
+  // materialToolId ya no se valida ni se envía: el backend lo genera
+  // automáticamente al crear el registro.
 
   materialSenaPlate: z
     .string()
@@ -31,6 +30,8 @@ export const materialSchema = z.object({
       invalid_type_error: "La cantidad debe ser un número",
     })
     .min(1, "La cantidad debe ser al menos 1"),
+
+  inventoryNameId: z.string().min(1, "Debe seleccionar un nombre de inventario"),
 
   materialLocation: z
     .string()
@@ -57,20 +58,30 @@ export const materialSchema = z.object({
     .min(5, "La descripción debe tener mínimo 5 caracteres")
     .max(200, "La descripción es demasiado larga"),
 
-  materialTechnicalSheet: fileSchema.shape.files
-    .or(z.array(z.instanceof(File)).max(0)),
+  // Antes esto permitía enviar un arreglo vacío (".or(...max(0))"), así
+  // que el formulario dejaba crear el material sin adjuntar nada aunque el
+  // asterisco rojo dijera que era obligatorio. Ahora sí se exige mínimo 1.
+  materialTechnicalSheet: fileSchema.shape.files,
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)),
+  photo: fileSchema.shape.files,
 
   brandId: z
-    .number({ invalid_type_error: "La marca es requerida" }).optional()
+    .number({ invalid_type_error: "La marca es requerida" }).nullable().optional()
 
 }).refine((data) => {
   if (!data.materialEntryDate) return false;
-  const today = new Date();
-  const materialEntryDate = new Date(data.materialEntryDate);
+
+  // Parseamos "YYYY-MM-DD" como fecha LOCAL (no UTC).
+  // new Date("2026-08-19") interpreta el string como medianoche UTC, y al
+  // convertirlo a horario local (ej. Colombia, UTC-5) puede "caer" al día
+  // anterior, haciendo que la fecha de hoy parezca anterior a hoy.
+  const [year, month, day] = data.materialEntryDate.split("-").map(Number);
+  const materialEntryDate = new Date(year, (month || 1) - 1, day || 1);
   if (isNaN(materialEntryDate.getTime())) return false; // fecha inválida
+
+  const today = new Date();
   today.setHours(0, 0, 0, 0);
   materialEntryDate.setHours(0, 0, 0, 0);
+
   return materialEntryDate >= today;
-}, { path: ["materialEntryDate"], message: "La fecha de préstamo no puede ser anterior a hoy" })
+}, { path: ["materialEntryDate"], message: "La fecha de ingreso no puede ser anterior a hoy" })

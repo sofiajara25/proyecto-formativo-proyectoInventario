@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { fileSchema } from "@/shared";
 
 export const updateMaterialSchema = z.object({
     materialAccountant: z
@@ -13,7 +12,7 @@ export const updateMaterialSchema = z.object({
 
     materialSenaPlate: z
         .string()
-        .min(1),
+        .optional(),
 
     materialName: z
         .string()
@@ -28,10 +27,11 @@ export const updateMaterialSchema = z.object({
         .number({ invalid_type_error: "La cantidad debe ser un número" })
         .min(1),
 
+    inventoryNameId: z.string().min(1, "Debe seleccionar un nombre de inventario"),
+
     materialLocation: z
         .string()
-        .min(3)
-        .max(100),
+        .optional(),
 
     materialUnitValue: z
         .number({ invalid_type_error: "El valor unitario debe ser un número" })
@@ -52,11 +52,19 @@ export const updateMaterialSchema = z.object({
 
     brandId: z
         .number()
+        .nullable()
         .optional(),
 
-    materialTechnicalSheet: fileSchema.shape.files
-        .or(z.array(z.instanceof(File)).max(1))
+    // Cada elemento puede ser un File nuevo (el usuario adjuntó otro archivo)
+    // o un string con la ruta que ya venía del backend (el usuario no tocó
+    // el campo y se conserva el archivo/foto actual).
+    materialTechnicalSheet: z
+        .array(z.union([z.instanceof(File), z.string()]))
+        .max(1)
         .optional(),
 
-    photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
+    photo: z
+        .array(z.union([z.instanceof(File), z.string()]))
+        .max(12)
+        .optional()
 });

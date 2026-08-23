@@ -51,6 +51,7 @@ export default function Button({
       className={`
         relative
         inline-flex items-center justify-center
+        whitespace-nowrap
         rounded-lg
         transition-colors duration-150
         ${variants[variant]}

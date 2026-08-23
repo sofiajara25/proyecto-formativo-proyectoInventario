@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
-import { createReturnableMaterial } from "../services/returnableMaterialService";
+import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
 
 export default function ReturnableMaterialRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,7 +11,6 @@ export default function ReturnableMaterialRegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    materialToolId: "",
     materialSenaPlate: "",
     materialCategory: "",
     materialSerial: "",
@@ -25,6 +24,7 @@ export default function ReturnableMaterialRegisterForm() {
     materialDimensions: "",
     materialDescription: "",
     materialTechnicalSheet: [],
+    inventoryNameId: "",
     materialLocation: "",
     brandId: "",
     photo: [],
@@ -33,6 +33,13 @@ export default function ReturnableMaterialRegisterForm() {
   const [errors, setErrors] = useState({});
 
   const [brands, setBrands] = useState([]);
+
+  const [inventoryNames, setInventoryNames] = useState([]);
+
+
+  // Vista previa del ID que el backend le va a asignar al material al
+  // guardarlo (ej. "DEV-0007"). No se puede editar, solo se muestra.
+  const [nextToolId, setNextToolId] = useState("Calculando...");
 
   const categorias = [
     { value: "", label: "Seleccione una opcion" },
@@ -49,6 +56,25 @@ export default function ReturnableMaterialRegisterForm() {
         setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
       })
       .catch(err => console.error("Error cargando marcas:", err));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/inventory-names")
+      .then(res => res.json())
+      .then(data => {
+        const options = data.map(i => ({ value: i.inventory_name_id, label: i.inventory_name }));
+        setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
+      })
+      .catch(err => console.error("Error cargando nombre de inventarios:", err));
+  }, []);
+
+  useEffect(() => {
+    getNextReturnableToolId()
+      .then(setNextToolId)
+      .catch((err) => {
+        console.error("Error obteniendo el próximo ID:", err);
+        setNextToolId("Se generará automáticamente");
+      });
   }, []);
 
   const estados = [
@@ -82,7 +108,9 @@ export default function ReturnableMaterialRegisterForm() {
 
     const parsedData = {
       ...formData,
-      brandId: Number(formData.brandId),
+      // Si no se seleccionó marca, enviamos null (no 0): brandId=0 no
+      // existe en la tabla brands y rompe la llave foránea.
+      brandId: formData.brandId ? Number(formData.brandId) : null,
       materialUnitValue: Number(formData.materialUnitValue),
       materialQuantity: Number(formData.materialQuantity),
       materialTotalValue: Number(formData.materialTotalValue),
@@ -155,12 +183,15 @@ export default function ReturnableMaterialRegisterForm() {
             <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-1">
 
               {/* Fila 1 — Identificadores del bien */}
+              {/* El ID Herramienta se muestra pero no es editable: el backend
+                  lo genera automáticamente al crear el registro. Aquí solo
+                  mostramos una vista previa del valor. */}
               <Input
-                label={<span>ID Herramienta <span style={{ color: "red" }}>*</span></span>}
+                label="ID Herramienta"
                 name="materialToolId"
-                value={formData.materialToolId}
-                onChange={handleChange}
-                error={errors.materialToolId}
+                value={nextToolId}
+                disabled
+                readOnly
               />
               <Input
                 label={<span>Placa SENA <span style={{ color: "red" }}>*</span></span>}
@@ -243,12 +274,13 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialCustodian}
               />
-              <Input
-                label="Ubicación"
-                name="materialLocation"
-                value={formData.materialLocation}
+              <Select
+                label={<span>Nombre de inventario<span style={{ color: "red" }}>*</span></span>}
+                name="inventoryNameId"
+                options={inventoryNames}
+                value={formData.inventoryNameId}
                 onChange={handleChange}
-                error={errors.materialLocation}
+                error={errors.inventoryNameId}
               />
               <Select
                 label={<span>Estado <span style={{ color: "red" }}>*</span></span>}
@@ -275,35 +307,41 @@ export default function ReturnableMaterialRegisterForm() {
                 error={errors.materialDescription}
                 rows={1}
               />
-              <div className=" flex flex-row gap-8">
-                {/* Fila 6 — Archivos */}
-                <div>
-                  <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
-                  <FileInput
-                    value={formData.materialTechnicalSheet}
-                    onChange={(files) =>
-                      setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
-                    }
-                    multiple={true}
-                  />
-                  {errors.materialTechnicalSheet && (
-                    <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
-                  )}
-                </div>
 
-                <div>
-                  <span>Foto <span style={{ color: "red" }}>*</span></span>
-                  <FileInput
-                    value={formData.photo}
-                    onChange={(files) =>
-                      setFormData((prev) => ({ ...prev, photo: files }))
-                    }
-                    multiple={true}
-                  />
-                  {errors.photo && (
-                    <span className="text-red-500 text-sm">{errors.photo}</span>
-                  )}
-                </div>
+              {/* Fila 6 — Ubicación queda junto a Ficha Técnica y Foto,
+                  en vez de que estas queden muy abajo separadas del resto. */}
+              <Input
+                label="Ubicación"
+                name="materialLocation"
+                value={formData.materialLocation}
+                onChange={handleChange}
+                error={errors.materialLocation}
+              />
+              <div className="min-w-0">
+                <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
+                <FileInput
+                  value={formData.materialTechnicalSheet}
+                  onChange={(files) =>
+                    setFormData((prev) => ({ ...prev, materialTechnicalSheet: files }))
+                  }
+                  multiple={true}
+                />
+                {errors.materialTechnicalSheet && (
+                  <span className="text-red-500 text-sm">{errors.materialTechnicalSheet}</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <span>Foto <span style={{ color: "red" }}>*</span></span>
+                <FileInput
+                  value={formData.photo}
+                  onChange={(files) =>
+                    setFormData((prev) => ({ ...prev, photo: files }))
+                  }
+                  multiple={true}
+                />
+                {errors.photo && (
+                  <span className="text-red-500 text-sm">{errors.photo}</span>
+                )}
               </div>
             </div>
 

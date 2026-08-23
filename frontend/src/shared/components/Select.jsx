@@ -5,10 +5,18 @@ export default function Select({
     value,
     onChange,
     options = [],
+    disabled = false,
+    // Igual que en Input.jsx: por defecto conserva el ancho fijo de siempre
+    // (para no afectar los demás formularios), pero un formulario puntual
+    // puede pasar, por ejemplo, containerClassName="w-full" para que ocupe
+    // el ancho real de su columna dentro de una grilla responsiva.
+    // Igual que en Input.jsx: máximo 320px, pero se encoge si el espacio
+    // disponible es menor, en vez de desbordarse en pantallas angostas.
+    containerClassName = "w-full max-w-[320px]",
 }) {
 
     return (
-        <div className="w-[320px]">
+        <div className={containerClassName}>
 
             {label && (
                 <label className={`block text-[10px] mb-1 text-text-secondary place-self-start ${error ? "text-red-800" : "text-text-primary"}`}>
@@ -20,6 +28,7 @@ export default function Select({
                 name={name}
                 value={value}
                 onChange={onChange}
+                disabled={disabled}
                 className={`
                     w-full
                     h-12
@@ -30,9 +39,10 @@ export default function Select({
                     px-4
 
                     hover:border-focus-border
-                    focus:outline-none 
-                    focus:ring-1 
+                    focus:outline-none
+                    focus:ring-1
                     focus:ring-focus-ring
+                    ${disabled ? "opacity-60 cursor-not-allowed" : ""}
                     ${error ? "border-red-800" : "border-border"}
                 `}
             >

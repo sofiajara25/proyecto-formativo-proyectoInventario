@@ -19,24 +19,34 @@ export const loanSchema = z.object({
 
   loanApprenticeGroup: z
     .string()
-    .min(1, "El grupo del aprendiz es requerido")
     .max(50, "El grupo del aprendiz es demasiado largo")
-    .optional,
+    .optional(),
 
-  loanCategory: z
-    .string()
-    .min(1, "Debe seleccionar una categoría"),
+  // El formulario maneja los materiales del préstamo como un arreglo (se
+  // pueden agregar/quitar varios), no como campos sueltos.
+  materials: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        // id del material real (returnable_materials o consumable_materials,
+        // según loanMaterialType) del que sale esta unidad. Se usa en el
+        // backend para descontar/restaurar existencias automáticamente.
+        materialId: z.union([z.string(), z.number()]).optional(),
+        loanCategory: z.string().min(1, "Debe seleccionar una categoría"),
+        loanProductName: z
+          .string()
+          .min(1, "Debe seleccionar un material"),
+        loanQuantity: z.coerce
+          .number({ invalid_type_error: "La cantidad debe ser un número" })
+          .int("La cantidad debe ser un número entero")
+          .min(1, "Debe solicitar al menos 1 unidad"),
+      })
+    )
+    .min(1, "Debe agregar al menos un material"),
 
-  loanProductName: z
-    .string()
-    .min(3, "El nombre del producto debe tener mínimo 3 caracteres")
-    .max(100, "El nombre del producto es demasiado largo"),
-
-  loanQuantity: z
-    .coerce
-    .number({ invalid_type_error: "La cantidad debe ser un número" })
-    .int("La cantidad debe ser un número entero")
-    .min(1, "Debe solicitar al menos 1 unidad"),
+  isActive: z.boolean({
+    invalid_type_error: "Debe seleccionar un estado",
+  }),
 
   loanDate: z
     .string()
@@ -55,5 +65,10 @@ export const loanSchema = z.object({
     .string()
     .min(1, "Debe seleccionar un prestamo"),
 
-  photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional()
+  // Cada elemento puede ser un File nuevo (el usuario adjuntó otra foto) o
+  // un string con la ruta que ya venía del backend (no se tocó el campo y
+  // se conserva la foto actual, esto ocurre al editar un préstamo).
+  photo: fileSchema.shape.files
+    .or(z.array(z.union([z.instanceof(File), z.string()])).max(12))
+    .optional()
 });

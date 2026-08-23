@@ -2,9 +2,10 @@ const API_URL = "http://localhost:5000/api/returnableMaterial";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 
-function buildReturnableFormData(returnableMaterialData) {
-    const formData = new FormData();
-
+// Agrega los campos comunes de texto/número (todo lo que NO son las fotos).
+// El manejo de fotos se hace aparte porque crear y actualizar lo necesitan
+// distinto (ver buildReturnableCreateFormData / buildReturnableUpdateFormData).
+function appendCommonReturnableFields(formData, returnableMaterialData) {
     formData.append("materialToolId", returnableMaterialData.materialToolId);
     formData.append("materialSenaPlate", returnableMaterialData.materialSenaPlate);
     formData.append("materialCategory", returnableMaterialData.materialCategory);
@@ -18,17 +19,52 @@ function buildReturnableFormData(returnableMaterialData) {
     formData.append("materialTotalValue", returnableMaterialData.materialTotalValue);
     formData.append("materialDimensions", returnableMaterialData.materialDimensions);
     formData.append("materialDescription", returnableMaterialData.materialDescription);
-    formData.append("brandId", returnableMaterialData.brandId);
 
+    // Solo enviamos brandId si hay una marca seleccionada. FormData convierte
+    // cualquier valor a texto, así que un null se volvería el string "null"
+    // y Postgres lo rechazaría al intentar guardarlo en una columna entera.
+    // Si el campo no viaja, el backend lo trata como ausente y guarda NULL.
+    if (returnableMaterialData.brandId) {
+        formData.append("brandId", returnableMaterialData.brandId);
+    }
+
+    // La ficha técnica es un solo archivo: si sigue siendo el string que ya
+    // existía (no se tocó el campo), reenviarlo como texto no hace daño —
+    // multer lo ignora como archivo y el backend conserva el actual.
     if (Array.isArray(returnableMaterialData.materialTechnicalSheet) && returnableMaterialData.materialTechnicalSheet.length) {
         formData.append("materialTechnicalSheet", returnableMaterialData.materialTechnicalSheet[0]);
     }
+    formData.append("inventoryNameId", returnableMaterialData.inventoryNameId);
 
     formData.append("materialLocation", returnableMaterialData.materialLocation);
+}
 
-    if (Array.isArray(returnableMaterialData.photo) && returnableMaterialData.photo.length) {
-        formData.append("photo", returnableMaterialData.photo[0]);
-    }
+// Al crear, "photo" son puros archivos nuevos (todavía no existe nada que
+// conservar): se mandan todos bajo el mismo campo "photo".
+function buildReturnableCreateFormData(returnableMaterialData) {
+    const formData = new FormData();
+    appendCommonReturnableFields(formData, returnableMaterialData);
+
+    const photoFiles = Array.isArray(returnableMaterialData.photo) ? returnableMaterialData.photo : [];
+    photoFiles.forEach((file) => formData.append("photo", file));
+
+    return formData;
+}
+
+// Al actualizar, "photo" puede traer una MEZCLA de fotos que ya existían
+// (strings con la ruta) y fotos nuevas (File). Separamos: las que ya
+// existían van en "keepPhotos" (como JSON, porque FormData no soporta
+// arreglos anidados) y las nuevas se suben como archivos.
+function buildReturnableUpdateFormData(returnableMaterialData) {
+    const formData = new FormData();
+    appendCommonReturnableFields(formData, returnableMaterialData);
+
+    const photoItems = Array.isArray(returnableMaterialData.photo) ? returnableMaterialData.photo : [];
+    const keepPhotos = photoItems.filter((item) => typeof item === "string");
+    const newPhotoFiles = photoItems.filter((item) => item instanceof File);
+
+    formData.append("keepPhotos", JSON.stringify(keepPhotos));
+    newPhotoFiles.forEach((file) => formData.append("photo", file));
 
     return formData;
 }
@@ -37,21 +73,21 @@ export async function createReturnableMaterial(returnableMaterialData) {
     // Realizamos la petición HTTP usando fetch
     const token = sessionStorage.getItem("token");
 
+    // IMPORTANTE: se envía como multipart/form-data, NO como JSON. No se
+    // debe fijar manualmente el header Content-Type: el navegador necesita
+    // generar el boundary del multipart automáticamente. Si se envía como
+    // JSON, multer nunca recibe los archivos (req.files queda vacío) y la
+    // foto / ficha técnica llegan null al backend.
     const response = await fetch(API_URL, {
         // Método HTTP según convención REST
         method: "POST",
 
-
         // Cabeceras de la petición
-        // Indicamos que enviamos JSON
         headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
 
-
-        // Convertimos el objeto userData a JSON
-        body: JSON.stringify(returnableMaterialData),
+        body: buildReturnableCreateFormData(returnableMaterialData),
     });
 
     if (!response.ok) {
@@ -60,6 +96,15 @@ export async function createReturnableMaterial(returnableMaterialData) {
     }
 
     return response.json();
+}
+
+// Vista previa del tool_id que se le asignará al próximo material creado.
+// No reserva nada: solo consulta cuál sería.
+export async function getNextReturnableToolId() {
+    const response = await fetch(`${API_URL}/next-tool-id`);
+    if (!response.ok) throw new Error("Error al obtener el próximo ID");
+    const data = await response.json();
+    return data.toolId;
 }
 
 export async function getReturnables() {
@@ -77,7 +122,7 @@ export async function getReturnableById(id) {
 export async function updateReturnable(id, data) {
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
-        body: buildReturnableFormData(data),
+        body: buildReturnableUpdateFormData(data),
     });
 
     if (!response.ok) {

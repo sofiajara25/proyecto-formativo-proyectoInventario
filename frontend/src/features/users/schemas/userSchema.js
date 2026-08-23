@@ -63,9 +63,15 @@ export const userSchema = z.object({
     userPhoto: singleFileSchema.optional()
 }).refine((data) => {
     if (!data.userStartDate) return false;
-    const today = new Date();
-    const start = new Date(data.userStartDate);
 
+    // Parseamos "YYYY-MM-DD" como fecha LOCAL (no UTC). new Date(string)
+    // interpreta ese formato como medianoche UTC, y al convertirlo a horario
+    // local (ej. Colombia, UTC-5) puede "caer" al día anterior, haciendo que
+    // la fecha de hoy parezca anterior a hoy.
+    const start = parseLocalDate(data.userStartDate);
+    if (!start) return false;
+
+    const today = new Date();
     today.setHours(0, 0, 0, 0);
     start.setHours(0, 0, 0, 0);
 
@@ -74,9 +80,20 @@ export const userSchema = z.object({
 
     .refine((data) => {
         if (!data.userEndDate) return true; // 👈 si no hay fecha fin, no valida
-        const start = new Date(data.userStartDate);
-        const end = new Date(data.userEndDate);
+        const start = parseLocalDate(data.userStartDate);
+        const end = parseLocalDate(data.userEndDate);
+        if (!start || !end) return false;
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
         return end >= start;
     }, { path: ["userEndDate"], message: "La fecha de finalización no puede ser anterior a la fecha de inicio" });
+
+// Convierte un string "YYYY-MM-DD" a Date en horario LOCAL (evita el
+// corrimiento de un día que produce `new Date("YYYY-MM-DD")`, que lo
+// interpreta como UTC).
+function parseLocalDate(value) {
+    if (!value) return null;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, (month || 1) - 1, day || 1);
+    return isNaN(date.getTime()) ? null : date;
+}

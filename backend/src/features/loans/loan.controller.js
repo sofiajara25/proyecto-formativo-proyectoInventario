@@ -34,11 +34,19 @@ export const loanController = {
 
       // Llamamos al servicio de usuario, pasando los datos recibidos
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
-      const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
+      // Un préstamo puede tener varias fotos: tomamos TODAS las que
+      // llegaron en el campo "photo" (no solo la primera).
+      const photos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
+
+      // FormData manda todo como texto: "isActive" llega como "true"/"false".
+      // Si no viaja (nunca debería, pero por si acaso), el préstamo nace activo.
+      const isActive = req.body.isActive === undefined ? true : req.body.isActive === "true";
+
       const loan = await loanService.createLoan({
         ...req.body,
         materials,
-        photo: photoPath,
+        photos,
+        isActive,
       });
 
 
@@ -100,7 +108,41 @@ export const loanController = {
   async update(req, res) {
     try {
       const { loan_id } = req.params;
-      const updatedLoan = await loanService.updateLoan(loan_id, req.body, req.file);
+
+      // Fotos nuevas que se acaban de subir en este submit.
+      const newPhotos = (req.files?.photo ?? []).map((f) => `uploads/${f.filename}`);
+
+      // "keepPhotos" trae, en JSON, las rutas de las fotos que YA existían
+      // y el usuario decidió conservar (no les dio a la ❌).
+      let keepPhotos = [];
+      try {
+        keepPhotos = JSON.parse(req.body.keepPhotos ?? "[]");
+      } catch {
+        keepPhotos = [];
+      }
+      if (!Array.isArray(keepPhotos)) keepPhotos = [];
+
+      // "materials" también llega como JSON dentro del multipart/form-data.
+      let materials;
+      if (req.body.materials !== undefined) {
+        try {
+          materials = JSON.parse(req.body.materials);
+        } catch {
+          return res.status(400).json({ error: "El formato de materials no es válido" });
+        }
+      }
+
+      const photos = [...keepPhotos, ...newPhotos];
+
+      // FormData manda todo como texto: "isActive" llega como "true"/"false".
+      const isActive = req.body.isActive === undefined ? undefined : req.body.isActive === "true";
+
+      const updatedLoan = await loanService.updateLoan(loan_id, {
+        ...req.body,
+        materials,
+        photos,
+        isActive,
+      });
       res.status(200).json({
         message: "Préstamo actualizado correctamente",
         loan: updatedLoan,

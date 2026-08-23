@@ -3,6 +3,7 @@
 // y mantener el archivo principal de la app limpio.
 import { Router } from "express";
 import multer from "multer";
+import path from "path";
 
 // Importamos el controlador de usuarios.
 // El router nunca implementa lógica,
@@ -12,7 +13,29 @@ import { authenticateToken } from "../../middlewares/auth.middleware.js";
 
 // Creamos una instancia del router de Express
 const router = Router();
-const upload = multer({ dest: "uploads/" });// o config mas avanzada 
+
+// IMPORTANTE: usamos diskStorage con un filename que conserva la extensión
+// (igual que en materiales/préstamos). Con multer({dest:"uploads/"}) el
+// archivo se guarda con un nombre hash SIN extensión, y el frontend no
+// puede saber si es una imagen o un PDF solo mirando el nombre — por eso
+// las fotos de usuario se veían como "PDF" en vez de mostrar la imagen.
+const storage = multer.diskStorage({
+    destination: "uploads/",
+    filename: (_req, file, cb) => {
+        const extensionByType = {
+            "application/pdf": ".pdf",
+            "image/jpeg": ".jpg",
+            "image/png": ".png",
+            "image/webp": ".webp",
+        };
+        const extension = path.extname(file.originalname) || extensionByType[file.mimetype] || "";
+        const safeFieldName = file.fieldname.replace(/[^a-zA-Z0-9]/g, "");
+        const uniqueName = `${safeFieldName}-${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`;
+
+        cb(null, uniqueName);
+    },
+});
+const upload = multer({ storage });
 
 
 // Definimos la ruta para crear un usuario

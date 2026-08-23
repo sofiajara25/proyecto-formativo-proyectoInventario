@@ -1,3 +1,5 @@
+import { formatDate } from "@/shared";
+
 export function buildReportDataset({
     consumables,
     selectedFields,
@@ -28,7 +30,10 @@ export function buildReportDataset({
 
     const headers = uniqueFields.map((field) => field.label);
     const rows = filteredConsumables.map((consumable) =>
-        uniqueFields.map((field) => consumable[field.key] ?? "")
+        uniqueFields.map((field) => {
+            const value = consumable[field.key] ?? "";
+            return field.key.toLowerCase().includes("date") ? formatDate(value) : value;
+        })
     );
 
     return { headers, rows };

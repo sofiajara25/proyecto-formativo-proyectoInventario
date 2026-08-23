@@ -3,6 +3,7 @@
 // y mantener el archivo principal de la app limpio.
 import { Router } from "express";
 import multer from "multer";
+import path from "path";
 
 // Importamos el controlador de usuarios.
 // El router nunca implementa lógica,
@@ -37,19 +38,23 @@ const upload = multer({ storage });
 router.post(
     "/",
     upload.fields([
-        { name: "photo", maxCount: 5 },
+        { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     consumableMaterialController.create);
 
 router.get("/", consumableMaterialController.list);
 
+// Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"
+// como si fuera el parámetro :id.
+router.get("/next-tool-id", consumableMaterialController.getNextToolId);
+
 router.get("/:id", consumableMaterialController.getById);
 
 router.put(
     "/:id",
     upload.fields([
-        { name: "photo", maxCount: 5 },
+        { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     consumableMaterialController.update);

@@ -1,46 +1,31 @@
-// Importamos el repositorio de usuarios.
-// El service depende del repository para acceder a la persistencia,
-// pero el repository NO debe conocer el service.
+// Capa de lógica de negocio para nombres de inventario. Depende del
+// repository para persistencia, pero el repository no conoce el service.
 import { inventoryNameRepository } from "./inventoryName.repository.js";
 
-
-// Exportamos el servicio de usuarios.
-// El service representa la capa de lógica de negocio de la aplicación.
 export const inventoryNameService = {
-    // Método encargado de crear un material de consumo
-    // Recibe datos provenientes del controller,
-    // idealmente ya validados a nivel estructural (DTO / schema)
-    async createInventoryName(data) {
-        // Reglas de negocio básicas:
-        // - Normalizar el nombre (ej. trim y capitalizar)
-        // - Validar longitud mínima/máxima (ya lo hace Zod en el schema)
-        // - Evitar duplicados (opcional, depende de tu lógica)
 
-        const inventoryNameData = {
-            ...data,
-            inventoryName: data.inventoryName.trim(),
-        };
+  async createInventoryName(data) {
+    // El frontend envía "inventoryName" (camelCase); la columna real es
+    // "inventory_name". Aceptamos ambas formas por si acaso.
+    const inventory_name = (data.inventory_name ?? data.inventoryName ?? "").trim();
+    return await inventoryNameRepository.create({ inventory_name });
+  },
 
-        console.log("SERVICE DATA:", inventoryNameData);
+  async getAllInventoryNames() {
+    return await inventoryNameRepository.findAll();
+  },
 
-        // Delegamos al repository
-        return await inventoryNameRepository.create(inventoryNameData);
-    },
+  async getInventoryNameById(id) {
+    return await inventoryNameRepository.findById(id);
+  },
 
-    async getAllInventoryNames() {
-        return await inventoryNameRepository.findAll();
-    },
+  async updateInventoryName(id, data) {
+    const inventory_name = (data.inventory_name ?? data.inventoryName ?? "").trim();
+    return await inventoryNameRepository.update(id, { inventory_name });
+  },
 
-    async getInventoryNameById(inventory_name_id) {
-        return await inventoryNameRepository.findById(inventory_name_id);
-    },
-
-    async updateInventoryName(inventory_name_id, data) {
-        return await inventoryNameRepository.update(inventory_name_id, data);
-    },
-
-    async updateInventoryNameStatus(inventory_name_id, status) {
-        return await inventoryNameRepository.updateStatus(inventory_name_id, status);
-    }
+  async updateInventoryNameStatus(id, status) {
+    return await inventoryNameRepository.updateStatus(id, status);
+  },
 
 };

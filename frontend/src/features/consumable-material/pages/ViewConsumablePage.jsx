@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Navbar, Button, formatDate } from "@/shared";
+import { Navbar, Button, formatDate, PhotoViewer, FileViewer } from "@/shared";
 import { FileText } from "lucide-react";
 import { getConsumableById } from "../services/consumableMaterialService";
 
@@ -35,18 +35,12 @@ export default function ViewConsumablePage() {
                     style={{ padding: "36px 40px", width: "100%", maxWidth: "680px" }}>
                     {/* Header */}
                     <div className="flex items-center gap-6">
-                        <div className="flex items-center justify-center rounded-full"
-                            style={{ width: "80px", height: "80px", background: "var(--color-primary-950)", flexShrink: 0 }}>
-                                {consumable.photo_url ? (
-                                <img
-                                    src={`http://localhost:5000/${consumable.photo_url}`}
-                                    alt="Foto del material de consumo"
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                            ) : (
-                                <FileText size={40} color="white" />
-                            )}
-                        </div>
+                        <PhotoViewer
+                            photos={Array.isArray(consumable.photos) ? consumable.photos : (consumable.photo_url ? [consumable.photo_url] : [])}
+                            fallbackIcon={<FileText size={40} color="white" />}
+                            size={80}
+                            alt="Foto del material de consumo"
+                        />
                         <div className="flex flex-col gap-1">
                             <p className="text-lg font-bold text-gray-900">{consumable.material_name}</p>
                             <p className="text-sm text-gray-500">Custodio: {consumable.accountant}</p>
@@ -59,13 +53,26 @@ export default function ViewConsumablePage() {
                     {/* Detalles */}
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Código herramienta:</strong> {consumable.tool_id}</p>
-                        <p><strong>Placa SENA:</strong> {consumable.sena_plate}</p>
+                        <p><strong>Placa SENA:</strong> {consumable.sena_plate || "—"}</p>
                         <p><strong>Fecha de ingreso:</strong> {formatDate(consumable.entry_date)}</p>
                         <p><strong>Cantidad:</strong> {consumable.quantity}</p>
-                        <p><strong>Ubicación:</strong> {consumable.location}</p>
+                        <p><strong>Nombre del inventario:</strong> {consumable.inventory_name || "—"}</p>
+                        <p><strong>Ubicación:</strong> {consumable.location || "—"}</p>
                         <p><strong>Valor unitario:</strong> ${consumable.unit_value}</p>
                         <p><strong>Valor total:</strong> ${consumable.total_value}</p>
                         <p><strong>Descripción:</strong> {consumable.description}</p>
+                        <p><strong>Marca:</strong> {consumable.brand_name || "—"}</p>
+
+                    </div>
+
+                    {/* Ficha técnica: miniatura clicable que abre el archivo en grande */}
+                    <div>
+                        <p className="mb-2"><strong>Ficha Tecnica:</strong></p>
+                        {consumable.technical_sheet ? (
+                            <FileViewer file={consumable.technical_sheet} label="Ficha técnica" />
+                        ) : (
+                            <p className="text-sm text-gray-500">Sin archivo</p>
+                        )}
                     </div>
 
                     {/* Acciones */}

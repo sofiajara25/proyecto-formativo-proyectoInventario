@@ -10,20 +10,15 @@ import {
     Button,
 } from "@/shared";
 import logoSena from "@/assets/images/LogoSena.png";
-import { useState } from "react";
 import { logout } from "../../features/auth/services/logoutSevice";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const [search, setSearch] = useState("");
 
     const handleLogout = () => {
         logout();
         navigate("/auth");
     };
-
-    const handleSearch = (value) => console.log("Buscar:", value);
-    const handleClear = () => console.log("Campo limpiado");
 
     return (
         <nav
@@ -32,7 +27,7 @@ export default function Navbar() {
             }}
         >
             <div className="px-3 sm:px-4">
-                <div className="flex h-14 sm:h-16 items-center gap-2">
+                <div className="flex h-14 sm:h-16 items-center gap-2 justify-between">
 
                     {/* Izquierda: volver + logo */}
                     <div className="flex items-center shrink-0 gap-14">
@@ -49,22 +44,8 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Centro: buscador */}
-                    <div className="flex-1 flex justify-center px-2">
-                        <SearchField
-                            value={search}
-                            onChange={setSearch}
-                            onSubmit={handleSearch}
-                            onClear={handleClear}
-                            placeholder="Buscar..."
-                            size="sm"
-                            variant="filled"
-                            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg border-0"
-                        />
-                    </div>
-
                     {/* Derecha: cerrar sesión + menú */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 justify-end">
                         {/* Cerrar sesión — oculto en móvil, visible en sm+ */}
                         <div className="hidden sm:block">
                             <Button onClick={handleLogout} variant="secondary" size="sm">

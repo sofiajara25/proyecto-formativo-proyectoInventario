@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { fileSchema } from "@/shared";
 
 export const updateReturnableSchema = z.object({
     materialToolId: z
@@ -19,8 +18,12 @@ export const updateReturnableSchema = z.object({
 
     materialSerial: z
         .string()
-        .min(3, "El serial debe tener mínimo 3 caracteres")
-        .max(50, "El serial es demasiado largo")
+        .refine(
+            (val) => !val || (val.length >= 3 && val.length <= 50),
+            {
+                message: "El serial debe tener entre 3 y 50 caracteres",
+            }
+        )
         .optional(),
 
     materialName: z
@@ -31,8 +34,12 @@ export const updateReturnableSchema = z.object({
 
     materialModel: z
         .string()
-        .min(2, "El modelo debe tener mínimo 2 caracteres")
-        .max(50, "El modelo es demasiado largo")
+        .refine(
+            (val) => !val || (val.length >= 2 && val.length <= 50),
+            {
+                message: "El modelo debe tener entre 2 y 50 caracteres",
+            }
+        )
         .optional(),
 
     materialUnitValue: z
@@ -69,8 +76,12 @@ export const updateReturnableSchema = z.object({
 
     materialDimensions: z
         .string()
-        .min(2, "Las dimensiones deben tener mínimo 2 caracteres")
-        .max(50, "Las dimensiones son demasiado largas")
+        .refine(
+            (val) => !val || (val.length >= 2 && val.length <= 50),
+            {
+                message: "Las dimensiones deben tener entre 2 y 50 caracteres",
+            }
+        )
         .optional(),
 
     materialDescription: z
@@ -79,19 +90,33 @@ export const updateReturnableSchema = z.object({
         .max(200, "La descripción es demasiado larga")
         .optional(),
 
-    materialTechnicalSheet: fileSchema.shape.files
-        .or(z.array(z.instanceof(File)).max(1))
+    // Cada elemento puede ser un File nuevo (el usuario adjuntó otro archivo)
+    // o un string con la ruta que ya venía del backend (el usuario no tocó
+    // el campo y se conserva el archivo/foto actual).
+    materialTechnicalSheet: z
+        .array(z.union([z.instanceof(File), z.string()]))
+        .max(1)
         .optional(),
+
+    inventoryNameId: z.string().min(1, "Debe seleccionar un nombre de inventario"),
 
     materialLocation: z
         .string()
-        .min(3, "La ubicación debe tener mínimo 3 caracteres")
-        .max(100, "La ubicación es demasiado larga")
+        .refine(
+            (val) => !val || (val.length >= 3 && val.length <= 100),
+            {
+                message: "La ubicación debe tener entre 3 y 100 caracteres",
+            }
+        )
         .optional(),
 
-    photo: fileSchema.shape.files.or(z.array(z.instanceof(File)).max(0)).optional(),
+    photo: z
+        .array(z.union([z.instanceof(File), z.string()]))
+        .max(12)
+        .optional(),
 
     brandId: z
         .number({ invalid_type_error: "La marca es requerida" })
+        .nullable()
         .optional(),
 });
