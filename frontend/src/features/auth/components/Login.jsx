@@ -118,6 +118,22 @@ export default function Login() {
                             INICIAR SESIÓN
                         </h2>
 
+                        {/* Aviso fijo: como la contraseña de una cuenta nueva
+                            se genera sola y nadie la conoce (ni siquiera
+                            quien la creó), la única forma de entrar la
+                            primera vez es crear una contraseña propia desde
+                            "Recuperar contraseña". */}
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 text-center">
+                            ¿Te acaban de crear la cuenta? Ve a{" "}
+                            <a
+                                onClick={() => navigate("/auth/recovery")}
+                                className="underline cursor-pointer font-semibold"
+                            >
+                                Recuperar contraseña
+                            </a>{" "}
+                            para crear tu contraseña y poder ingresar.
+                        </div>
+
                         <Input
                             label="Email"
                             name="userEmail"

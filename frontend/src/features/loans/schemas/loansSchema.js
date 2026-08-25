@@ -3,6 +3,17 @@ import { fileSchema } from "@/shared";
 
 export const loanSchema = z.object({
 
+  isUserRegistered: z.boolean().optional(),
+
+  // Requerido solo si el usuario NO está registrado (ver .superRefine más
+  // abajo): si está registrado, el correo se autocompleta solo y puede
+  // venir vacío si el usuario elegido no tiene correo guardado.
+  signerEmail: z
+    .string()
+    .email("Correo electrónico inválido")
+    .optional()
+    .or(z.literal("")),
+
   loanMaterialType: z
     .string()
     .min(1, "Debe seleccionar un tipo de material"),
@@ -71,4 +82,14 @@ export const loanSchema = z.object({
   photo: fileSchema.shape.files
     .or(z.array(z.union([z.instanceof(File), z.string()])).max(12))
     .optional()
+}).superRefine((data, ctx) => {
+  // Si la persona no está registrada, el correo para la firma es
+  // obligatorio (es la única forma de mandarle el enlace de aceptación).
+  if (data.isUserRegistered === false && !data.signerEmail) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["signerEmail"],
+      message: "El correo es obligatorio si el usuario no está registrado",
+    });
+  }
 });

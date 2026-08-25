@@ -221,7 +221,15 @@ export const loanRepository = {
               SELECT COALESCE(json_agg(lp.photo_url ORDER BY lp.id), '[]')
               FROM loan_photos lp
               WHERE lp.loan_id = loans.loan_id
-            ) AS gallery_photos
+            ) AS gallery_photos,
+            -- "Pendiente" mientras el receptor no haya aceptado el correo de
+            -- firma electrónica; NULL si el préstamo no tiene firma asociada
+            -- (no se pidió correo al crearlo).
+            (
+              SELECT ls.status FROM loan_signatures ls
+              WHERE ls.loan_id = loans.loan_id
+              ORDER BY ls.id DESC LIMIT 1
+            ) AS signature_status
           FROM loans
           ORDER BY loans.loan_id ASC;
         `;
@@ -261,7 +269,12 @@ export const loanRepository = {
               SELECT COALESCE(json_agg(lp.photo_url ORDER BY lp.id), '[]')
               FROM loan_photos lp
               WHERE lp.loan_id = loans.loan_id
-            ) AS gallery_photos
+            ) AS gallery_photos,
+            (
+              SELECT ls.status FROM loan_signatures ls
+              WHERE ls.loan_id = loans.loan_id
+              ORDER BY ls.id DESC LIMIT 1
+            ) AS signature_status
           FROM loans
           WHERE loans.loan_id = $1;
         `;

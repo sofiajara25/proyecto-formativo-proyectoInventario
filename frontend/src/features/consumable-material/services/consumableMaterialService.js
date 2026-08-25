@@ -33,6 +33,14 @@ export async function createConsumableMaterial(consumableMaterialData) {
         formData.append("brandId", consumableMaterialData.brandId);
     }
 
+    if (consumableMaterialData.categoryId) {
+        formData.append("categoryId", consumableMaterialData.categoryId);
+    }
+
+    // Igual que "keepPhotos": un arreglo no se puede mandar directo en
+    // multipart/form-data, así que viaja como JSON.
+    formData.append("quotationIds", JSON.stringify(consumableMaterialData.quotationIds ?? []));
+
     if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {
         formData.append("materialTechnicalSheet", consumableMaterialData.materialTechnicalSheet[0]);
     }
@@ -127,6 +135,12 @@ export async function updateConsumable(id, consumableMaterialData) {
     if (consumableMaterialData.brandId) {
         formData.append("brandId", consumableMaterialData.brandId);
     }
+
+    if (consumableMaterialData.categoryId) {
+        formData.append("categoryId", consumableMaterialData.categoryId);
+    }
+
+    formData.append("quotationIds", JSON.stringify(consumableMaterialData.quotationIds ?? []));
 
     // 📌 Aquí agregas la ficha técnica
     if (Array.isArray(consumableMaterialData.materialTechnicalSheet) && consumableMaterialData.materialTechnicalSheet.length) {

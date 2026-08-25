@@ -3,6 +3,8 @@ import { Input, Button, Navbar, FileInput, Modal, TextArea, Select } from "@/sha
 import { useNavigate, useParams } from "react-router-dom";
 import { getConsumableById, updateConsumable } from "../services/consumableMaterialService";
 import { updateMaterialSchema } from "../schemas/updateMaterialSchema";
+import { getCategorys } from "../../categorys/service/categoryService";
+import { QuotationsPicker } from "../../quotations";
 
 export default function MaterialRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +26,8 @@ export default function MaterialRegisterForm() {
         materialStatus: "",
         materialDescription: "",
         brandId: "",
+        categoryId: "",
+        quotationIds: [],
         materialTechnicalSheet: [],
         photo: [],
     });
@@ -33,6 +37,20 @@ export default function MaterialRegisterForm() {
     const [brands, setBrands] = useState([]);
 
     const [inventoryNames, setInventoryNames] = useState([]);
+
+    const [categorias, setCategorias] = useState([]);
+
+    useEffect(() => {
+        getCategorys()
+            .then((data) => {
+                const options = data.map((c) => ({
+                    value: c.category_id,
+                    label: `${c.category_name} (${c.element_type})`,
+                }));
+                setCategorias([{ value: "", label: "Selecciona una categoría" }, ...options]);
+            })
+            .catch((err) => console.error("Error cargando categorías:", err));
+    }, []);
 
     useEffect(() => {
         fetch("http://localhost:5000/api/brands")
@@ -68,13 +86,24 @@ export default function MaterialRegisterForm() {
                     // backend devuelve null. El <select> de React no acepta
                     // "value={null}" (advertencia en consola), así que
                     // caemos a "" para que se vea la opción "Selecciona...".
-                    inventoryNameId: data.inventory_name_id ?? "",
+                    // El schema espera un string ("z.string()"), pero el
+                    // backend devuelve el id como número: si no se
+                    // convierte, la validación falla con "Invalid input:
+                    // expected string, received number" en cuanto el
+                    // usuario guarda sin tocar este campo.
+                    inventoryNameId: data.inventory_name_id != null ? String(data.inventory_name_id) : "",
                     materialLocation: data.location,
                     materialUnitValue: data.unit_value,
                     materialTotalValue: data.total_value,
                     materialStatus: data.status,
                     materialDescription: data.description,
                     brandId: data.brand_id ?? "",
+                    categoryId: data.category_id ?? "",
+                    // "quotations" viene del backend como el arreglo de
+                    // cotizaciones ya enlazadas a este material.
+                    quotationIds: Array.isArray(data.quotations)
+                        ? data.quotations.map((q) => q.quotation_id)
+                        : [],
                     // Precargamos el archivo/foto ya guardados para que se
                     // vean en el formulario y el usuario sepa qué va a
                     // reemplazar. Si no toca el campo, se conservan tal cual.
@@ -119,6 +148,7 @@ export default function MaterialRegisterForm() {
             // Si no hay marca seleccionada, null (no 0): brandId=0 no existe
             // en la tabla brands y rompe la llave foránea.
             brandId: formData.brandId ? Number(formData.brandId) : null,
+            categoryId: formData.categoryId ? Number(formData.categoryId) : null,
             materialQuantity: Number(formData.materialQuantity),
             materialUnitValue: Number(formData.materialUnitValue),
             materialTotalValue: Number(formData.materialTotalValue),
@@ -328,6 +358,24 @@ export default function MaterialRegisterForm() {
                                     error={errors.brandId}
                                 />
                             </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Select
+                                    label="Categoría"
+                                    name="categoryId"
+                                    options={categorias}
+                                    value={formData.categoryId}
+                                    onChange={handleChange}
+                                    error={errors.categoryId}
+                                />
+                            </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <QuotationsPicker
+                                    value={formData.quotationIds}
+                                    onChange={(ids) => setFormData((prev) => ({ ...prev, quotationIds: ids }))}
+                                    error={errors.quotationIds}
+                                />
+                            </div>
+
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 col-span-full">
                                     {/* Fila 5 */}

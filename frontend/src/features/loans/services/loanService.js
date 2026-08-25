@@ -55,6 +55,13 @@ function buildLoanCreateFormData(loanData) {
     formData.append("isActive", String(loanData.isActive ?? true));
     formData.append("materials", JSON.stringify(loanData.materials ?? []));
 
+    // Firma electrónica: si hay correo (venga de un usuario registrado o
+    // escrito a mano), se manda para que el backend genere el enlace de
+    // aceptación. Si no hay, simplemente no se crea la firma.
+    if (loanData.signerEmail) {
+        formData.append("signerEmail", loanData.signerEmail);
+    }
+
     const photoFiles = Array.isArray(loanData.photo) ? loanData.photo : [];
     photoFiles.forEach((file) => formData.append("photo", file));
 

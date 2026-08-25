@@ -103,7 +103,7 @@ export default function ViewReturMaterialPage() {
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Código herramienta:</strong> {retornable.tool_id}</p>
                         <p><strong>Placa SENA:</strong> {retornable.sena_plate}</p>
-                        <p><strong>Categoria:</strong> {retornable.category}</p>
+                        <p><strong>Categoria:</strong> {retornable.category_name ? `${retornable.category_name} (${retornable.category_element_type})` : "—"}</p>
 
                         <p><strong>Serial:</strong> {retornable.serial || "—"}</p>
                         <p><strong>Modelo:</strong> {retornable.model || "—"}</p>
@@ -127,6 +127,19 @@ export default function ViewReturMaterialPage() {
                         )}
                     </div>
 
+                    {/* Cotizaciones enlazadas (elegidas del catálogo de Cotizaciones) */}
+                    <div>
+                        <p className="mb-2"><strong>Cotizaciones:</strong></p>
+                        {Array.isArray(retornable.quotations) && retornable.quotations.length > 0 ? (
+                            <div className="flex flex-wrap gap-3">
+                                {retornable.quotations.map((q) => (
+                                    <FileViewer key={q.quotation_id} file={q.pdf_url} label={q.quotation_name} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">Sin cotizaciones</p>
+                        )}
+                    </div>
 
                     {/* Divider */}
                     <div style={{ borderTop: "1.5px solid var(--color-gray-100)" }} />

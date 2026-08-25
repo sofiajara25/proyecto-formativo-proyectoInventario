@@ -71,6 +71,29 @@ export const loansColumns = [
         cell: ({ row }) => <LoanStatusSwitch loan={row.original} />,
     },
 
+    // Muestra si aún falta que el receptor de la firma electrónica confirme
+    // el préstamo por correo (solo aparece si se pidió firma al crearlo).
+    {
+        id: "signature_status",
+        header: "Firma",
+        cell: ({ row }) => {
+            const status = row.original.signature_status;
+            if (!status) return "—";
+            if (status === "Pendiente") {
+                return (
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+                        Pendiente de aceptación
+                    </span>
+                );
+            }
+            return (
+                <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+                    Aceptado
+                </span>
+            );
+        },
+    },
+
     // Columna de acciones (editar / eliminar)
     {
         id: "actions", // No usa accessorKey porque no corresponde a un campo del usuario

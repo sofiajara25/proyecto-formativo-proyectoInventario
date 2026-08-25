@@ -47,7 +47,9 @@ export const updateUserSchema = z.object({
         .string()
         .min(1, "El estado es obligatorio"),
 
-    userPassword: z.union([z.string().min(6, "La contraseña debe tener mínimo 6 caracteres"), z.literal("")]),
+    // La contraseña no se edita desde este formulario: se generó sola al
+    // crear el usuario y se queda igual, sin que se pueda ver ni cambiar
+    // aquí.
     userPhoto: z
         .any()
         .optional(),

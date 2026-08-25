@@ -1,4 +1,4 @@
-import { Dices, Users2, UserRoundCheck, ShelvingUnit } from "lucide-react"
+import { Dices, Users2, UserRoundCheck, ShelvingUnit, ChartColumnStacked, FileText } from "lucide-react"
 
 export const settings = [
     {
@@ -28,5 +28,19 @@ export const settings = [
         logo: ShelvingUnit,
         category: "perifericos",
         path: "/dashboard/list-nombreInventario",
+    },
+    {
+        id: 5,
+        title: "Categoría",
+        logo: ChartColumnStacked,
+        category: "perifericos",
+        path: "/dashboard/list-categoria",
+    },
+    {
+        id: 6,
+        title: "Cotizaciones",
+        logo: FileText,
+        category: "perifericos",
+        path: "/dashboard/cotizaciones",
     },
 ]

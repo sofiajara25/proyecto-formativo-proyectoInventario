@@ -3,6 +3,8 @@ import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/sha
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
+import { getCategorys } from "../../categorys/service/categoryService";
+import { QuotationsPicker } from "../../quotations";
 
 export default function ReturnableMaterialRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,7 +14,7 @@ export default function ReturnableMaterialRegisterForm() {
 
   const [formData, setFormData] = useState({
     materialSenaPlate: "",
-    materialCategory: "",
+    categoryId: "",
     materialSerial: "",
     materialName: "",
     materialModel: "",
@@ -27,6 +29,7 @@ export default function ReturnableMaterialRegisterForm() {
     inventoryNameId: "",
     materialLocation: "",
     brandId: "",
+    quotationIds: [],
     photo: [],
   });
 
@@ -36,17 +39,23 @@ export default function ReturnableMaterialRegisterForm() {
 
   const [inventoryNames, setInventoryNames] = useState([]);
 
+  const [categorias, setCategorias] = useState([]);
 
   // Vista previa del ID que el backend le va a asignar al material al
   // guardarlo (ej. "DEV-0007"). No se puede editar, solo se muestra.
   const [nextToolId, setNextToolId] = useState("Calculando...");
 
-  const categorias = [
-    { value: "", label: "Seleccione una opcion" },
-    { value: "herramienta", label: "Herramienta" },
-    { value: "equipo", label: "Equipo" },
-    { value: "muebles", label: "Muebles y enseres" },
-  ];
+  useEffect(() => {
+    getCategorys()
+      .then((data) => {
+        const options = data.map((c) => ({
+          value: c.category_id,
+          label: `${c.category_name} (${c.element_type})`,
+        }));
+        setCategorias([{ value: "", label: "Seleccione una opción" }, ...options]);
+      })
+      .catch((err) => console.error("Error cargando categorías:", err));
+  }, []);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/brands")
@@ -111,6 +120,7 @@ export default function ReturnableMaterialRegisterForm() {
       // Si no se seleccionó marca, enviamos null (no 0): brandId=0 no
       // existe en la tabla brands y rompe la llave foránea.
       brandId: formData.brandId ? Number(formData.brandId) : null,
+      categoryId: formData.categoryId ? Number(formData.categoryId) : null,
       materialUnitValue: Number(formData.materialUnitValue),
       materialQuantity: Number(formData.materialQuantity),
       materialTotalValue: Number(formData.materialTotalValue),
@@ -202,11 +212,11 @@ export default function ReturnableMaterialRegisterForm() {
               />
               <Select
                 label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
-                name="materialCategory"
+                name="categoryId"
                 options={categorias}
-                value={formData.materialCategory}
+                value={formData.categoryId}
                 onChange={handleChange}
-                error={errors.materialCategory}
+                error={errors.categoryId}
               />
               <Input
                 label="Serial Number (SN)"
@@ -317,6 +327,13 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialLocation}
               />
+              <div className="min-w-0">
+                <QuotationsPicker
+                  value={formData.quotationIds}
+                  onChange={(ids) => setFormData((prev) => ({ ...prev, quotationIds: ids }))}
+                  error={errors.quotationIds}
+                />
+              </div>
               <div className="min-w-0">
                 <span>Ficha Técnica <span style={{ color: "red" }}>*</span></span>
                 <FileInput

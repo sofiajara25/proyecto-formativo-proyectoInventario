@@ -5,7 +5,8 @@ export function buildReportDataset({
     selectedFields,
     scope,
     senaPlate,
-    filterStatus
+    filterStatus,
+    inventoryNameId
 }) {
     let filteredConsumables = [...consumables];
 
@@ -13,6 +14,13 @@ export function buildReportDataset({
     if (scope === "senaPlate" && senaPlate) {
         filteredConsumables = filteredConsumables.filter(
             (c) => c.senaPlate === senaPlate
+        );
+    }
+
+    // Filtro por nombre de inventario (ej. Software, Teleinformática)
+    if (scope === "inventoryName" && inventoryNameId) {
+        filteredConsumables = filteredConsumables.filter(
+            (c) => String(c.inventory_name_id) === String(inventoryNameId)
         );
     }
 

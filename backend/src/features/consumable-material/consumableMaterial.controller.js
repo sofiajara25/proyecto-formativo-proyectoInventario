@@ -30,11 +30,24 @@ export const consumableMaterialController = {
       const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
         ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
         : null;
+
+      // "quotationIds" viaja como JSON dentro del FormData (no se puede
+      // mandar un arreglo real en multipart/form-data), igual que
+      // "keepPhotos" en los materiales.
+      let quotationIds = [];
+      try {
+        quotationIds = JSON.parse(req.body.quotationIds ?? "[]");
+      } catch {
+        quotationIds = [];
+      }
+      if (!Array.isArray(quotationIds)) quotationIds = [];
+
       // pasamos todos los datos al service
       const consumable = await consumableMaterialService.createConsumableMaterial({
         ...req.body,
         photos,
         materialTechnicalSheet: technicalSheetPath,
+        quotationIds,
       });
 
       // Respuesta HTTP en caso de éxito
@@ -120,10 +133,19 @@ export const consumableMaterialController = {
         ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
         : null;
 
+      let quotationIds = [];
+      try {
+        quotationIds = JSON.parse(req.body.quotationIds ?? "[]");
+      } catch {
+        quotationIds = [];
+      }
+      if (!Array.isArray(quotationIds)) quotationIds = [];
+
       const updatedConsumable = await consumableMaterialService.updateConsumable(id, {
         ...req.body,
         photos,
         materialTechnicalSheet: technicalSheetPath,
+        quotationIds,
       });
 
       if (!updatedConsumable) return res.status(404).json({ error: "Material de consumo no encontrado" });

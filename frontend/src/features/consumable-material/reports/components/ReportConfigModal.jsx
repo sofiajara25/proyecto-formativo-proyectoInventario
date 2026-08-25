@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { consumableReportFields } from "../config/consumableReportFields";
 import { generateConsumableReport } from "../services/generateConsumableReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
@@ -8,9 +8,21 @@ export default function ReportConfigModal({ isOpen, onClose }) {
   const [scope, setScope] = useState("all");
   const [senaPlate, setSenaPlate] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [inventoryNameId, setInventoryNameId] = useState("");
+  const [inventoryNames, setInventoryNames] = useState([]);
   const [selectedFields, setSelectedFields] = useState(
     () => consumableReportFields.filter((f) => f.default)
   );
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/inventory-names")
+      .then((res) => res.json())
+      .then((data) => {
+        const options = data.map((i) => ({ value: i.inventory_name_id, label: i.inventory_name }));
+        setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
+      })
+      .catch((err) => console.error("Error cargando nombres de inventario:", err));
+  }, []);
 
   if (!isOpen) return null;
 
@@ -24,7 +36,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
   };
 
   const handleGenerateReport = async () => {
-    await generateConsumableReport({ format, selectedFields, scope, senaPlate, filterStatus });
+    await generateConsumableReport({ format, selectedFields, scope, senaPlate, filterStatus, inventoryNameId });
     onClose();
   };
 
@@ -72,6 +84,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
           options={[
             { label: "Todos los materiales", value: "all" },
             { label: "Filtrar por placa SENA", value: "senaPlate" },
+            { label: "Filtrar por nombre de inventario", value: "inventoryName" },
           ]}
         />
 
@@ -81,6 +94,15 @@ export default function ReportConfigModal({ isOpen, onClose }) {
             value={senaPlate}
             onChange={(e) => setSenaPlate(e.target.value)}
             placeholder="Ingrese la placa Sena"
+          />
+        )}
+
+        {scope === "inventoryName" && (
+          <Select
+            label="Nombre de inventario"
+            value={inventoryNameId}
+            onChange={(e) => setInventoryNameId(e.target.value)}
+            options={inventoryNames}
           />
         )}
 

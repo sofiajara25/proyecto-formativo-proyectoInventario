@@ -22,7 +22,7 @@ export const returnableMaterialRepository = {
         // returnable_material_photos (galería).
         const {
             materialSenaPlate,
-            materialCategory,
+            categoryId,
             materialSerial,
             materialName,
             materialModel,
@@ -37,9 +37,11 @@ export const returnableMaterialRepository = {
             inventoryNameId,
             materialLocation,
             photos,
-            brandId
+            brandId,
+            quotationIds,
         } = returnableMaterialData;
 
+        const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -56,7 +58,7 @@ export const returnableMaterialRepository = {
         INSERT INTO returnable_materials (
           tool_id,
           sena_plate,
-          category,
+          category_id,
           serial,
           material_name,
           model,
@@ -79,7 +81,7 @@ export const returnableMaterialRepository = {
 
             const insertValues = [
                 materialSenaPlate,
-                materialCategory,
+                categoryId ?? null,
                 materialSerial,
                 materialName,
                 materialModel,
@@ -120,6 +122,15 @@ export const returnableMaterialRepository = {
                 );
             }
 
+            // 4. Enlazamos las cotizaciones elegidas (1-3, ya existentes en
+            // el catálogo "quotations").
+            for (const quotationId of quotationIdList) {
+                await client.query(
+                    "INSERT INTO returnable_material_quotations (returnable_material_id, quotation_id) VALUES ($1, $2)",
+                    [id, quotationId]
+                );
+            }
+
             await client.query("COMMIT");
 
             return { ...updateResult.rows[0], photos: photoList };
@@ -150,15 +161,29 @@ export const returnableMaterialRepository = {
                 m.*,
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
+                c.category_name AS category_name,
+                c.element_type AS category_element_type,
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
-                ) AS gallery_photos
+                ) AS gallery_photos,
+                COALESCE(
+                    (SELECT json_agg(json_build_object(
+                        'quotation_id', q.quotation_id,
+                        'quotation_name', q.quotation_name,
+                        'pdf_url', q.pdf_url
+                    ))
+                    FROM returnable_material_quotations rmq
+                    JOIN quotations q ON q.quotation_id = rmq.quotation_id
+                    WHERE rmq.returnable_material_id = m.id),
+                    '[]'
+                ) AS quotations
             FROM returnable_materials m
             LEFT JOIN brands b ON b.id = m.brand_id
             LEFT JOIN inventory_names inv ON inv.inventory_name_id = m.inventory_name_id
+            LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN returnable_material_photos mp ON mp.returnable_material_id = m.id
-            GROUP BY m.id, b.marca, inv.inventory_name
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type
             ORDER BY m.id;
         `);
         return result.rows.map(({ gallery_photos, ...row }) => ({
@@ -173,16 +198,30 @@ export const returnableMaterialRepository = {
                 m.*,
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
+                c.category_name AS category_name,
+                c.element_type AS category_element_type,
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
-                ) AS gallery_photos
+                ) AS gallery_photos,
+                COALESCE(
+                    (SELECT json_agg(json_build_object(
+                        'quotation_id', q.quotation_id,
+                        'quotation_name', q.quotation_name,
+                        'pdf_url', q.pdf_url
+                    ))
+                    FROM returnable_material_quotations rmq
+                    JOIN quotations q ON q.quotation_id = rmq.quotation_id
+                    WHERE rmq.returnable_material_id = m.id),
+                    '[]'
+                ) AS quotations
             FROM returnable_materials m
             LEFT JOIN brands b ON b.id = m.brand_id
             LEFT JOIN inventory_names inv ON inv.inventory_name_id = m.inventory_name_id
+            LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN returnable_material_photos mp ON mp.returnable_material_id = m.id
             WHERE m.id = $1
-            GROUP BY m.id, b.marca, inv.inventory_name;
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type;
         `, [id]);
 
         const row = result.rows[0];
@@ -200,7 +239,7 @@ export const returnableMaterialRepository = {
         const {
             materialToolId,
             materialSenaPlate,
-            materialCategory,
+            categoryId,
             materialSerial,
             materialName,
             materialModel,
@@ -215,7 +254,8 @@ export const returnableMaterialRepository = {
             inventoryNameId,
             materialLocation,
             photos,
-            brandId
+            brandId,
+            quotationIds,
         } = returnableMaterialData;
 
         const photoList = Array.isArray(photos) ? photos : [];
@@ -231,7 +271,7 @@ export const returnableMaterialRepository = {
                 UPDATE returnable_materials
                 SET tool_id = $1,
                     sena_plate = $2,
-                    category =$3,
+                    category_id = $3,
                     serial = $4,
                     material_name = $5,
                     model = $6,
@@ -253,7 +293,7 @@ export const returnableMaterialRepository = {
             const values = [
                 materialToolId,
                 materialSenaPlate,
-                materialCategory,
+                categoryId ?? null,
                 materialSerial,
                 materialName,
                 materialModel,
@@ -289,6 +329,19 @@ export const returnableMaterialRepository = {
                     await client.query(
                         "INSERT INTO returnable_material_photos (returnable_material_id, photo_url) VALUES ($1, $2)",
                         [id, url]
+                    );
+                }
+            }
+
+            if (Array.isArray(quotationIds)) {
+                await client.query(
+                    "DELETE FROM returnable_material_quotations WHERE returnable_material_id = $1",
+                    [id]
+                );
+                for (const quotationId of quotationIds) {
+                    await client.query(
+                        "INSERT INTO returnable_material_quotations (returnable_material_id, quotation_id) VALUES ($1, $2)",
+                        [id, quotationId]
                     );
                 }
             }

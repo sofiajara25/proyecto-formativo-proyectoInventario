@@ -4,16 +4,19 @@
 import { userRepository } from "./user.repository.js";
 
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 // Exportamos el servicio de usuarios.
 // El service representa la capa de lógica de negocio de la aplicación.
 export const userService = {
   async createUser(data) {
-    if (!data.userPassword) {
-      throw new Error("El campo userPassword es obligatorio");
-    }
-
-    const hashedPassword = await bcrypt.hash(data.userPassword, 10);
+    // La contraseña ya no la escribe quien crea el usuario: se genera sola
+    // (como pasaría con un id autoincremental) y queda hasheada en la base
+    // de datos. Nadie, ni siquiera quien la creó, puede verla. Se ignora
+    // cualquier "userPassword" que llegue del cliente, para que no quede
+    // ninguna forma de fijarla a mano ni de conocer su valor en texto plano.
+    const generatedPassword = crypto.randomBytes(24).toString("hex");
+    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
     const userData = {
       ...data,

@@ -3,6 +3,8 @@ import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout }
 import { updateReturnableSchema } from "../schemas/updateReturnableSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getReturnableById, updateReturnable } from "../services/returnableMaterialService";
+import { getCategorys } from "../../categorys/service/categoryService";
+import { QuotationsPicker } from "../../quotations";
 import { useEffect } from "react";
 
 export default function ReturnableMaterialRegisterForm() {
@@ -14,7 +16,7 @@ export default function ReturnableMaterialRegisterForm() {
   const [formData, setFormData] = useState({
     materialToolId: "",
     materialSenaPlate: "",
-    materialCategory: "",
+    categoryId: "",
     materialSerial: "",
     materialName: "",
     materialModel: "",
@@ -29,6 +31,7 @@ export default function ReturnableMaterialRegisterForm() {
     inventoryNameId: "",
     materialLocation: "",
     brandId: "",
+    quotationIds: [],
     photo: [],
   });
 
@@ -38,12 +41,19 @@ export default function ReturnableMaterialRegisterForm() {
 
   const [inventoryNames, setInventoryNames] = useState([]);
 
-  const categorias = [
-    { value: "", label: "Seleccione una opcion" },
-    { value: "herramienta", label: "Herramienta" },
-    { value: "equipo", label: "Equipo" },
-    { value: "consumible", label: "Consumible" },
-  ];
+  const [categorias, setCategorias] = useState([]);
+
+  useEffect(() => {
+    getCategorys()
+      .then((data) => {
+        const options = data.map((c) => ({
+          value: c.category_id,
+          label: `${c.category_name} (${c.element_type})`,
+        }));
+        setCategorias([{ value: "", label: "Seleccione una opción" }, ...options]);
+      })
+      .catch((err) => console.error("Error cargando categorías:", err));
+  }, []);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/brands")
@@ -77,7 +87,7 @@ export default function ReturnableMaterialRegisterForm() {
       .then((data) => setFormData({
         materialToolId: data.tool_id,
         materialSenaPlate: data.sena_plate,
-        materialCategory: data.category,
+        categoryId: data.category_id ?? "",
         materialSerial: data.serial,
         materialName: data.material_name,
         materialModel: data.model,
@@ -92,12 +102,19 @@ export default function ReturnableMaterialRegisterForm() {
         // formulario y el usuario sepa qué va a reemplazar. Si no toca el
         // campo, se conservan tal cual.
         materialTechnicalSheet: data.technical_sheet ? [data.technical_sheet] : [],
-        inventoryNameId: data.inventory_name_id ?? "",
+        // El schema espera un string ("z.string()"), pero el backend
+        // devuelve el id como número: si no se convierte, la validación
+        // falla con "Invalid input: expected string, received number" en
+        // cuanto el usuario guarda sin tocar este campo.
+        inventoryNameId: data.inventory_name_id != null ? String(data.inventory_name_id) : "",
         materialLocation: data.location,
         // Si no hay marca asignada, el backend devuelve null. El <select>
         // de React no acepta "value={null}" (advertencia en consola), así
         // que caemos a "" para que se vea la opción "Selecciona una marca".
         brandId: data.brand_id ?? "",
+        quotationIds: Array.isArray(data.quotations)
+          ? data.quotations.map((q) => q.quotation_id)
+          : [],
         // El backend devuelve "photos" con TODAS las fotos (portada +
         // galería). Si por algún motivo no viene, caemos a mostrar solo la
         // portada.
@@ -138,6 +155,7 @@ export default function ReturnableMaterialRegisterForm() {
       // Si no hay marca seleccionada, null (no 0): brandId=0 no existe
       // en la tabla brands y rompe la llave foránea.
       brandId: formData.brandId ? Number(formData.brandId) : null,
+      categoryId: formData.categoryId ? Number(formData.categoryId) : null,
       materialUnitValue: Number(formData.materialUnitValue),
       materialQuantity: Number(formData.materialQuantity),
       materialTotalValue: Number(formData.materialTotalValue),
@@ -230,11 +248,11 @@ export default function ReturnableMaterialRegisterForm() {
               />
               <Select
                 label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
-                name="materialCategory"
+                name="categoryId"
                 options={categorias}
-                value={formData.materialCategory}
+                value={formData.categoryId}
                 onChange={handleChange}
-                error={errors.materialCategory}
+                error={errors.categoryId}
               />
               <Input
                 label="Serial Number (SN)"
@@ -340,6 +358,14 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialLocation}
               />
+              <div className="min-w-0">
+                <QuotationsPicker
+                  value={formData.quotationIds}
+                  onChange={(ids) => setFormData((prev) => ({ ...prev, quotationIds: ids }))}
+                  error={errors.quotationIds}
+                />
+              </div>
+
               {/* Ficha Técnica y Foto quedan como celdas normales del grid,
                   justo al lado de Ubicación, en vez de un bloque aparte
                   mucho más abajo. */}

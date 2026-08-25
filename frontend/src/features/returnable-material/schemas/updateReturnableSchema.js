@@ -11,9 +11,9 @@ export const updateReturnableSchema = z.object({
         .min(1, "La placa SENA es requerida")
         .optional(),
 
-    materialCategory: z
-        .string()
-        .min(1, "La categoría es obligatoria")
+    categoryId: z
+        .number({ invalid_type_error: "Debe seleccionar una categoría" })
+        .min(1, "Debe seleccionar una categoría")
         .optional(),
 
     materialSerial: z
@@ -119,4 +119,9 @@ export const updateReturnableSchema = z.object({
         .number({ invalid_type_error: "La marca es requerida" })
         .nullable()
         .optional(),
+
+    quotationIds: z
+        .array(z.number())
+        .min(1, "Debe elegir entre 1 y 3 cotizaciones")
+        .max(3, "Máximo 3 cotizaciones"),
 });

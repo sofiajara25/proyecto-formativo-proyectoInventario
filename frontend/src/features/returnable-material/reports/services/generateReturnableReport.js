@@ -9,7 +9,8 @@ export async function generateReturnableReport({
     selectedFields,
     scope,
     senaPlate,
-    filterStatus
+    filterStatus,
+    inventoryNameId
 }) {
 
     const returnables = await getReturnables();
@@ -19,6 +20,7 @@ export async function generateReturnableReport({
         scope,
         senaPlate,
         filterStatus,
+        inventoryNameId,
     });
 
     if (!rows.length) {

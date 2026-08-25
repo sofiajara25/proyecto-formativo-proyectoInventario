@@ -1,15 +1,16 @@
+// IMPORTANTE: debe ser el PRIMER import del archivo. Carga las variables de
+// entorno (.env) antes de que se evalúe cualquier otro módulo. Antes,
+// "dotenv.config()" se llamaba aquí abajo, después de "import app from
+// './app.js'" — pero en ES modules todos los imports de un archivo se
+// evalúan antes que el resto de su código, sin importar el orden en que
+// estén escritos, así que "app.js" (y con él, mailer.js) ya se habían
+// evaluado con GMAIL_USER/GMAIL_APP_PASSWORD todavía undefined. Ver
+// env.js para el detalle.
+import "./env.js";
+
 // Importamos la instancia de la aplicación Express ya configurada.
 // app.js debe encargarse de middlewares, rutas y configuración general.
 import app from "./app.js"
-
-
-// Importamos dotenv para cargar variables de entorno desde el archivo .env
-import dotenv from "dotenv";
-
-
-// Ejecutamos la carga de variables de entorno
-// Esto debe hacerse antes de usar process.env
-dotenv.config();
 
 
 // Definimos el puerto del servidor

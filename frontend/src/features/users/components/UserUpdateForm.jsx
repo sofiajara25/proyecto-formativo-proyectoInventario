@@ -25,7 +25,6 @@ export default function UserUpdateForm() {
         userAddress: "",
         userPhone: "",
         userStatus: "",
-        userPassword: "",
         userPhoto: [],
     });
     const [errors, setErrors] = useState({});
@@ -64,7 +63,6 @@ export default function UserUpdateForm() {
                 userAddress: data.user_address || "",
                 userPhone: data.user_phone || "",
                 userStatus: data.user_status || "",
-                userPassword: "",
                 // Precargamos la foto ya guardada para que se vea en el
                 // formulario y el usuario sepa qué va a reemplazar. Si no
                 // toca el campo, se conserva tal cual.
@@ -290,14 +288,17 @@ export default function UserUpdateForm() {
                                     onChange={handleChange}
                                     error={errors.userStatus}
                                 />
+                                {/* Se muestra en gris, sin valor: la contraseña se
+                                    generó sola al crear el usuario y no se
+                                    puede ver ni cambiar desde aquí. */}
                                 <Input
-                                    label={<span>Contraseña <span style={{ color: "red" }}>*</span></span>}
-                                    name="userPassword"
-                                    placeholder="Ingrese su contraseña"
+                                    label="Contraseña"
+                                    name="userPasswordDisplay"
+                                    placeholder="Esta contraseña no se puede cambiar"
                                     type="password"
-                                    value={formData.userPassword}
-                                    onChange={handleChange}
-                                    error={errors.userPassword}
+                                    value=""
+                                    disabled
+                                    readOnly
                                 />
 
                                 <div className="flex flex-row gap-16">

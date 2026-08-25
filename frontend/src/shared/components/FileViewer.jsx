@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { FileText } from "lucide-react";
 
 const API_ORIGIN = "http://localhost:5000";
@@ -36,7 +37,13 @@ export default function FileViewer({ file, label = "Archivo", size = 96 }) {
         )}
       </div>
 
-      {open && (
+      {open && createPortal(
+        // Portal directo a document.body: si no, cuando FileViewer se usa
+        // dentro de una tarjeta con "hover:scale-..." (ej. QuotationCard),
+        // el hover activo en el momento del click crea un "containing
+        // block" en ese ancestro y el "position: fixed" de este overlay
+        // queda atrapado dentro de la tarjeta pequeña en vez de cubrir
+        // toda la pantalla.
         <div
           className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 p-4"
           onClick={() => setOpen(false)}
@@ -81,7 +88,8 @@ export default function FileViewer({ file, label = "Archivo", size = 96 }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

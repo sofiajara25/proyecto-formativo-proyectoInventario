@@ -2,13 +2,21 @@ export function buildReportDataset({
     returnables,
     selectedFields,
     scope,
-    materialSenaPlate
+    materialSenaPlate,
+    inventoryNameId
 }) {
     let filteredReturnables = [...returnables];
 
     if (scope === "materialSenaPlate" && materialSenaPlate) {
         filteredReturnables = filteredReturnables.filter(
             (returnable) => returnable.materialSenaPlate === materialSenaPlate
+        );
+    }
+
+    // Filtro por nombre de inventario (ej. Software, Teleinformática)
+    if (scope === "inventoryName" && inventoryNameId) {
+        filteredReturnables = filteredReturnables.filter(
+            (returnable) => String(returnable.inventory_name_id) === String(inventoryNameId)
         );
     }
 

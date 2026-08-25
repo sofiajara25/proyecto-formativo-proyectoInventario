@@ -16,12 +16,24 @@ import { CreateBrandsPage, ListBrandPage, UpdateBrandPage, ViewBrandPage } from 
 import { CreateReturnPage, UpdateReturnPage, ListReturnPage, ViewReturnPage } from "@/features/returns"
 import { CreateInventoryNamePage, ListInventoryNamePage, UpdateInventoryNamePage, ViewInventoryNamePage } from "@/features/inventory-name"
 
+import {CreateCategoryPage, ListCategoryPage, UpdateCategoryPage, ViewCategoryPage} from "@/features/categorys"
+
 import { TasksPage } from "@/features/tasks"
+
+import { QuotationsPage } from "@/features/quotations"
+
+import { AcceptLoanPage } from "@/features/loan-signatures"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/auth" replace />,
+  },
+  // Pública: se llega desde el enlace del correo, sin necesidad de iniciar
+  // sesión (quien firma puede no tener cuenta en el sistema).
+  {
+    path: "/aceptar-prestamo/:token",
+    element: <AcceptLoanPage />,
   },
   {
     path: "/auth",
@@ -51,6 +63,9 @@ const router = createBrowserRouter([
       // Tarea
       { path: "/dashboard/tasks/search", element: <TasksPage /> },
 
+      // Cotizaciones (sin lista/CRUD completo: solo crear y ver, como tareas)
+      { path: "/dashboard/cotizaciones", element: <QuotationsPage /> },
+
       // Rutas de los 4 formularios de crear
       { path: "/dashboard/prestamo", element: <CreateLoansPage /> },
       { path: "/dashboard/consumo", element: <CreateMaterialPage /> },
@@ -59,6 +74,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/retorno", element: <CreateReturnPage /> },
       { path: "/dashboard/marca", element: <CreateBrandsPage /> },
       { path: "/dashboard/nombreInventario", element: <CreateInventoryNamePage /> },
+      { path: "/dashboard/categoria", element: <CreateCategoryPage /> },
 
       // Rutas de los 4 formularios de listas
       { path: "/dashboard/list-prestamo", element: <ListLoansPage /> },
@@ -68,6 +84,8 @@ const router = createBrowserRouter([
       { path: "/dashboard/list-retorno", element: <ListReturnPage /> },
       { path: "/dashboard/list-marca", element: <ListBrandPage /> },
       { path: "/dashboard/list-nombreInventario", element: <ListInventoryNamePage /> },
+      { path: "/dashboard/list-categoria", element: <ListCategoryPage /> },
+
 
       // Rutas de Actulizar
       { path: "/dashboard/loans/:loan_id/edit", element: <UpdateLoansPage /> },
@@ -77,6 +95,8 @@ const router = createBrowserRouter([
       { path: "/dashboard/users/:id/edit", element: <UpdateUserPage /> },
       { path: "/dashboard/retorno/:id/edit", element: <UpdateReturnPage /> },
       { path: "/dashboard/inventory-names/:id/edit", element: <UpdateInventoryNamePage /> },
+      { path: "/dashboard/categorys/:id/edit", element: <UpdateCategoryPage /> },
+
 
       // Rutas de Ver
       { path: "/dashboard/loans/:loan_id/view", element: <ViewLoanPage /> },
@@ -87,6 +107,8 @@ const router = createBrowserRouter([
 
       { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
       { path: "/dashboard/inventory-names/:id/view", element: <ViewInventoryNamePage /> },
+      { path: "/dashboard/categorys/:id/view", element: <ViewCategoryPage /> },
+
 
       {
         path: "/dashboard/access",

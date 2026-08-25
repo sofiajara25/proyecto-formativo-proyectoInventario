@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { returnableReportFields } from "../config/returnableReportFields";
 import { generateReturnableReport } from "../services/generateReturnableReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
@@ -11,9 +11,23 @@ export default function ReportConfigModal({ isOpen, onClose }) {
 
     const [senaPlate, setSenaPlate] = useState("");
 
+    const [inventoryNameId, setInventoryNameId] = useState("");
+
+    const [inventoryNames, setInventoryNames] = useState([]);
+
     const [selectedFields, setSelectedFields] = useState(
         () => returnableReportFields.filter((f) => f.default),
     );
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/inventory-names")
+            .then((res) => res.json())
+            .then((data) => {
+                const options = data.map((i) => ({ value: i.inventory_name_id, label: i.inventory_name }));
+                setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
+            })
+            .catch((err) => console.error("Error cargando nombres de inventario:", err));
+    }, []);
 
     if (!isOpen) return null;
 
@@ -27,7 +41,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
     };
 
     const handleGenerateReport = () => {
-        generateReturnableReport({ format, selectedFields, scope, senaPlate });
+        generateReturnableReport({ format, selectedFields, scope, senaPlate, inventoryNameId });
         onClose();
     };
 
@@ -95,6 +109,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                         options={[
                             { label: "Todos los materiales", value: "all" },
                             { label: "Filtrar por placa SENA", value: "senaPlate" },
+                            { label: "Filtrar por nombre de inventario", value: "inventoryName" },
                         ]}
                     />
                 </div>
@@ -107,6 +122,18 @@ export default function ReportConfigModal({ isOpen, onClose }) {
                             value={senaPlate}
                             onChange={(e) => setSenaPlate(e.target.value)}
                             placeholder="Ingrese la placa Sena"
+                        />
+                    </div>
+                )}
+
+                {/* Campo condicional para filtro por nombre de inventario */}
+                {scope === "inventoryName" && (
+                    <div className="mb-4">
+                        <Select
+                            label="Nombre de inventario"
+                            value={inventoryNameId}
+                            onChange={(e) => setInventoryNameId(e.target.value)}
+                            options={inventoryNames}
                         />
                     </div>
                 )}

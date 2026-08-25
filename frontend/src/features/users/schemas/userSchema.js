@@ -51,14 +51,8 @@ export const userSchema = z.object({
         .string()
         .min(1, "Debe seleccionar un estado"),
 
-    userPassword: z
-        .string()
-        .min(8, "Contraseña debe tener mínimo 8 caracteres ")
-        .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
-        .regex(/[a-z]/, "Debe contener al menos una minúscula")
-        .regex(/[0-9]/, "Debe contener al menos un número")
-        .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
-
+    // La contraseña ya no se pide al crear el usuario: se genera sola en el
+    // backend y queda hasheada, sin que nadie pueda verla.
 
     userPhoto: singleFileSchema.optional()
 }).refine((data) => {

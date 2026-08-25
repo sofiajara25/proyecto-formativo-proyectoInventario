@@ -38,16 +38,20 @@ export default function Switch({
             onClick={handleToggle}
             disabled={disabled}
             className={`
-        relative items-center rounded-full transition-colors
+        relative inline-flex items-center shrink-0 rounded-full transition-colors
         ${sizes[size]}
         ${checked ? "bg-green-500" : "bg-gray-300"}
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         ${className}
       `}
         >
+            {/* "top-0.5" centra el knob verticalmente igual que "left-0.5" lo
+                hace horizontalmente; sin esto, al no tener "top" definido, el
+                navegador lo dejaba en su posición estática (no centrado) y
+                se veía como un círculo grande desbordando la píldora. */}
             <span
                 className={`
-          absolute left-0.5 flex items-center justify-center
+          absolute left-0.5 top-0.5 flex items-center justify-center
           rounded-full bg-white shadow transition-transform
           ${knobSizes[size]}
           ${checked ? "translate-x-full" : "translate-x-0"}

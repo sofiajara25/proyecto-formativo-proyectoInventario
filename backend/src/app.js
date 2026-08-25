@@ -22,6 +22,9 @@ import tasksRoutes from "./features/tasks/task.routes.js";
 import permissionsRoutes from "./features/permissions/permissions.routes.js";
 import accessRoutes from "./features/access/access.routes.js";
 import inventoryNameRoutes from "./features/inventory-name/inventoryName.routes.js";
+import categoryRoutes from "./features/categorys/category.routes.js"
+import quotationRoutes from "./features/quotations/quotation.routes.js"
+import loanSignatureRoutes from "./features/loan-signatures/loanSignature.routes.js"
 
 // Creamos la instancia principal de la aplicación Express
 const app = express();
@@ -60,6 +63,12 @@ app.use("/api/groups", groupsRoutes);
 app.use("/api/tasks", tasksRoutes);
 
 app.use("/api/inventory-names", inventoryNameRoutes);
+
+app.use("/api/categorys", categoryRoutes)
+
+app.use("/api/quotations", quotationRoutes)
+
+app.use("/api/loan-signatures", loanSignatureRoutes)
 
 app.get("/uploads/:filename", (req, res, next) => {
   const filename = path.basename(req.params.filename);

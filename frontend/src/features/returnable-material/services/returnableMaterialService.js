@@ -8,7 +8,11 @@ const API_URL = "http://localhost:5000/api/returnableMaterial";
 function appendCommonReturnableFields(formData, returnableMaterialData) {
     formData.append("materialToolId", returnableMaterialData.materialToolId);
     formData.append("materialSenaPlate", returnableMaterialData.materialSenaPlate);
-    formData.append("materialCategory", returnableMaterialData.materialCategory);
+    // Igual que con brandId: solo se envía si hay una categoría
+    // seleccionada, para no mandar "null" como texto.
+    if (returnableMaterialData.categoryId) {
+        formData.append("categoryId", returnableMaterialData.categoryId);
+    }
     formData.append("materialSerial", returnableMaterialData.materialSerial);
     formData.append("materialName", returnableMaterialData.materialName);
     formData.append("materialModel", returnableMaterialData.materialModel);
@@ -27,6 +31,10 @@ function appendCommonReturnableFields(formData, returnableMaterialData) {
     if (returnableMaterialData.brandId) {
         formData.append("brandId", returnableMaterialData.brandId);
     }
+
+    // Igual que "keepPhotos": un arreglo no se puede mandar directo en
+    // multipart/form-data, así que viaja como JSON.
+    formData.append("quotationIds", JSON.stringify(returnableMaterialData.quotationIds ?? []));
 
     // La ficha técnica es un solo archivo: si sigue siendo el string que ya
     // existía (no se tocó el campo), reenviarlo como texto no hace daño —

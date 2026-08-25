@@ -3,6 +3,7 @@
 // pero el repository NO debe conocer el service.
 import { loanRepository } from "./loan.repository.js";
 import { pool } from "../../config/db.js";
+import { loanSignatureService } from "../loan-signatures/loanSignature.service.js";
 
 // Exportamos el servicio de préstamos.
 // El service representa la capa de lógica de negocio de la aplicación.
@@ -31,7 +32,31 @@ export const loanService = {
         console.log("SERVICE DATA:", loanData);
 
         // Delegamos al repository
-        return await loanRepository.create(loanData);
+        const loan = await loanRepository.create(loanData);
+
+        // Firma electrónica: si vino un correo (usuario registrado con
+        // correo conocido, o uno escrito a mano para alguien sin cuenta),
+        // se crea el registro de firma y se manda el enlace de aceptación.
+        // No debe romper la creación del préstamo si esto falla.
+        if (data.signerEmail) {
+            try {
+                const materialsSummary = materials
+                    .map((m) => `${m.loanProductName} (x${m.loanQuantity})`)
+                    .join(", ");
+                await loanSignatureService.createForLoan({
+                    loanId: loan.loan_id,
+                    signerEmail: data.signerEmail,
+                    loanUser: loan.loan_user,
+                    materialsSummary,
+                    loanDate: loan.loan_date,
+                    returnDate: loan.return_date,
+                });
+            } catch (err) {
+                console.error("Error creando la firma electrónica del préstamo:", err);
+            }
+        }
+
+        return loan;
     },
 
     async getAllLoans() {

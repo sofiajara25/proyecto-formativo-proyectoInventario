@@ -25,7 +25,6 @@ export default function UserRegisterForm() {
         userAddress: "",
         userPhone: "",
         userStatus: "",
-        userPassword: "",
         userPhoto: null,
     });
     const [errors, setErrors] = useState({});
@@ -271,14 +270,18 @@ export default function UserRegisterForm() {
                                 onChange={handleChange}
                                 error={errors.userStatus}
                             />
+
+                            {/* Se muestra en gris, sin valor: la contraseña se
+                                genera sola en el backend al crear el usuario
+                                y no hay forma de verla, ni siquiera aquí. */}
                             <Input
-                                label={<span>Contraseña <span style={{ color: "red" }}>*</span></span>}
-                                name="userPassword"
-                                placeholder="Ingrese su contraseña"
+                                label="Contraseña"
+                                name="userPasswordDisplay"
+                                placeholder="Se genera automáticamente"
                                 type="password"
-                                value={formData.userPassword}
-                                onChange={handleChange}
-                                error={errors.userPassword}
+                                value=""
+                                disabled
+                                readOnly
                             />
 
                             <div className="flex flex-row gap-16">

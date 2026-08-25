@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Select, Navbar, FileInput, IconButton, Modal } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, IconButton, Modal, Checkbox } from "@/shared";
 import { loanSchema } from "../schemas/loansSchema.js";
-import { createLoan } from "../services/loanService.js";
+import { createLoan, getLoanById } from "../services/loanService.js";
 import { getUsers } from "../../users/services/userService.js";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
@@ -19,11 +19,23 @@ function crearMaterialVacio() {
 export default function LoansRegisterForm() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    // Se muestra tras crear el préstamo, solo si se pidió firma electrónica
+    // (signerEmail), para avisar que el préstamo ya se hizo pero queda a la
+    // espera de que el receptor lo acepte por correo.
+    const [isWaitingSignatureOpen, setIsWaitingSignatureOpen] = useState(false);
+    // Id del préstamo recién creado, para poder consultar su estado de firma
+    // mientras se muestra el modal de espera.
+    const [createdLoanId, setCreatedLoanId] = useState(null);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         loanMaterialType: "",
         loanUser: "",
         loanUserIdentification: "",
+        // Firma electrónica de aceptación del préstamo: si el usuario está
+        // registrado, el correo se autocompleta con el suyo (ver
+        // handleLoanUserChange); si no, se escribe a mano.
+        isUserRegistered: true,
+        signerEmail: "",
         loanApprenticeGroup: "",
         materials: [crearMaterialVacio()],
         loanDate: "",
@@ -83,7 +95,27 @@ export default function LoansRegisterForm() {
             ...prev,
             loanUser: value,
             loanUserIdentification: chosen ? chosen.document_number : prev.loanUserIdentification,
+            // Si el nombre coincide con un usuario registrado, tomamos su
+            // correo real para la firma automáticamente (solo aplica
+            // cuando "isUserRegistered" está marcado).
+            signerEmail: prev.isUserRegistered && chosen ? chosen.user_email : prev.signerEmail,
         }));
+    };
+
+    // Al desmarcar "Usuario registrado" se habilita el campo de correo
+    // manual; al volver a marcarlo, se limpia (se recalculará solo si el
+    // nombre coincide con un usuario registrado).
+    const handleRegisteredToggle = (checked) => {
+        setFormData((prev) => {
+            const chosen = checked
+                ? users.find((u) => `${u.user_name} ${u.user_lastname}` === prev.loanUser)
+                : null;
+            return {
+                ...prev,
+                isUserRegistered: checked,
+                signerEmail: checked ? (chosen?.user_email ?? "") : prev.signerEmail,
+            };
+        });
     };
 
     // Materiales disponibles para el tipo de préstamo elegido.
@@ -122,7 +154,15 @@ export default function LoansRegisterForm() {
             ...prev,
             materials: prev.materials.map((m) =>
                 m.id === rowId
-                    ? { ...m, materialId: selectedId, loanProductName: chosen?.material_name ?? "" }
+                    ? {
+                        ...m,
+                        materialId: selectedId,
+                        loanProductName: chosen?.material_name ?? "",
+                        // La categoría ya no se elige a mano: se toma
+                        // directamente de la categoría real asignada al
+                        // material seleccionado (catálogo de categorías).
+                        loanCategory: chosen?.category_name ?? "",
+                    }
                     : m
             ),
         }));
@@ -141,13 +181,6 @@ export default function LoansRegisterForm() {
         { value: "Devolutivo", label: "Devolutivo" },
         { value: "Consumo", label: "Consumo" },
     ]
-
-    const categorias = [
-        { value: "", label: "Seleccione una opcion" },
-        { value: "herramienta", label: "Herramienta" },
-        { value: "equipo", label: "Equipo" },
-        { value: "consumible", label: "Consumible" },
-    ];
 
     const tipoPrestamo = [
         { value: "", label: "Seleccione una opcion" },
@@ -237,8 +270,16 @@ export default function LoansRegisterForm() {
             const response = await createLoan(payload);
 
             console.log("Préstamo creado:", response);
-            // Volver atrás
-            window.history.back();
+
+            // Si se pidió firma electrónica, el préstamo ya se creó (y ya
+            // descontó inventario), pero avisamos que queda pendiente hasta
+            // que el receptor la acepte por correo, en vez de salir directo.
+            if (formData.signerEmail) {
+                setCreatedLoanId(response.loan_id);
+                setIsWaitingSignatureOpen(true);
+            } else {
+                window.history.back();
+            }
         } catch (error) {
             console.error("Error creando préstamo:", error);
             alert(error?.message || "Ocurrió un error inesperado al crear el préstamo.");
@@ -247,6 +288,28 @@ export default function LoansRegisterForm() {
             setIsModalOpen(false);
         }
     };
+
+    // Mientras el modal de espera está abierto, consulta cada pocos segundos
+    // si la otra persona ya aceptó el préstamo (signature_status pasa a
+    // "Aceptado"). Si es así, se cierra el modal y se sale solo, sin que
+    // haya que darle "Entendido" a mano.
+    useEffect(() => {
+        if (!isWaitingSignatureOpen || !createdLoanId) return;
+
+        const interval = setInterval(async () => {
+            try {
+                const loan = await getLoanById(createdLoanId);
+                if (loan.signature_status === "Aceptado") {
+                    clearInterval(interval);
+                    window.history.back();
+                }
+            } catch (err) {
+                console.error("Error consultando el estado de la firma:", err);
+            }
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, [isWaitingSignatureOpen, createdLoanId]);
 
     let label;
     // 😂 lógica fuera del JSX
@@ -277,6 +340,33 @@ export default function LoansRegisterForm() {
                 <div className="bg-white rounded-2xl flex flex-col gap-6 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:px-9 lg:py-[18px]">
 
                     <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="grid grid-cols-1  gap-2">
+
+                        {/* Firma electrónica: si la persona no tiene cuenta en el
+                            sistema, se le pide su correo para poder mandarle el
+                            enlace de aceptación del préstamo igualmente. En su
+                            propia tarjeta, como el bloque de "Asignar nueva
+                            tarea" en Tareas, para que resalte del resto del
+                            formulario. */}
+                        <div className="bg-neutral-50 rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                            <Checkbox
+                                id="isUserRegistered"
+                                name="isUserRegistered"
+                                label="Usuario registrado"
+                                checked={formData.isUserRegistered}
+                                onChange={(e) => handleRegisteredToggle(e.target.checked)}
+                            />
+                            {!formData.isUserRegistered && (
+                                <Input
+                                    label={<span>Correo electrónico (para la firma) <span style={{ color: "red" }}>*</span></span>}
+                                    name="signerEmail"
+                                    type="email"
+                                    placeholder="correo@ejemplo.com"
+                                    value={formData.signerEmail}
+                                    onChange={handleChange}
+                                    error={errors.signerEmail}
+                                />
+                            )}
+                        </div>
 
                         <div
                             className="grid gap-3 items-start
@@ -332,6 +422,7 @@ export default function LoansRegisterForm() {
                             />
 
                         </div>
+
                         <div
                             className="grid gap-3 items-start
                             lg:grid-cols-[1fr_1fr_1fr_56px]
@@ -385,14 +476,15 @@ export default function LoansRegisterForm() {
                                         md:grid-cols-2
                                         grid-cols-1"
                                 >
-                                    <Select
+                                    {/* Ya no se elige a mano: se completa sola con la
+                                        categoría real del material elegido abajo. */}
+                                    <Input
                                         label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
                                         name="loanCategory"
-                                        options={categorias}
                                         value={material.loanCategory}
-                                        onChange={(e) =>
-                                            handleMaterialChange(material.id, "loanCategory", e.target.value)
-                                        }
+                                        disabled
+                                        readOnly
+                                        placeholder="Selecciona un producto"
                                         error={errors[`materials.${index}.loanCategory`]}
                                     />
 
@@ -541,6 +633,26 @@ export default function LoansRegisterForm() {
                         cancelText="Cancelar"
                     >
                         <p>¿Seguro que deseas crear este préstamo?</p>
+                    </Modal>
+
+                    <Modal
+                        isOpen={isWaitingSignatureOpen}
+                        title="Préstamo creado"
+                        onClose={() => window.history.back()}
+                        showFooter={false}
+                    >
+                        <p>
+                            El préstamo se registró correctamente. Se envió un correo a{" "}
+                            <strong>{formData.signerEmail}</strong> para que acepte el préstamo.
+                        </p>
+                        <p className="mt-2 text-amber-700">
+                            Esperando que el usuario acepte el préstamo.
+                        </p>
+                        <div className="flex justify-end pt-4">
+                            <Button variant="primary" size="md" onClick={() => window.history.back()}>
+                                Entendido
+                            </Button>
+                        </div>
                     </Modal>
                 </div>
 

@@ -119,18 +119,19 @@ export default function LoansRegisterForm() {
             ...prev,
             materials: prev.materials.map((m) =>
                 m.id === rowId
-                    ? { ...m, materialId: selectedId, loanProductName: chosen?.material_name ?? "" }
+                    ? {
+                        ...m,
+                        materialId: selectedId,
+                        loanProductName: chosen?.material_name ?? "",
+                        // La categoría ya no se elige a mano: se toma
+                        // directamente de la categoría real asignada al
+                        // material seleccionado (catálogo de categorías).
+                        loanCategory: chosen?.category_name ?? "",
+                    }
                     : m
             ),
         }));
     };
-
-    const categorias = [
-        { value: "", label: "Seleccione una opcion" },
-        { value: "herramienta", label: "Herramienta" },
-        { value: "equipo", label: "Equipo" },
-        { value: "consumible", label: "Consumible" },
-    ];
 
     const tipoMaterial = [
         { value: "", label: "Seleccione una opcion" },
@@ -455,14 +456,15 @@ export default function LoansRegisterForm() {
                                         md:grid-cols-2
                                         grid-cols-1"
                                 >
-                                    <Select
+                                    {/* Ya no se elige a mano: se completa sola con la
+                                        categoría real del material elegido abajo. */}
+                                    <Input
                                         label="Categoria "
                                         name="loanCategory"
-                                        options={categorias}
                                         value={material.loanCategory}
-                                        onChange={(e) =>
-                                            handleMaterialChange(material.id, "loanCategory", e.target.value)
-                                        }
+                                        disabled
+                                        readOnly
+                                        placeholder="Selecciona un producto"
                                         error={errors[`materials.${index}.loanCategory`]}
                                     />
 

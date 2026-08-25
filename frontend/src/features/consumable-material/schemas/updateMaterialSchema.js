@@ -55,6 +55,16 @@ export const updateMaterialSchema = z.object({
         .nullable()
         .optional(),
 
+    categoryId: z
+        .number({ invalid_type_error: "Debe seleccionar una categoría" })
+        .min(1, "Debe seleccionar una categoría")
+        .optional(),
+
+    quotationIds: z
+        .array(z.number())
+        .min(1, "Debe elegir entre 1 y 3 cotizaciones")
+        .max(3, "Máximo 3 cotizaciones"),
+
     // Cada elemento puede ser un File nuevo (el usuario adjuntó otro archivo)
     // o un string con la ruta que ya venía del backend (el usuario no tocó
     // el campo y se conserva el archivo/foto actual).

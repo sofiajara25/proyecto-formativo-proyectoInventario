@@ -31,10 +31,20 @@ export const returnableMaterialController = {
             const technicalSheetPath = req.files?.materialTechnicalSheet?.[0]
                 ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
                 : null;
+
+            let quotationIds = [];
+            try {
+                quotationIds = JSON.parse(req.body.quotationIds ?? "[]");
+            } catch {
+                quotationIds = [];
+            }
+            if (!Array.isArray(quotationIds)) quotationIds = [];
+
             const returnableMaterial = await returnableMaterialService.createReturnableMaterial({
                 ...req.body,
                 photos,
                 materialTechnicalSheet: technicalSheetPath,
+                quotationIds,
             });
 
 
@@ -120,10 +130,19 @@ export const returnableMaterialController = {
                 ? `uploads/${req.files.materialTechnicalSheet[0].filename}`
                 : null;
 
+            let quotationIds = [];
+            try {
+                quotationIds = JSON.parse(req.body.quotationIds ?? "[]");
+            } catch {
+                quotationIds = [];
+            }
+            if (!Array.isArray(quotationIds)) quotationIds = [];
+
             const updated = await returnableMaterialService.updateReturnable(id, {
                 ...req.body,
                 materialTechnicalSheet: technicalSheetPath,
                 photos,
+                quotationIds,
             });
 
             if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });

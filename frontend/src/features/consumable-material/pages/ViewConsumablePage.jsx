@@ -62,6 +62,7 @@ export default function ViewConsumablePage() {
                         <p><strong>Valor total:</strong> ${consumable.total_value}</p>
                         <p><strong>Descripción:</strong> {consumable.description}</p>
                         <p><strong>Marca:</strong> {consumable.brand_name || "—"}</p>
+                        <p><strong>Categoría:</strong> {consumable.category_name ? `${consumable.category_name} (${consumable.category_element_type})` : "—"}</p>
 
                     </div>
 
@@ -72,6 +73,20 @@ export default function ViewConsumablePage() {
                             <FileViewer file={consumable.technical_sheet} label="Ficha técnica" />
                         ) : (
                             <p className="text-sm text-gray-500">Sin archivo</p>
+                        )}
+                    </div>
+
+                    {/* Cotizaciones enlazadas (elegidas del catálogo de Cotizaciones) */}
+                    <div>
+                        <p className="mb-2"><strong>Cotizaciones:</strong></p>
+                        {Array.isArray(consumable.quotations) && consumable.quotations.length > 0 ? (
+                            <div className="flex flex-wrap gap-3">
+                                {consumable.quotations.map((q) => (
+                                    <FileViewer key={q.quotation_id} file={q.pdf_url} label={q.quotation_name} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">Sin cotizaciones</p>
                         )}
                     </div>
 

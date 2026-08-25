@@ -34,7 +34,11 @@ export const consumableMaterialRepository = {
             materialTechnicalSheet,
             photos,
             brandId,
+            categoryId,
+            quotationIds,
         } = consumableMaterialData;
+
+        const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
 
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
@@ -64,9 +68,10 @@ export const consumableMaterialRepository = {
           description,
           technical_sheet,
           photo_url,
-          brand_id
+          brand_id,
+          category_id
         )
-        VALUES ($1,'PENDIENTE',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+        VALUES ($1,'PENDIENTE',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
         RETURNING id;
       `;
 
@@ -88,6 +93,7 @@ export const consumableMaterialRepository = {
                 // campo ni siquiera viaja en el form-data). pg no acepta
                 // undefined como parámetro, así que lo convertimos a null.
                 brandId ?? null,
+                categoryId ?? null,
             ];
 
             const insertResult = await client.query(insertQuery, insertValues);
@@ -107,6 +113,15 @@ export const consumableMaterialRepository = {
                 await client.query(
                     "INSERT INTO consumable_material_photos (consumable_material_id, photo_url) VALUES ($1, $2)",
                     [id, url]
+                );
+            }
+
+            // 4. Enlazamos las cotizaciones elegidas (1-3, ya existentes en
+            // el catálogo "quotations"; aquí no se sube ningún PDF nuevo).
+            for (const quotationId of quotationIdList) {
+                await client.query(
+                    "INSERT INTO consumable_material_quotations (consumable_material_id, quotation_id) VALUES ($1, $2)",
+                    [id, quotationId]
                 );
             }
 
@@ -140,15 +155,33 @@ export const consumableMaterialRepository = {
                 m.*,
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
+                c.category_name AS category_name,
+                c.element_type AS category_element_type,
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
-                ) AS gallery_photos
+                ) AS gallery_photos,
+                -- Subconsulta (no JOIN) para las cotizaciones enlazadas: si
+                -- se unieran directamente fotos Y cotizaciones en el mismo
+                -- JOIN, el producto cruzado duplicaría filas y los json_agg
+                -- saldrían mal (ej. 2 fotos x 2 cotizaciones = 4 filas).
+                COALESCE(
+                    (SELECT json_agg(json_build_object(
+                        'quotation_id', q.quotation_id,
+                        'quotation_name', q.quotation_name,
+                        'pdf_url', q.pdf_url
+                    ))
+                    FROM consumable_material_quotations cmq
+                    JOIN quotations q ON q.quotation_id = cmq.quotation_id
+                    WHERE cmq.consumable_material_id = m.id),
+                    '[]'
+                ) AS quotations
             FROM consumable_materials m
             LEFT JOIN brands b ON b.id = m.brand_id
             LEFT JOIN inventory_names inv ON inv.inventory_name_id = m.inventory_name_id
+            LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN consumable_material_photos mp ON mp.consumable_material_id = m.id
-            GROUP BY m.id, b.marca, inv.inventory_name
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type
             ORDER BY m.id;
         `);
         return result.rows.map(({ gallery_photos, ...row }) => ({
@@ -163,16 +196,30 @@ export const consumableMaterialRepository = {
                 m.*,
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
+                c.category_name AS category_name,
+                c.element_type AS category_element_type,
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
-                ) AS gallery_photos
+                ) AS gallery_photos,
+                COALESCE(
+                    (SELECT json_agg(json_build_object(
+                        'quotation_id', q.quotation_id,
+                        'quotation_name', q.quotation_name,
+                        'pdf_url', q.pdf_url
+                    ))
+                    FROM consumable_material_quotations cmq
+                    JOIN quotations q ON q.quotation_id = cmq.quotation_id
+                    WHERE cmq.consumable_material_id = m.id),
+                    '[]'
+                ) AS quotations
             FROM consumable_materials m
             LEFT JOIN brands b ON b.id = m.brand_id
             LEFT JOIN inventory_names inv ON inv.inventory_name_id = m.inventory_name_id
+            LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN consumable_material_photos mp ON mp.consumable_material_id = m.id
             WHERE m.id = $1
-            GROUP BY m.id, b.marca, inv.inventory_name;
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type;
         `, [id]);
 
         const row = result.rows[0];
@@ -205,6 +252,8 @@ export const consumableMaterialRepository = {
             materialTechnicalSheet,
             photos,
             brandId,
+            categoryId,
+            quotationIds,
         } = consumableData;
 
         const photoList = Array.isArray(photos) ? photos : [];
@@ -232,8 +281,9 @@ export const consumableMaterialRepository = {
                     description = $12,
                     technical_sheet = COALESCE($13, technical_sheet),
                     photo_url = COALESCE($14, photo_url),
-                    brand_id = $15
-                WHERE id = $16
+                    brand_id = $15,
+                    category_id = $16
+                WHERE id = $17
                 RETURNING *;
             `;
 
@@ -253,6 +303,7 @@ export const consumableMaterialRepository = {
                 materialTechnicalSheet ?? null,
                 coverPhoto,
                 brandId ?? null,
+                categoryId ?? null,
                 id,
             ];
 
@@ -273,6 +324,22 @@ export const consumableMaterialRepository = {
                     await client.query(
                         "INSERT INTO consumable_material_photos (consumable_material_id, photo_url) VALUES ($1, $2)",
                         [id, url]
+                    );
+                }
+            }
+
+            // Igual que con las fotos: se reemplaza el enlace completo con
+            // la selección final de cotizaciones (borrar + reinsertar es
+            // más simple y seguro que calcular un diff).
+            if (Array.isArray(quotationIds)) {
+                await client.query(
+                    "DELETE FROM consumable_material_quotations WHERE consumable_material_id = $1",
+                    [id]
+                );
+                for (const quotationId of quotationIds) {
+                    await client.query(
+                        "INSERT INTO consumable_material_quotations (consumable_material_id, quotation_id) VALUES ($1, $2)",
+                        [id, quotationId]
                     );
                 }
             }

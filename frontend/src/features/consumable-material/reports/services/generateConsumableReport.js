@@ -8,7 +8,8 @@ export async function generateConsumableReport({
     selectedFields,
     scope,
     senaPlate,
-    filterStatus
+    filterStatus,
+    inventoryNameId
 }) {
     // Traer datos reales del backend
     const consumables = await getConsumables();
@@ -19,6 +20,7 @@ export async function generateConsumableReport({
         scope,
         senaPlate,
         filterStatus,
+        inventoryNameId,
     });
 
     if (!rows.length) {

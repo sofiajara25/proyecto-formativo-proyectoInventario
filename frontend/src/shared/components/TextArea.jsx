@@ -8,7 +8,11 @@ export default function TextArea({
     ...props
 }) {
     return (
-        <div className={`w-[320px] ${containerClassName}`}>
+        // "w-full max-w-[320px]" en vez de "w-[320px]" fijo, igual que
+        // Input: si la celda del grid es más angosta que 320px, se
+        // encoge en vez de desbordarse y verse más ancho que los demás
+        // campos de la misma fila.
+        <div className={`w-full max-w-[320px] ${containerClassName}`}>
             {label && (
                 <label
                     className={`
@@ -32,7 +36,7 @@ export default function TextArea({
                     border
                     border-border
                     px-4
-                    py-3
+                    py-2
                     text-base
                     resize-y
                     hover:border-2 hover:border-focus-border

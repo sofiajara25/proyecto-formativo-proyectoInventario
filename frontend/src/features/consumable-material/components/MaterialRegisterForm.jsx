@@ -3,6 +3,8 @@ import { Input, Button, Navbar, FileInput, Select, Modal, TextArea } from "@/sha
 import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate } from "react-router-dom";
 import { createConsumableMaterial, getNextConsumableToolId } from "../services/consumableMaterialService";
+import { getCategorys } from "../../categorys/service/categoryService";
+import { QuotationsPicker } from "../../quotations";
 
 export default function MaterialRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +24,8 @@ export default function MaterialRegisterForm() {
         materialStatus: "",
         materialDescription: "",
         brandId: "",
+        categoryId: "",
+        quotationIds: [],
         materialTechnicalSheet: [],
         photo: [],
     });
@@ -38,9 +42,23 @@ export default function MaterialRegisterForm() {
 
     const [inventoryNames, setInventoryNames] = useState([]);
 
+    const [categorias, setCategorias] = useState([]);
+
     // Vista previa del ID que el backend le va a asignar al material al
     // guardarlo (ej. "CON-0007"). No se puede editar, solo se muestra.
     const [nextToolId, setNextToolId] = useState("Calculando...");
+
+    useEffect(() => {
+        getCategorys()
+            .then((data) => {
+                const options = data.map((c) => ({
+                    value: c.category_id,
+                    label: `${c.category_name} (${c.element_type})`,
+                }));
+                setCategorias([{ value: "", label: "Selecciona una categoría" }, ...options]);
+            })
+            .catch((err) => console.error("Error cargando categorías:", err));
+    }, []);
 
     // Fecha de hoy en formato YYYY-MM-DD usando la zona horaria local
     // (evita el corrimiento de un día que da new Date().toISOString()).
@@ -107,6 +125,7 @@ export default function MaterialRegisterForm() {
             // Si no se seleccionó marca, enviamos null (no 0): brandId=0 no
             // existe en la tabla brands y rompe la llave foránea.
             brandId: formData.brandId ? Number(formData.brandId) : null,
+            categoryId: formData.categoryId ? Number(formData.categoryId) : null,
             materialQuantity: Number(formData.materialQuantity),
             materialUnitValue: Number(formData.materialUnitValue),
             materialTotalValue: Number(formData.materialTotalValue),
@@ -322,6 +341,24 @@ export default function MaterialRegisterForm() {
                                     error={errors.brandId}
                                 />
                             </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Select
+                                    label={<span>Categoría<span style={{ color: "red" }}>*</span></span>}
+                                    name="categoryId"
+                                    options={categorias}
+                                    value={formData.categoryId}
+                                    onChange={handleChange}
+                                    error={errors.categoryId}
+                                />
+                            </div>
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <QuotationsPicker
+                                    value={formData.quotationIds}
+                                    onChange={(ids) => setFormData((prev) => ({ ...prev, quotationIds: ids }))}
+                                    error={errors.quotationIds}
+                                />
+                            </div>
+
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
                                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 col-span-full">
                                     {/* Fila 6 — Archivos */}

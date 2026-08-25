@@ -35,7 +35,8 @@ export async function createUser(userData) {
     formData.append("userAddress", userData.userAddress);
     formData.append("userPhone", userData.userPhone);
     formData.append("userStatus", userData.userStatus);
-    formData.append("userPassword", userData.userPassword);
+    // La contraseña ya no se manda desde el formulario: el backend la genera
+    // sola y no hay forma de verla.
 
     // archivos. El backend solo acepta un archivo (upload.single).
     const newPhoto = resolvePhotoFile(userData.userPhoto);
