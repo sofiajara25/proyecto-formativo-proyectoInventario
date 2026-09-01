@@ -28,7 +28,10 @@ export function buildReportDataset({
     const headers = uniqueFields.map((field) => field.label);
 
     const rows = filteredReturnables.map((returnable) =>
-        uniqueFields.map((field) => returnable[field.key] ?? "")
+        uniqueFields.map((field) => {
+            const value = returnable[field.key] ?? "";
+            return Array.isArray(value) ? value.join(", ") : value;
+        })
     );
 
     return { headers, rows };

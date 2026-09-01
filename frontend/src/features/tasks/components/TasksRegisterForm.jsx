@@ -98,14 +98,14 @@ export default function TasksRegisterForm({ users, onClose }) {
     // 🔑 Portal — renderiza FUERA del DOM del form padre, en document.body
     return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30"
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30 p-4"
             onClick={(e) => e.stopPropagation()}
         >
             <div
-                className="bg-white rounded-lg shadow-lg p-6 w-[740px]"
+                className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-[380px] lg:max-w-[740px] max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                <h1 className="text-2xl font-medium text-center text-gray-900">
+                <h1 className="text-xl sm:text-2xl font-medium text-center text-gray-900">
                     Asignar tarea
                 </h1>
 
@@ -113,7 +113,7 @@ export default function TasksRegisterForm({ users, onClose }) {
                     onSubmit={handleSubmit}
                     className="flex flex-col gap-4 lg:mx-5 md:mx-2 mt-8"
                 >
-                    <div className="grid lg:grid-cols-2 md:grid-cols-1 sm:grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 justify-items-center lg:justify-items-stretch">
 
                         <Input
                             label="Nombre"
@@ -166,9 +166,6 @@ export default function TasksRegisterForm({ users, onClose }) {
                             error={errors.taskDeliveryDate}
                             min={formData.taskCreationDate || localToday}
                         />
-                        {/* 👇 Select de usuarios con filtro */}
-                        {/* 👇 Select de usuarios con filtro */}
-                        {/* 👇 Select de usuarios */}
                         {/* Select de usuarios */}
 
                         <Select

@@ -42,12 +42,23 @@ export const consumableMaterialController = {
       }
       if (!Array.isArray(quotationIds)) quotationIds = [];
 
+      // "materialAccountants" (varios cuentadantes de texto libre) viaja
+      // igual que "quotationIds": como JSON dentro del FormData.
+      let materialAccountants = [];
+      try {
+        materialAccountants = JSON.parse(req.body.materialAccountants ?? "[]");
+      } catch {
+        materialAccountants = [];
+      }
+      if (!Array.isArray(materialAccountants)) materialAccountants = [];
+
       // pasamos todos los datos al service
       const consumable = await consumableMaterialService.createConsumableMaterial({
         ...req.body,
         photos,
         materialTechnicalSheet: technicalSheetPath,
         quotationIds,
+        materialAccountants,
       });
 
       // Respuesta HTTP en caso de éxito
@@ -141,11 +152,20 @@ export const consumableMaterialController = {
       }
       if (!Array.isArray(quotationIds)) quotationIds = [];
 
+      let materialAccountants = [];
+      try {
+        materialAccountants = JSON.parse(req.body.materialAccountants ?? "[]");
+      } catch {
+        materialAccountants = [];
+      }
+      if (!Array.isArray(materialAccountants)) materialAccountants = [];
+
       const updatedConsumable = await consumableMaterialService.updateConsumable(id, {
         ...req.body,
         photos,
         materialTechnicalSheet: technicalSheetPath,
         quotationIds,
+        materialAccountants,
       });
 
       if (!updatedConsumable) return res.status(404).json({ error: "Material de consumo no encontrado" });

@@ -43,7 +43,9 @@ export default function ViewConsumablePage() {
                         />
                         <div className="flex flex-col gap-1">
                             <p className="text-lg font-bold text-gray-900">{consumable.material_name}</p>
-                            <p className="text-sm text-gray-500">Custodio: {consumable.accountant}</p>
+                            <p className="text-sm text-gray-500">
+                                Cuentadante(s): {Array.isArray(consumable.accountants) && consumable.accountants.length ? consumable.accountants.join(", ") : "—"}
+                            </p>
                             <p className="text-sm font-bold text-primary-950">
                                 Estado: {consumable.status ? "Activo" : "Inactivo"}
                             </p>
@@ -55,6 +57,7 @@ export default function ViewConsumablePage() {
                         <p><strong>Código herramienta:</strong> {consumable.tool_id}</p>
                         <p><strong>Placa SENA:</strong> {consumable.sena_plate || "—"}</p>
                         <p><strong>Fecha de ingreso:</strong> {formatDate(consumable.entry_date)}</p>
+                        <p><strong>Fecha de compra:</strong> {consumable.purchase_date ? formatDate(consumable.purchase_date) : "—"}</p>
                         <p><strong>Cantidad:</strong> {consumable.quantity}</p>
                         <p><strong>Nombre del inventario:</strong> {consumable.inventory_name || "—"}</p>
                         <p><strong>Ubicación:</strong> {consumable.location || "—"}</p>

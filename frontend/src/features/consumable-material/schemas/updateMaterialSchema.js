@@ -1,10 +1,9 @@
 import { z } from "zod";
 
 export const updateMaterialSchema = z.object({
-    materialAccountant: z
-        .string()
-        .min(3)
-        .max(60),
+    materialAccountants: z
+        .array(z.string().min(1))
+        .min(1, "Debe agregar al menos un cuentadante"),
 
     materialToolId: z
         .string()
@@ -22,6 +21,10 @@ export const updateMaterialSchema = z.object({
     materialEntryDate: z
         .string()
         .min(1), // 👈 aquí ya no hacemos refine
+
+    materialPurchaseDate: z
+        .string()
+        .min(1, "La fecha de compra es obligatoria"),
 
     materialQuantity: z
         .number({ invalid_type_error: "La cantidad debe ser un número" })

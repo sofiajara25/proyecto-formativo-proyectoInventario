@@ -4,10 +4,9 @@ import { fileSchema } from "@/shared";
 
 export const materialSchema = z.object({
 
-  materialAccountant: z
-    .string()
-    .min(3, "El cuentadante debe tener mínimo 3 caracteres")
-    .max(60, "El cuentadante es demasiado largo"),
+  materialAccountants: z
+    .array(z.string().min(1))
+    .min(1, "Debe agregar al menos un cuentadante"),
 
   // materialToolId ya no se valida ni se envía: el backend lo genera
   // automáticamente al crear el registro.
@@ -24,6 +23,10 @@ export const materialSchema = z.object({
   materialEntryDate: z
     .string()
     .min(1, "La fecha de ingreso es requerida"),
+
+  materialPurchaseDate: z
+    .string()
+    .min(1, "La fecha de compra es obligatoria"),
 
   materialQuantity: z
     .number({
@@ -94,3 +97,18 @@ export const materialSchema = z.object({
 
   return materialEntryDate >= today;
 }, { path: ["materialEntryDate"], message: "La fecha de ingreso no puede ser anterior a hoy" })
+
+.refine((data) => {
+  if (!data.materialPurchaseDate) return false;
+
+  const [year, month, day] = data.materialPurchaseDate.split("-").map(Number);
+  const materialPurchaseDate = new Date(year, (month || 1) - 1, day || 1);
+  if (isNaN(materialPurchaseDate.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  materialPurchaseDate.setHours(0, 0, 0, 0);
+
+  // La fecha de compra es del pasado (o hoy), no puede ser futura.
+  return materialPurchaseDate <= today;
+}, { path: ["materialPurchaseDate"], message: "La fecha de compra no puede ser una fecha futura" })

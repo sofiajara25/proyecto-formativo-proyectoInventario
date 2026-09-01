@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout, TagsInput } from "@/shared";
 import { updateReturnableSchema } from "../schemas/updateReturnableSchema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getReturnableById, updateReturnable } from "../services/returnableMaterialService";
@@ -21,7 +21,7 @@ export default function ReturnableMaterialRegisterForm() {
     materialName: "",
     materialModel: "",
     materialUnitValue: "",
-    materialCustodian: "",
+    materialCustodians: [],
     materialQuantity: "",
     materialStatus: "",
     materialTotalValue: "",
@@ -92,7 +92,7 @@ export default function ReturnableMaterialRegisterForm() {
         materialName: data.material_name,
         materialModel: data.model,
         materialUnitValue: data.unit_value,
-        materialCustodian: data.custodian,
+        materialCustodians: Array.isArray(data.custodians) ? data.custodians : [],
         materialQuantity: data.quantity,
         materialStatus: data.status,
         materialTotalValue: data.total_value,
@@ -287,12 +287,12 @@ export default function ReturnableMaterialRegisterForm() {
               />
 
               {/* Fila 3 */}
-              <Input
-                label="Cuentadante"
-                name="materialCustodian"
-                value={formData.materialCustodian}
-                onChange={handleChange}
-                error={errors.materialCustodian}
+              <TagsInput
+                label="Cuentadante(s)"
+                name="materialCustodians"
+                values={formData.materialCustodians}
+                onChange={(values) => setFormData((prev) => ({ ...prev, materialCustodians: values }))}
+                error={errors.materialCustodians}
               />
               <Input
                 label="Cantidad"

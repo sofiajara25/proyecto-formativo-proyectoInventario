@@ -12,11 +12,14 @@ export async function createConsumableMaterial(consumableMaterialData) {
     const formData = new FormData();
     const token = sessionStorage.getItem("token");
 
-    formData.append("materialAccountant", consumableMaterialData.materialAccountant);
+    // Varios cuentadantes de texto libre: igual que "quotationIds", viaja
+    // como JSON dentro del FormData.
+    formData.append("materialAccountants", JSON.stringify(consumableMaterialData.materialAccountants ?? []));
     // materialToolId ya no se envía: el backend lo genera automáticamente.
     formData.append("materialSenaPlate", consumableMaterialData.materialSenaPlate);
     formData.append("materialName", consumableMaterialData.materialName);
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
+    formData.append("materialPurchaseDate", consumableMaterialData.materialPurchaseDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);
     formData.append("inventoryNameId", consumableMaterialData.inventoryNameId);
     formData.append("materialLocation", consumableMaterialData.materialLocation);
@@ -117,11 +120,12 @@ export async function updateConsumable(id, consumableMaterialData) {
 
     const formData = new FormData();
 
-    formData.append("materialAccountant", consumableMaterialData.materialAccountant);
+    formData.append("materialAccountants", JSON.stringify(consumableMaterialData.materialAccountants ?? []));
     formData.append("materialToolId", consumableMaterialData.materialToolId);
     formData.append("materialSenaPlate", consumableMaterialData.materialSenaPlate);
     formData.append("materialName", consumableMaterialData.materialName);
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
+    formData.append("materialPurchaseDate", consumableMaterialData.materialPurchaseDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);
     formData.append("inventoryNameId", consumableMaterialData.inventoryNameId);
     formData.append("materialLocation", consumableMaterialData.materialLocation);

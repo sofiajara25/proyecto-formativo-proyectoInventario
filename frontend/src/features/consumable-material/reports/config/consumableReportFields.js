@@ -1,7 +1,7 @@
 export const consumableReportFields = [
     {
-        key: "accountant",
-        label: "Cuentadante",
+        key: "accountants",
+        label: "Cuentadante(s)",
         default: true,
     },
     {
@@ -24,7 +24,12 @@ export const consumableReportFields = [
         label: "Fecha de ingreso",
         default: true,
     },
-    
+    {
+        key: "purchase_date",
+        label: "Fecha de compra",
+        default: true,
+    },
+
     {
         key: "quantity",
         label: "Cantidad",

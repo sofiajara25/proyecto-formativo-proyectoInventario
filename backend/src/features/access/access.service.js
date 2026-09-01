@@ -13,4 +13,20 @@ export const accessService = {
         // Solo los administradores tienen permiso
         return userType === "Administrador";
     },
+
+    // Resumen de acceso del usuario logueado: se guarda en el frontend
+    // justo después del login (ver Login.jsx -> saveAccess) y de ahí lo
+    // leen isAdmin()/hasPermission() en shared/utils/permissions.js.
+    async getMyAccess(userId) {
+        const userType = await accessRepository.getUserType(userId);
+
+        if (!userType) {
+            return { userType: null, isAdmin: false, permissions: [] };
+        }
+
+        const isAdminUser = userType === "Administrador";
+        const permissions = await accessRepository.getUserPermissions(userId);
+
+        return { userType, isAdmin: isAdminUser, permissions };
+    },
 };

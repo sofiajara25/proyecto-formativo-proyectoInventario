@@ -40,6 +40,7 @@ export function buildReportDataset({
     const rows = filteredConsumables.map((consumable) =>
         uniqueFields.map((field) => {
             const value = consumable[field.key] ?? "";
+            if (Array.isArray(value)) return value.join(", ");
             return field.key.toLowerCase().includes("date") ? formatDate(value) : value;
         })
     );

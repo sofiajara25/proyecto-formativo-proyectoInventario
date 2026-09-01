@@ -3,7 +3,7 @@ const API_URL = "http://localhost:5000/api/access";
 
 
 export async function hasPermission(permissionCode) {
-    const token = sessionStorage.setItem("token");
+    const token = sessionStorage.getItem("token");
 
     const response = await fetch(`${API_URL}/check/${permissionCode}`, {
         headers: {
@@ -23,7 +23,7 @@ export async function hasPermission(permissionCode) {
 // { userType, isAdmin, permissions: [...] }
 // Se usa justo después del login para saber qué módulos mostrar.
 export async function getMyAccess() {
-    const token = sessionStorage.setItem("token")
+    const token = sessionStorage.getItem("token");
 
     const response = await fetch(`${API_URL}/me`, {
         headers: {

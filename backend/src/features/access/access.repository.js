@@ -23,7 +23,7 @@ export const accessRepository = {
             INNER JOIN user_permissions up
                 ON up.permission_id  = p.permission_id
 
-            WHERE up.user.id = $1
+            WHERE up.user_id = $1
 
             UNION
 

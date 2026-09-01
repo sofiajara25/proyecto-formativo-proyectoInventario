@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Input, Button, Navbar, FileInput, Modal, TextArea, Select } from "@/shared";
+import { Input, Button, Navbar, FileInput, Modal, TextArea, Select, TagsInput } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { getConsumableById, updateConsumable } from "../services/consumableMaterialService";
 import { updateMaterialSchema } from "../schemas/updateMaterialSchema";
@@ -13,11 +13,12 @@ export default function MaterialRegisterForm() {
     const { id } = useParams();
 
     const [formData, setFormData] = useState({
-        materialAccountant: "",
+        materialAccountants: [],
         materialToolId: "",
         materialSenaPlate: "",
         materialName: "",
         materialEntryDate: "",
+        materialPurchaseDate: "",
         materialQuantity: "",
         inventoryNameId: "",
         materialLocation: "",
@@ -76,11 +77,12 @@ export default function MaterialRegisterForm() {
         getConsumableById(id)
             .then((data) =>
                 setFormData({
-                    materialAccountant: data.accountant,
+                    materialAccountants: Array.isArray(data.accountants) ? data.accountants : [],
                     materialToolId: data.tool_id,
                     materialSenaPlate: data.sena_plate,
                     materialName: data.material_name,
                     materialEntryDate: data.entry_date?.slice(0, 10) || "",
+                    materialPurchaseDate: data.purchase_date?.slice(0, 10) || "",
                     materialQuantity: data.quantity,
                     // Si no hay marca / nombre de inventario asignado, el
                     // backend devuelve null. El <select> de React no acepta
@@ -224,12 +226,12 @@ export default function MaterialRegisterForm() {
                         <div className="grid gap-2 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
-                                <Input
-                                    label="Cuentadante"
-                                    name="materialAccountant"
-                                    value={formData.materialAccountant}
-                                    onChange={handleChange}
-                                    error={errors.materialAccountant}
+                                <TagsInput
+                                    label="Cuentadante(s)"
+                                    name="materialAccountants"
+                                    values={formData.materialAccountants}
+                                    onChange={(values) => setFormData((prev) => ({ ...prev, materialAccountants: values }))}
+                                    error={errors.materialAccountants}
                                 />
                             </div>
 
@@ -271,6 +273,17 @@ export default function MaterialRegisterForm() {
                                     value={formData.materialEntryDate}
                                     onChange={handleChange}
                                     error={errors.materialEntryDate}
+                                />
+                            </div>
+
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Input
+                                    label="Fecha de compra"
+                                    type="date"
+                                    name="materialPurchaseDate"
+                                    value={formData.materialPurchaseDate}
+                                    onChange={handleChange}
+                                    error={errors.materialPurchaseDate}
                                 />
                             </div>
 

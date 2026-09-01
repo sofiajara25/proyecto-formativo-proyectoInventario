@@ -17,7 +17,9 @@ function appendCommonReturnableFields(formData, returnableMaterialData) {
     formData.append("materialName", returnableMaterialData.materialName);
     formData.append("materialModel", returnableMaterialData.materialModel);
     formData.append("materialUnitValue", returnableMaterialData.materialUnitValue);
-    formData.append("materialCustodian", returnableMaterialData.materialCustodian);
+    // Varios custodios de texto libre: igual que "quotationIds", viaja
+    // como JSON dentro del FormData.
+    formData.append("materialCustodians", JSON.stringify(returnableMaterialData.materialCustodians ?? []));
     formData.append("materialQuantity", returnableMaterialData.materialQuantity);
     formData.append("materialStatus", returnableMaterialData.materialStatus);
     formData.append("materialTotalValue", returnableMaterialData.materialTotalValue);

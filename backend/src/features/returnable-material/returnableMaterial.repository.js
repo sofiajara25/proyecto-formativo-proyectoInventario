@@ -27,7 +27,7 @@ export const returnableMaterialRepository = {
             materialName,
             materialModel,
             materialUnitValue,
-            materialCustodian,
+            materialCustodians,
             materialQuantity,
             materialStatus,
             materialTotalValue,
@@ -42,6 +42,7 @@ export const returnableMaterialRepository = {
         } = returnableMaterialData;
 
         const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
+        const custodianList = Array.isArray(materialCustodians) ? materialCustodians : [];
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -63,7 +64,7 @@ export const returnableMaterialRepository = {
           material_name,
           model,
           unit_value,
-          custodian,
+          custodians,
           quantity,
           status,
           total_value,
@@ -86,7 +87,7 @@ export const returnableMaterialRepository = {
                 materialName,
                 materialModel,
                 materialUnitValue,
-                materialCustodian,
+                custodianList,
                 materialQuantity,
                 materialStatus,
                 materialTotalValue,
@@ -244,7 +245,7 @@ export const returnableMaterialRepository = {
             materialName,
             materialModel,
             materialUnitValue,
-            materialCustodian,
+            materialCustodians,
             materialQuantity,
             materialStatus,
             materialTotalValue,
@@ -258,6 +259,7 @@ export const returnableMaterialRepository = {
             quotationIds,
         } = returnableMaterialData;
 
+        const custodianList = Array.isArray(materialCustodians) ? materialCustodians : [];
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -276,7 +278,7 @@ export const returnableMaterialRepository = {
                     material_name = $5,
                     model = $6,
                     unit_value = $7,
-                    custodian = $8,
+                    custodians = $8,
                     quantity = $9,
                     status = $10,
                     total_value = $11,
@@ -298,7 +300,7 @@ export const returnableMaterialRepository = {
                 materialName,
                 materialModel,
                 materialUnitValue,
-                materialCustodian,
+                custodianList,
                 materialQuantity,
                 materialStatus,
                 materialTotalValue,

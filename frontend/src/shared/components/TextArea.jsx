@@ -1,18 +1,34 @@
+import { useRef, useEffect } from "react";
+
 export default function TextArea({
     label,
     error,
-    rows = 4,
     containerClassName = "",
     labelClassName = "",
     textareaClassName = "",
+    minRows = 3,
+    maxRows = 10,
     ...props
 }) {
+    const textAreaRef = useRef(null);
+
+    // Cada vez que cambia el valor, recalculamos la altura
+    useEffect(() => {
+        const el = textAreaRef.current;
+        if (!el) return;
+
+        el.style.height = "auto";
+
+        const lineHeight = parseInt(window.getComputedStyle(el).lineHeight, 10) || 20;
+        const minHeight = lineHeight * minRows;
+        const maxHeight = lineHeight * maxRows;
+
+        const newHeight = Math.min(Math.max(el.scrollHeight, minHeight), maxHeight);
+        el.style.height = `${newHeight}px`;
+    }, [props.value, minRows, maxRows]);
+
     return (
-        // "w-full max-w-[320px]" en vez de "w-[320px]" fijo, igual que
-        // Input: si la celda del grid es más angosta que 320px, se
-        // encoge en vez de desbordarse y verse más ancho que los demás
-        // campos de la misma fila.
-        <div className={`w-full max-w-[320px] ${containerClassName}`}>
+        <div className={`w-[320px] ${containerClassName}`}>
             {label && (
                 <label
                     className={`
@@ -28,24 +44,37 @@ export default function TextArea({
                 </label>
             )}
 
-            <textarea
-                rows={rows}
-                className={`
-                    w-full
-                    rounded-md
-                    border
-                    border-border
-                    px-4
-                    py-2
-                    text-base
-                    resize-y
-                    hover:border-2 hover:border-focus-border
-                    focus:outline-none focus:ring-1 focus:ring-focus-ring
-                    ${error ? "border-red-600" : "border border-border"}
-                    ${textareaClassName}
-                `}
-                {...props}
-            />
+            <div className="relative flex items-center">
+                <div
+                    className="absolute inset-0"
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.nextSibling.focus();
+                    }}
+                />
+
+                <textarea
+                    ref={textAreaRef}
+                    rows={minRows}
+                    className={`
+                        relative
+                        w-full
+                        rounded-md
+                        border
+                        border-border
+                        px-4
+                        py-3
+                        text-base
+                        resize-none
+                        overflow-hidden
+                        hover:border-2 hover:border-focus-border
+                        focus:outline-none focus:ring-1 focus:ring-focus-ring
+                        ${error ? "border-red-600" : "border border-border"}
+                        ${textareaClassName}
+                    `}
+                    {...props}
+                />
+            </div>
 
             {error && (
                 <p className="text-caption text-red-800 place-self-start">

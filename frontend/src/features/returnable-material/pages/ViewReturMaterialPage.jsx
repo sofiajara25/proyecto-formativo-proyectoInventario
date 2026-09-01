@@ -81,7 +81,7 @@ export default function ViewReturMaterialPage() {
                                     margin: 0,
                                 }}
                             >
-                                Custodio: {retornable.custodian}
+                                Cuentadante(s): {Array.isArray(retornable.custodians) && retornable.custodians.length ? retornable.custodians.join(", ") : "—"}
                             </p>
                             <p
                                 style={{

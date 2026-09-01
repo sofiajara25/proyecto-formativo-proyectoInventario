@@ -25,8 +25,8 @@ export const returnableReportFields = [
         default: false,
     },
     {
-        key: "custodian",
-        label: "Cuentadante",
+        key: "custodians",
+        label: "Cuentadante(s)",
         default: true,
     },
     {

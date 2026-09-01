@@ -40,11 +40,22 @@ export const returnableMaterialController = {
             }
             if (!Array.isArray(quotationIds)) quotationIds = [];
 
+            // "materialCustodians" (varios custodios de texto libre) viaja
+            // igual que "quotationIds": como JSON dentro del FormData.
+            let materialCustodians = [];
+            try {
+                materialCustodians = JSON.parse(req.body.materialCustodians ?? "[]");
+            } catch {
+                materialCustodians = [];
+            }
+            if (!Array.isArray(materialCustodians)) materialCustodians = [];
+
             const returnableMaterial = await returnableMaterialService.createReturnableMaterial({
                 ...req.body,
                 photos,
                 materialTechnicalSheet: technicalSheetPath,
                 quotationIds,
+                materialCustodians,
             });
 
 
@@ -138,11 +149,20 @@ export const returnableMaterialController = {
             }
             if (!Array.isArray(quotationIds)) quotationIds = [];
 
+            let materialCustodians = [];
+            try {
+                materialCustodians = JSON.parse(req.body.materialCustodians ?? "[]");
+            } catch {
+                materialCustodians = [];
+            }
+            if (!Array.isArray(materialCustodians)) materialCustodians = [];
+
             const updated = await returnableMaterialService.updateReturnable(id, {
                 ...req.body,
                 materialTechnicalSheet: technicalSheetPath,
                 photos,
                 quotationIds,
+                materialCustodians,
             });
 
             if (!updated) return res.status(404).json({ error: "Material devolutivo no encontrado" });

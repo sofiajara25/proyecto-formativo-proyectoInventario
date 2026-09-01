@@ -10,4 +10,10 @@ router.get(
     accessController.testPermission
 );
 
+router.get(
+    "/me",
+    authenticateToken,
+    accessController.me
+);
+
 export default router;

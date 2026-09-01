@@ -6,8 +6,12 @@ import ReturnableStatusSwitch from "../components/ReturnableStatusSwitch";
 export const returnableColumns = [
 
     {
-        accessorKey: "custodian",
-        header: "Encargado",
+        id: "custodians",
+        header: "Encargado(s)",
+        cell: ({ row }) => {
+            const custodians = row.original.custodians;
+            return Array.isArray(custodians) && custodians.length ? custodians.join(", ") : "—";
+        },
     },
 
     {

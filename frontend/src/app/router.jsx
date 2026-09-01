@@ -24,6 +24,8 @@ import { QuotationsPage } from "@/features/quotations"
 
 import { AcceptLoanPage } from "@/features/loan-signatures"
 
+import { ProfilePage } from "@/features/profile"
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -59,6 +61,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/home", element: <HomePage /> },
       { path: "/dashboard/list", element: <ListPage /> },
       { path: "/dashboard/setting", element: <SettingsPage /> },
+      { path: "/dashboard/perfil", element: <ProfilePage /> },
 
       // Tarea
       { path: "/dashboard/tasks/search", element: <TasksPage /> },

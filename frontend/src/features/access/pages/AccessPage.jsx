@@ -57,10 +57,10 @@ export default function AccessPage() {
     >
       <Navbar />
 
-      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 flex-1 p-3 sm:p-6">
+      <div className="flex flex-col md:flex-row gap-4 sm:gap-6 flex-1 p-3 sm:p-6">
 
         {/* Sidebar — ancho completo en móvil, fijo en desktop */}
-        <div className="bg-white rounded-2xl p-4 sm:p-6 w-full lg:w-[320px] xl:w-[350px] lg:shrink-0">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 w-full md:w-[320px] xl:w-[350px] md:shrink-0">
           <AccessSidebar
             selectedGroup={selectedGroup}
             setSelectedGroup={setSelectedGroup}

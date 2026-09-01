@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal, TextArea } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, TagsInput } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
@@ -19,7 +19,7 @@ export default function ReturnableMaterialRegisterForm() {
     materialName: "",
     materialModel: "",
     materialUnitValue: "",
-    materialCustodian: "",
+    materialCustodians: [],
     materialQuantity: "",
     materialStatus: "",
     materialTotalValue: "",
@@ -277,12 +277,12 @@ export default function ReturnableMaterialRegisterForm() {
               />
 
               {/* Fila 4 — Gestión / asignación */}
-              <Input
-                label={<span>Cuentadante <span style={{ color: "red" }}>*</span></span>}
-                name="materialCustodian"
-                value={formData.materialCustodian}
-                onChange={handleChange}
-                error={errors.materialCustodian}
+              <TagsInput
+                label={<span>Cuentadante(s) <span style={{ color: "red" }}>*</span></span>}
+                name="materialCustodians"
+                values={formData.materialCustodians}
+                onChange={(values) => setFormData((prev) => ({ ...prev, materialCustodians: values }))}
+                error={errors.materialCustodians}
               />
               <Select
                 label={<span>Nombre de inventario<span style={{ color: "red" }}>*</span></span>}

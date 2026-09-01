@@ -22,6 +22,7 @@ export { default as Lightbox } from "./components/Lightbox";
 export { default as FileViewer } from "./components/FileViewer";
 export { default as TextArea } from "./components/TextArea";
 export { default as Modal } from "./components/Modal";
+export { default as TagsInput } from "./components/TagsInput";
 export { default as PageLayout } from "./layouts/PageLayout";
 
 // schemas

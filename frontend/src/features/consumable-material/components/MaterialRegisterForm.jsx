@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Input, Button, Navbar, FileInput, Select, Modal, TextArea } from "@/shared";
+import { Input, Button, Navbar, FileInput, Select, Modal, TextArea, TagsInput } from "@/shared";
 import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate } from "react-router-dom";
 import { createConsumableMaterial, getNextConsumableToolId } from "../services/consumableMaterialService";
@@ -12,10 +12,11 @@ export default function MaterialRegisterForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
-        materialAccountant: "",
+        materialAccountants: [],
         materialSenaPlate: "",
         materialName: "",
         materialEntryDate: "",
+        materialPurchaseDate: "",
         materialQuantity: "",
         inventoryNameId: "",
         materialLocation: "",
@@ -202,12 +203,12 @@ export default function MaterialRegisterForm() {
                         <div className="grid gap-2 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
-                                <Input
-                                    label={<span>Cuentadante<span style={{ color: "red" }}>*</span></span>}
-                                    name="materialAccountant"
-                                    value={formData.materialAccountant}
-                                    onChange={handleChange}
-                                    error={errors.materialAccountant}
+                                <TagsInput
+                                    label={<span>Cuentadante(s)<span style={{ color: "red" }}>*</span></span>}
+                                    name="materialAccountants"
+                                    values={formData.materialAccountants}
+                                    onChange={(values) => setFormData((prev) => ({ ...prev, materialAccountants: values }))}
+                                    error={errors.materialAccountants}
                                 />
                             </div>
 
@@ -253,6 +254,18 @@ export default function MaterialRegisterForm() {
                                     onChange={handleChange}
                                     error={errors.materialEntryDate}
                                     min={localToday}
+                                />
+                            </div>
+
+                            <div className="w-full [&>div]:w-full [&>div>input]:w-full">
+                                <Input
+                                    label={<span>Fecha de compra<span style={{ color: "red" }}>*</span></span>}
+                                    type="date"
+                                    name="materialPurchaseDate"
+                                    value={formData.materialPurchaseDate}
+                                    onChange={handleChange}
+                                    error={errors.materialPurchaseDate}
+                                    max={localToday}
                                 />
                             </div>
 

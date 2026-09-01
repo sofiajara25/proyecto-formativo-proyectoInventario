@@ -101,3 +101,69 @@ export async function updateTask(id, taskData) {
 
     return response.json();
 }
+
+// Sube la foto de evidencia de que la tarea ya se hizo. La tarea queda
+// "En revisión" hasta que quien la asignó la apruebe o la rechace.
+export async function submitTaskEvidence(id, evidencePhoto) {
+    const token = sessionStorage.getItem("token");
+
+    const formData = new FormData();
+    formData.append("evidencePhoto", evidencePhoto);
+
+    const response = await fetch(`${API_URL}/${id}/evidence`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al enviar la evidencia");
+    }
+
+    return response.json();
+}
+
+// Quien creó la tarea la aprueba (approve: true) o la rechaza (approve:
+// false, vuelve a quedar pendiente).
+export async function confirmTask(id, approve) {
+    const token = sessionStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/${id}/confirm`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ approve }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al confirmar la tarea");
+    }
+
+    return response.json();
+}
+
+// Tareas que el usuario logueado creó/asignó y que están esperando su
+// confirmación (ya se subió evidencia). Se usa en la campana del navbar.
+export async function getTasksPendingConfirmation() {
+    const token = sessionStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/pending-confirmation/mine`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al obtener las tareas por confirmar");
+    }
+
+    return response.json();
+}

@@ -97,7 +97,7 @@ export default function AccessSidebar({
     <aside className="w-full flex flex-col gap-6">
 
       {/* Card grupos */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
         <h2
           className="text-sm font-semibold"
           style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
@@ -127,7 +127,7 @@ export default function AccessSidebar({
       </div>
 
       {/* Card usuario individual */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
         <h2
           className="text-sm font-semibold"
           style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
@@ -173,7 +173,7 @@ export default function AccessSidebar({
       </div>
 
       {/* Card crear permisos */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3 overflow-hidden">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col gap-3">
         <h1 className="text-sm font-semibold"
           style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}>
           Crear Grupo

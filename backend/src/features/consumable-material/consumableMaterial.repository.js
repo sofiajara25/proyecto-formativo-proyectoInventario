@@ -20,10 +20,11 @@ export const consumableMaterialRepository = {
         // listados/reportes existentes) y el resto se guarda en la tabla
         // consumable_material_photos (galería).
         const {
-            materialAccountant,
+            materialAccountants,
             materialSenaPlate,
             materialName,
             materialEntryDate,
+            materialPurchaseDate,
             materialQuantity,
             inventoryNameId,
             materialLocation,
@@ -39,6 +40,7 @@ export const consumableMaterialRepository = {
         } = consumableMaterialData;
 
         const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
+        const accountantList = Array.isArray(materialAccountants) ? materialAccountants : [];
 
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
@@ -54,11 +56,12 @@ export const consumableMaterialRepository = {
             // real generado por la base de datos.
             const insertQuery = `
         INSERT INTO consumable_materials (
-          accountant,
+          accountants,
           tool_id,
           sena_plate,
           material_name,
           entry_date,
+          purchase_date,
           quantity,
           inventory_name_id,
           location,
@@ -71,15 +74,16 @@ export const consumableMaterialRepository = {
           brand_id,
           category_id
         )
-        VALUES ($1,'PENDIENTE',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+        VALUES ($1,'PENDIENTE',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
         RETURNING id;
       `;
 
             const insertValues = [
-                materialAccountant,
+                accountantList,
                 materialSenaPlate,
                 materialName,
                 materialEntryDate,
+                materialPurchaseDate ?? null,
                 materialQuantity,
                 inventoryNameId,
                 materialLocation,
@@ -237,11 +241,12 @@ export const consumableMaterialRepository = {
         // se hace con los materiales de un préstamo: más simple y seguro
         // que intentar calcular un diff).
         const {
-            materialAccountant,
+            materialAccountants,
             materialToolId,
             materialSenaPlate,
             materialName,
             materialEntryDate,
+            materialPurchaseDate,
             materialQuantity,
             inventoryNameId,
             materialLocation,
@@ -256,6 +261,7 @@ export const consumableMaterialRepository = {
             quotationIds,
         } = consumableData;
 
+        const accountantList = Array.isArray(materialAccountants) ? materialAccountants : [];
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -267,32 +273,34 @@ export const consumableMaterialRepository = {
 
             const query = `
                 UPDATE consumable_materials
-                SET accountant = $1,
+                SET accountants = $1,
                     tool_id = $2,
                     sena_plate = $3,
                     material_name = $4,
                     entry_date = $5,
-                    quantity = $6,
-                    inventory_name_id = $7,
-                    location = $8,
-                    unit_value = $9,
-                    total_value = $10,
-                    status = $11,
-                    description = $12,
-                    technical_sheet = COALESCE($13, technical_sheet),
-                    photo_url = COALESCE($14, photo_url),
-                    brand_id = $15,
-                    category_id = $16
-                WHERE id = $17
+                    purchase_date = $6,
+                    quantity = $7,
+                    inventory_name_id = $8,
+                    location = $9,
+                    unit_value = $10,
+                    total_value = $11,
+                    status = $12,
+                    description = $13,
+                    technical_sheet = COALESCE($14, technical_sheet),
+                    photo_url = COALESCE($15, photo_url),
+                    brand_id = $16,
+                    category_id = $17
+                WHERE id = $18
                 RETURNING *;
             `;
 
             const values = [
-                materialAccountant,
+                accountantList,
                 materialToolId,
                 materialSenaPlate,
                 materialName,
                 materialEntryDate,
+                materialPurchaseDate ?? null,
                 materialQuantity,
                 inventoryNameId ?? null,
                 materialLocation,

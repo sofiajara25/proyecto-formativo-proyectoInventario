@@ -5,8 +5,12 @@ import ConsumableStatusSwitch from "../components/ConsumableStatusSwitch";
 
 export const consumablesColumns = [
     {
-        accessorKey: "accountant",
-        header: "Cuentadante",
+        id: "accountants",
+        header: "Cuentadante(s)",
+        cell: ({ row }) => {
+            const accountants = row.original.accountants;
+            return Array.isArray(accountants) && accountants.length ? accountants.join(", ") : "—";
+        },
     },
     {
         accessorKey: "tool_id",
