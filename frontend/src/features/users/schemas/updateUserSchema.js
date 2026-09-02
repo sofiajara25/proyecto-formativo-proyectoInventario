@@ -53,4 +53,6 @@ export const updateUserSchema = z.object({
     userPhoto: z
         .any()
         .optional(),
+
+    isSuperAdmin: z.boolean().optional(),
 });

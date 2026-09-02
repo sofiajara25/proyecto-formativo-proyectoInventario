@@ -3,16 +3,21 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftRight, PackageOpen, CornerUpRight, RefreshCw } from "lucide-react";
 import { Navbar } from "@/shared";
+import { hasPermission } from "@/shared/utils/permissions";
 
 const cards = [
-  { titulo: "Gestionar Préstamo", ruta: "/dashboard/list-prestamo", icon: ArrowLeftRight },
-  { titulo: "Gestionar Material de Devolutivo", ruta: "/dashboard/list-devolutivo", icon: PackageOpen },
-  { titulo: "Gestionar Retorno de Material", ruta: "/dashboard/list-retorno", icon: CornerUpRight },
-  { titulo: "Gestionar Material de Consumo", ruta: "/dashboard/list-consumo", icon: RefreshCw },
+  { titulo: "Gestionar Préstamo", ruta: "/dashboard/list-prestamo", icon: ArrowLeftRight, permission: "list_loan" },
+  { titulo: "Gestionar Material de Devolutivo", ruta: "/dashboard/list-devolutivo", icon: PackageOpen, permission: "list_returnable_material" },
+  { titulo: "Gestionar Retorno de Material", ruta: "/dashboard/list-retorno", icon: CornerUpRight, permission: "list_return" },
+  { titulo: "Gestionar Material de Consumo", ruta: "/dashboard/list-consumo", icon: RefreshCw, permission: "list_consumable_material" },
 ];
 
 export default function ListasrMainPage() {
   const navigate = useNavigate();
+  const visibleCards = cards.filter((card) => !card.permission || hasPermission(card.permission));
+  // Con 3 tarjetas se ven mejor en una sola fila; con cualquier otra
+  // cantidad se deja la cuadrícula de 2 columnas de siempre.
+  const isThree = visibleCards.length === 3;
 
   return (
     <div
@@ -21,8 +26,11 @@ export default function ListasrMainPage() {
     >
       <Navbar />
       <div className="flex-1 flex justify-center items-center px-6">
-        <div className="grid grid-cols-2 gap-4 sm:gap-8" style={{ width: "600px" }}>
-          {cards.map((card) => {
+        <div
+          className={`grid gap-4 sm:gap-8 ${isThree ? "grid-cols-3" : "grid-cols-2"}`}
+          style={{ width: isThree ? "900px" : "600px", maxWidth: "100%" }}
+        >
+          {visibleCards.map((card) => {
             const Icon = card.icon;
             return (
               <button

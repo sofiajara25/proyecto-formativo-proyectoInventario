@@ -62,12 +62,18 @@ export default function LoansRegisterForm() {
     const [consumableMaterials, setConsumableMaterials] = useState([]);
 
     useEffect(() => {
+        const token = sessionStorage.getItem("token");
+
         fetch("http://localhost:5000/api/returnableMaterial")
             .then((res) => res.json())
             .then(setReturnableMaterials)
             .catch((err) => console.error("Error cargando materiales devolutivos:", err));
 
-        fetch("http://localhost:5000/api/consumableMaterial")
+        // Material de consumo ahora requiere sesión (y el permiso
+        // list_consumable_material) para listarse.
+        fetch("http://localhost:5000/api/consumableMaterial", {
+            headers: { Authorization: `Bearer ${token}` },
+        })
             .then((res) => res.json())
             .then(setConsumableMaterials)
             .catch((err) => console.error("Error cargando materiales de consumo:", err));

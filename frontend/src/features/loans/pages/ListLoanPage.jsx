@@ -6,11 +6,14 @@ import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getLoans } from "../services/loanService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListLoansPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [loans, setLoans] = useState([]);
+    const canCreate = hasPermission("create_loan");
+    const canReport = hasPermission("report_loan");
 
     useEffect(() => {
             getLoans()
@@ -62,22 +65,26 @@ export default function ListLoansPage() {
                             Listado de préstamos registrados
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar préstamo
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/prestamo")}
-                            >
-                                Crear préstamo
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar préstamo
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/prestamo")}
+                                >
+                                    Crear préstamo
+                                </Button>
+                            )}
                         </div>
                     </div>
 

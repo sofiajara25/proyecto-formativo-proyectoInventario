@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, Checkbox } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { getUserById, updateUser } from "../services/userService";
 import { getGroups } from "../../access/services/groupService.js";
 import { updateUserSchema } from "../schemas/updateUserSchema.js";
+import { isSuperAdmin } from "@/shared/utils/permissions";
 
 
 export default function UserUpdateForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    // Solo un Super Administrador puede marcar/desmarcar esto en otro
+    // usuario; el backend lo vuelve a validar igual.
+    const canEditSuperAdmin = isSuperAdmin();
     const { id } = useParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [documentType, setDocumentType] = useState([]);
@@ -26,6 +30,7 @@ export default function UserUpdateForm() {
         userPhone: "",
         userStatus: "",
         userPhoto: [],
+        isSuperAdmin: false,
     });
     const [errors, setErrors] = useState({});
 
@@ -67,6 +72,7 @@ export default function UserUpdateForm() {
                 // formulario y el usuario sepa qué va a reemplazar. Si no
                 // toca el campo, se conserva tal cual.
                 userPhoto: data.photo_url ? [data.photo_url] : [],
+                isSuperAdmin: data.is_super_admin === true,
             });
         });
     }, [id]);
@@ -87,6 +93,14 @@ export default function UserUpdateForm() {
         } else {
             setFormData({ ...formData, [name]: value });
         }
+    };
+
+    // El checkbox de Super Administrador manda checked, no value.
+    const handleSuperAdminChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            isSuperAdmin: e.target.checked,
+        }));
     };
     //============== HANDLE SUBMIT ==============
     const handleSubmit = async () => {
@@ -300,6 +314,26 @@ export default function UserUpdateForm() {
                                     disabled
                                     readOnly
                                 />
+
+                                {/* Super Administrador: el único que puede entrar a
+                                    Grupos y Permisos y decidir quién tiene qué
+                                    permiso. No reemplaza el grupo ni los permisos
+                                    normales del usuario. Solo otro Super
+                                    Administrador puede tocar esta casilla. */}
+                                {canEditSuperAdmin && (
+                                    <div className="flex flex-col gap-1 justify-center">
+                                        <Checkbox
+                                            id="isSuperAdmin"
+                                            name="isSuperAdmin"
+                                            label="Super Administrador"
+                                            checked={formData.isSuperAdmin}
+                                            onChange={handleSuperAdminChange}
+                                        />
+                                        <p className="text-caption text-gray-500">
+                                            Único que puede administrar Grupos y Permisos.
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="flex flex-row gap-16">
 

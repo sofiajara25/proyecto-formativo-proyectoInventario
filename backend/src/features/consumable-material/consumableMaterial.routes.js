@@ -9,6 +9,8 @@ import path from "path";
 // El router nunca implementa lógica,
 // solo delega la ejecución al controller.
 import { consumableMaterialController } from "./consumableMaterial.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -37,29 +39,49 @@ const upload = multer({ storage });
 // Express ejecuta el método create del controller.
 router.post(
     "/",
+    authenticateToken,
+    requirePermission("create_consumable_material"),
     upload.fields([
         { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     consumableMaterialController.create);
 
-router.get("/", consumableMaterialController.list);
+router.get(
+    "/",
+    authenticateToken,
+    requirePermission("list_consumable_material"),
+    consumableMaterialController.list);
 
 // Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"
 // como si fuera el parámetro :id.
-router.get("/next-tool-id", consumableMaterialController.getNextToolId);
+router.get(
+    "/next-tool-id",
+    authenticateToken,
+    requirePermission("create_consumable_material"),
+    consumableMaterialController.getNextToolId);
 
-router.get("/:id", consumableMaterialController.getById);
+router.get(
+    "/:id",
+    authenticateToken,
+    requirePermission("view_consumable_material"),
+    consumableMaterialController.getById);
 
 router.put(
     "/:id",
+    authenticateToken,
+    requirePermission("modify_consumable_material"),
     upload.fields([
         { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
     ]),
     consumableMaterialController.update);
 
-router.patch("/:id/status", consumableMaterialController.updateStatus);
+router.patch(
+    "/:id/status",
+    authenticateToken,
+    requirePermission("state_consumable_material"),
+    consumableMaterialController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

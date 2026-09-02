@@ -10,6 +10,8 @@ import path from "path";
 // El router nunca implementa lógica,
 // solo delega la ejecución al controller.
 import { loanController } from "./loan.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -44,11 +46,23 @@ const upload = multer({ storage });
 // Express ejecuta el método create del controller.
 // upload.fields (en vez de .array/.single) para poder aceptar varias fotos
 // tanto al crear como al actualizar, de forma consistente.
-router.post("/", upload.fields([{ name: "photo", maxCount: 12 }]), loanController.create);
-router.get("/", loanController.list);
-router.get("/:loan_id", loanController.getById);
-router.put("/:loan_id", upload.fields([{ name: "photo", maxCount: 12 }]), loanController.update);
-router.put("/:loan_id/status", loanController.updateStatus);
+router.post(
+    "/",
+    authenticateToken,
+    requirePermission("create_loan"),
+    upload.fields([{ name: "photo", maxCount: 12 }]),
+    loanController.create,
+);
+router.get("/", authenticateToken, requirePermission("list_loan"), loanController.list);
+router.get("/:loan_id", authenticateToken, requirePermission("view_loan"), loanController.getById);
+router.put(
+    "/:loan_id",
+    authenticateToken,
+    requirePermission("modify_loan"),
+    upload.fields([{ name: "photo", maxCount: 12 }]),
+    loanController.update,
+);
+router.put("/:loan_id/status", authenticateToken, requirePermission("state_loan"), loanController.updateStatus);
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

@@ -7,6 +7,7 @@ export const settings = [
         logo: Dices,
         category: "perifericos",
         path: "/dashboard/list-marca",
+        permission: "list_brand",
     },
     {
         id: 2,
@@ -14,6 +15,8 @@ export const settings = [
         logo: Users2,
         category: "perifericos",
         path: "/dashboard/access",
+        // Este no usa "permission": se filtra aparte por isSuperAdmin en
+        // SettingsPage.jsx, no es parte del sistema de permisos normal.
     },
     {
         id: 3,
@@ -21,6 +24,7 @@ export const settings = [
         logo: UserRoundCheck,
         category: "perifericos",
         path: "/dashboard/list-usuarios",
+        permission: "list_user",
     },
     {
         id: 4,
@@ -28,6 +32,7 @@ export const settings = [
         logo: ShelvingUnit,
         category: "perifericos",
         path: "/dashboard/list-nombreInventario",
+        permission: "list_inventory_name",
     },
     {
         id: 5,
@@ -35,6 +40,7 @@ export const settings = [
         logo: ChartColumnStacked,
         category: "perifericos",
         path: "/dashboard/list-categoria",
+        permission: "list_category",
     },
     {
         id: 6,
@@ -42,5 +48,6 @@ export const settings = [
         logo: FileText,
         category: "perifericos",
         path: "/dashboard/cotizaciones",
+        permission: "list_quotation",
     },
 ]

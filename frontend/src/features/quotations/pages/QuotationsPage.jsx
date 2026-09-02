@@ -3,10 +3,12 @@ import { Navbar, Button } from "@/shared";
 import { getQuotations } from "../services/quotationService";
 import QuotationsRegisterForm from "../components/QuotationsRegisterForm";
 import QuotationCard from "../components/QuotationCard";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function QuotationsPage() {
     const [quotations, setQuotations] = useState([]);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const canCreate = hasPermission("create_quotation");
 
     useEffect(() => {
         getQuotations()
@@ -35,11 +37,13 @@ export default function QuotationsPage() {
             </div>
 
             <main className="flex-1 flex flex-col gap-6 p-4 sm:p-6">
-                <div className="flex justify-center">
-                    <Button variant="primary" size="md" onClick={() => setIsRegisterOpen(true)}>
-                        Crear cotización
-                    </Button>
-                </div>
+                {canCreate && (
+                    <div className="flex justify-center">
+                        <Button variant="primary" size="md" onClick={() => setIsRegisterOpen(true)}>
+                            Crear cotización
+                        </Button>
+                    </div>
+                )}
 
                 <div className="flex-1 bg-white rounded-xl shadow-lg p-5 min-h-[300px]">
                     {quotations.length === 0 ? (

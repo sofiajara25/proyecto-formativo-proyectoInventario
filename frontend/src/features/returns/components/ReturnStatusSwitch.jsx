@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateReturnStatus } from "../services/returnService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ReturnStatusSwitch({ refund }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(refund.is_available);
+    const canChangeState = hasPermission("state_return");
 
     const handleChange = (value) => {
         setNextValue(value);      // guarda el nuevo valor propuesto
@@ -30,6 +32,14 @@ export default function ReturnStatusSwitch({ refund }) {
         setNextValue(null);
         // 👇 el switch se mantiene en currentValue (no cambia visualmente)
     };
+
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

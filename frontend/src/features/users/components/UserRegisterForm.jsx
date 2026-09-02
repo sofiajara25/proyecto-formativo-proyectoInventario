@@ -6,10 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { createUser } from "../services/userService.js";
 import { CirclePlus, Check } from "lucide-react"
 import { getGroups } from "../../access/services/groupService.js";
+import { isSuperAdmin } from "@/shared/utils/permissions";
 
 export default function UserRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    // Solo un Super Administrador puede marcar a otro usuario como tal;
+    // el backend lo vuelve a validar igual, esto es solo para no mostrar
+    // un control que de todos modos no va a surtir efecto.
+    const canEditSuperAdmin = isSuperAdmin();
     // El consentimiento se pide de nuevo por cada usuario nuevo que se
     // registre: no se recuerda de un usuario a otro (no usa localStorage),
     // así que siempre arranca en false.
@@ -33,6 +38,7 @@ export default function UserRegisterForm() {
         userPhone: "",
         userStatus: "",
         userPhoto: null,
+        isSuperAdmin: false,
     });
     const [errors, setErrors] = useState({});
 
@@ -96,6 +102,14 @@ export default function UserRegisterForm() {
         setFormData((prev) => ({
             ...prev,
             [name]: value,
+        }));
+    };
+
+    // El checkbox de Super Administrador manda checked, no value.
+    const handleSuperAdminChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            isSuperAdmin: e.target.checked,
         }));
     };
 
@@ -321,6 +335,26 @@ export default function UserRegisterForm() {
                                     disabled
                                     readOnly
                                 />
+
+                                {/* Super Administrador: el único que puede entrar a
+                                    Grupos y Permisos y decidir quién tiene qué
+                                    permiso. No reemplaza el grupo ni los permisos
+                                    normales del usuario. Solo otro Super
+                                    Administrador puede marcar esta casilla. */}
+                                {canEditSuperAdmin && (
+                                    <div className="flex flex-col gap-1 justify-center">
+                                        <Checkbox
+                                            id="isSuperAdmin"
+                                            name="isSuperAdmin"
+                                            label="Super Administrador"
+                                            checked={formData.isSuperAdmin}
+                                            onChange={handleSuperAdminChange}
+                                        />
+                                        <p className="text-caption text-gray-500">
+                                            Único que puede administrar Grupos y Permisos.
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="flex flex-row gap-16">
 

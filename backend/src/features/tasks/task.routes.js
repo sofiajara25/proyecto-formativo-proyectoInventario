@@ -11,6 +11,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { taskController } from "./task.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -41,13 +42,18 @@ const upload = multer({ storage });
 // authenticateToken: necesitamos saber quién crea la tarea (req.user.id)
 // para registrarla como "created_by" y luego poder avisarle cuando le
 // suban la evidencia.
-router.post("/", authenticateToken, taskController.create);
+router.post("/", authenticateToken, requirePermission("create_task"), taskController.create);
 
-router.get("/user/:userId", taskController.getByUserId);
+// "Mis tareas" (perfil, evidencia): es autoservicio de cada quien sobre
+// lo que ya tiene asignado, no una acción de módulo — se deja solo con
+// sesión iniciada, igual que evidencia/confirmación, sin requirePermission.
+router.get("/user/:userId", authenticateToken, taskController.getByUserId);
 
-router.get("/", taskController.getByUser);
+// Búsqueda de tareas por nombre (pantalla de Tareas): sí es una acción
+// de módulo, requiere list_task.
+router.get("/", authenticateToken, requirePermission("list_task"), taskController.getByUser);
 
-router.get("/all", taskController.getAll);
+router.get("/all", authenticateToken, requirePermission("list_task"), taskController.getAll);
 
 // Debe ir ANTES de "/:id" — si no, Express interpreta "pending-confirmation"
 // como si fuera el parámetro :id.
@@ -56,7 +62,7 @@ router.get("/pending-confirmation/mine", authenticateToken, taskController.getPe
 // authenticateToken: si la tarea todavía no tiene dueño (tareas viejas,
 // creadas antes de que existiera "created_by"), se le asigna quien la
 // esté editando en ese momento.
-router.put("/:id", authenticateToken, taskController.update);
+router.put("/:id", authenticateToken, requirePermission("modify_task"), taskController.update);
 
 router.post(
     "/:id/evidence",

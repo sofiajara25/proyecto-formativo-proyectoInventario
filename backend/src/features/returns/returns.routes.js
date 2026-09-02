@@ -8,6 +8,8 @@ import { Router } from "express";
 // El router nunca implementa lógica,
 // solo delega la ejecución al controller.
 import { returnController } from "./returns.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -18,15 +20,15 @@ const router = Router();
 // POST /users
 // Cuando se recibe una petición POST en la raíz del recurso,
 // Express ejecuta el método create del controller.
-router.post("/", returnController.create);
+router.post("/", authenticateToken, requirePermission("create_return"), returnController.create);
 
-router.get("/", returnController.list);
+router.get("/", authenticateToken, requirePermission("list_return"), returnController.list);
 
-router.get("/:id", returnController.getById);
+router.get("/:id", authenticateToken, requirePermission("view_return"), returnController.getById);
 
-router.put("/:id", returnController.update);
+router.put("/:id", authenticateToken, requirePermission("modify_return"), returnController.update);
 
-router.patch("/:id/status", returnController.updateStatus);
+router.patch("/:id/status", authenticateToken, requirePermission("state_return"), returnController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

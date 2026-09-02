@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateLoanStatus } from "../services/loanService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function LoanStatusSwitch({ loan }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(loan.is_active);
     const [previousValue, setPreviousValue] = useState(loan.is_active);
+    const canChangeState = hasPermission("state_loan");
 
     const handleChange = (value) => {
         setPreviousValue(currentValue);   // guarda el valor actual antes de cambiar
@@ -33,6 +35,14 @@ export default function LoanStatusSwitch({ loan }) {
         setCurrentValue(previousValue);   // vuelve al valor anterior
         setNextValue(null);
     };
+
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

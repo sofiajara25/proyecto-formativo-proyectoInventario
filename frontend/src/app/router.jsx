@@ -1,6 +1,6 @@
 // src/app/router.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthLayout, DashboardLayout, ProtectedRoute } from "@/shared";
+import { AuthLayout, DashboardLayout, ProtectedRoute, RequirePermission, RequireSuperAdmin } from "@/shared";
 // import { getToken } from "@/shared/utils/tokenStorage";
 import { Login, ForgotPassword, VerifyCode, ResetPassword } from "@/features/auth";
 import { CreateUserPage, ListUserPage, UpdateUserPage, ViewUserPage } from "@/features/users";
@@ -64,58 +64,300 @@ const router = createBrowserRouter([
       { path: "/dashboard/perfil", element: <ProfilePage /> },
 
       // Tarea
-      { path: "/dashboard/tasks/search", element: <TasksPage /> },
+      {
+        path: "/dashboard/tasks/search",
+        element: (
+          <RequirePermission permission="list_task">
+            <TasksPage />
+          </RequirePermission>
+        ),
+      },
 
       // Cotizaciones (sin lista/CRUD completo: solo crear y ver, como tareas)
-      { path: "/dashboard/cotizaciones", element: <QuotationsPage /> },
+      {
+        path: "/dashboard/cotizaciones",
+        element: (
+          <RequirePermission permission="list_quotation">
+            <QuotationsPage />
+          </RequirePermission>
+        ),
+      },
 
-      // Rutas de los 4 formularios de crear
-      { path: "/dashboard/prestamo", element: <CreateLoansPage /> },
-      { path: "/dashboard/consumo", element: <CreateMaterialPage /> },
-      { path: "/dashboard/devolutivo", element: <CreateReturnableMaterialPage /> },
-      { path: "/dashboard/usuarios", element: <CreateUserPage /> },
-      { path: "/dashboard/retorno", element: <CreateReturnPage /> },
-      { path: "/dashboard/marca", element: <CreateBrandsPage /> },
-      { path: "/dashboard/nombreInventario", element: <CreateInventoryNamePage /> },
-      { path: "/dashboard/categoria", element: <CreateCategoryPage /> },
+      // Rutas de los formularios de crear
+      {
+        path: "/dashboard/prestamo",
+        element: (
+          <RequirePermission permission="create_loan">
+            <CreateLoansPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/consumo",
+        element: (
+          <RequirePermission permission="create_consumable_material">
+            <CreateMaterialPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/devolutivo",
+        element: (
+          <RequirePermission permission="create_returnable_material">
+            <CreateReturnableMaterialPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/usuarios",
+        element: (
+          <RequirePermission permission="create_user">
+            <CreateUserPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/retorno",
+        element: (
+          <RequirePermission permission="create_return">
+            <CreateReturnPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/marca",
+        element: (
+          <RequirePermission permission="create_brand">
+            <CreateBrandsPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/nombreInventario",
+        element: (
+          <RequirePermission permission="create_inventory_name">
+            <CreateInventoryNamePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/categoria",
+        element: (
+          <RequirePermission permission="create_category">
+            <CreateCategoryPage />
+          </RequirePermission>
+        ),
+      },
 
-      // Rutas de los 4 formularios de listas
-      { path: "/dashboard/list-prestamo", element: <ListLoansPage /> },
-      { path: "/dashboard/list-consumo", element: <ListConsumablePage /> },
-      { path: "/dashboard/list-devolutivo", element: <ListReturMaterialPage /> },
-      { path: "/dashboard/list-usuarios", element: <ListUserPage /> },
-      { path: "/dashboard/list-retorno", element: <ListReturnPage /> },
-      { path: "/dashboard/list-marca", element: <ListBrandPage /> },
-      { path: "/dashboard/list-nombreInventario", element: <ListInventoryNamePage /> },
-      { path: "/dashboard/list-categoria", element: <ListCategoryPage /> },
+      // Rutas de los formularios de listas
+      {
+        path: "/dashboard/list-prestamo",
+        element: (
+          <RequirePermission permission="list_loan">
+            <ListLoansPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-consumo",
+        element: (
+          <RequirePermission permission="list_consumable_material">
+            <ListConsumablePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-devolutivo",
+        element: (
+          <RequirePermission permission="list_returnable_material">
+            <ListReturMaterialPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-usuarios",
+        element: (
+          <RequirePermission permission="list_user">
+            <ListUserPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-retorno",
+        element: (
+          <RequirePermission permission="list_return">
+            <ListReturnPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-marca",
+        element: (
+          <RequirePermission permission="list_brand">
+            <ListBrandPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-nombreInventario",
+        element: (
+          <RequirePermission permission="list_inventory_name">
+            <ListInventoryNamePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/list-categoria",
+        element: (
+          <RequirePermission permission="list_category">
+            <ListCategoryPage />
+          </RequirePermission>
+        ),
+      },
 
 
       // Rutas de Actulizar
-      { path: "/dashboard/loans/:loan_id/edit", element: <UpdateLoansPage /> },
-      { path: "/dashboard/brands/:id/edit", element: <UpdateBrandPage /> },
-      { path: "/dashboard/consumables/:id/edit", element: <UpdateMaterialPage /> },
-      { path: "/dashboard/retornables/:id/edit", element: <UpdateReturnablePage /> },
-      { path: "/dashboard/users/:id/edit", element: <UpdateUserPage /> },
-      { path: "/dashboard/retorno/:id/edit", element: <UpdateReturnPage /> },
-      { path: "/dashboard/inventory-names/:id/edit", element: <UpdateInventoryNamePage /> },
-      { path: "/dashboard/categorys/:id/edit", element: <UpdateCategoryPage /> },
+      {
+        path: "/dashboard/loans/:loan_id/edit",
+        element: (
+          <RequirePermission permission="modify_loan">
+            <UpdateLoansPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/brands/:id/edit",
+        element: (
+          <RequirePermission permission="modify_brand">
+            <UpdateBrandPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/consumables/:id/edit",
+        element: (
+          <RequirePermission permission="modify_consumable_material">
+            <UpdateMaterialPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/retornables/:id/edit",
+        element: (
+          <RequirePermission permission="modify_returnable_material">
+            <UpdateReturnablePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/users/:id/edit",
+        element: (
+          <RequirePermission permission="modify_user">
+            <UpdateUserPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/retorno/:id/edit",
+        element: (
+          <RequirePermission permission="modify_return">
+            <UpdateReturnPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/inventory-names/:id/edit",
+        element: (
+          <RequirePermission permission="modify_inventory_name">
+            <UpdateInventoryNamePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/categorys/:id/edit",
+        element: (
+          <RequirePermission permission="modify_category">
+            <UpdateCategoryPage />
+          </RequirePermission>
+        ),
+      },
 
 
       // Rutas de Ver
-      { path: "/dashboard/loans/:loan_id/view", element: <ViewLoanPage /> },
-      { path: "/dashboard/users/:id/view", element: <ViewUserPage /> },
-      { path: "/dashboard/brands/:id/view", element: <ViewBrandPage /> },
-      { path: "/dashboard/consumables/:id/view", element: <ViewConsumablePage /> },
-      { path: "/dashboard/retorno/:id/view", element: <ViewReturnPage /> },
+      {
+        path: "/dashboard/loans/:loan_id/view",
+        element: (
+          <RequirePermission permission="view_loan">
+            <ViewLoanPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/users/:id/view",
+        element: (
+          <RequirePermission permission="view_user">
+            <ViewUserPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/brands/:id/view",
+        element: (
+          <RequirePermission permission="view_brand">
+            <ViewBrandPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/consumables/:id/view",
+        element: (
+          <RequirePermission permission="view_consumable_material">
+            <ViewConsumablePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/retorno/:id/view",
+        element: (
+          <RequirePermission permission="view_return">
+            <ViewReturnPage />
+          </RequirePermission>
+        ),
+      },
 
-      { path: "/dashboard/retornables/:id/view", element: <ViewReturMaterialPage /> },
-      { path: "/dashboard/inventory-names/:id/view", element: <ViewInventoryNamePage /> },
-      { path: "/dashboard/categorys/:id/view", element: <ViewCategoryPage /> },
+      {
+        path: "/dashboard/retornables/:id/view",
+        element: (
+          <RequirePermission permission="view_returnable_material">
+            <ViewReturMaterialPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/inventory-names/:id/view",
+        element: (
+          <RequirePermission permission="view_inventory_name">
+            <ViewInventoryNamePage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: "/dashboard/categorys/:id/view",
+        element: (
+          <RequirePermission permission="view_category">
+            <ViewCategoryPage />
+          </RequirePermission>
+        ),
+      },
 
 
       {
         path: "/dashboard/access",
-        element: <AccessPage />,
+        element: (
+          <RequireSuperAdmin>
+            <AccessPage />
+          </RequireSuperAdmin>
+        ),
       },
     ],
   },

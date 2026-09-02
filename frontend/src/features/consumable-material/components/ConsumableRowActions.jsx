@@ -11,6 +11,7 @@ import {
 
 // Hook de React Router para navegar programáticamente entre rutas
 import { Link, useNavigate } from "react-router-dom";
+import { hasPermission } from "@/shared/utils/permissions";
 
 
 // Componente que renderiza las acciones de cada fila de usuario
@@ -38,25 +39,32 @@ export default function ConsumableRowActions({ consumable }) {
         navigate(`/dashboard/consumables/${consumable.id}/view`);
     };
 
+    const canView = hasPermission("view_consumable_material");
+    const canModify = hasPermission("modify_consumable_material");
+
     return (
         // Contenedor de los botones de acciones
         <div className="flex gap-2">
 
             {/* Botón ver */}
-            <button
-                onClick={handleView} // Ejecuta la navegación a la página de edición
-                className="p-1 rounded hover:bg-gray-100"
-            >
-                <Eye size={18} color="#083344"/> {/* Icono de editar */}
-            </button>
+            {canView && (
+                <button
+                    onClick={handleView} // Ejecuta la navegación a la página de edición
+                    className="p-1 rounded hover:bg-gray-100"
+                >
+                    <Eye size={18} color="#083344"/> {/* Icono de editar */}
+                </button>
+            )}
 
             {/* Botón editar */}
-            <button
-                onClick={handleEdit} // Ejecuta la navegación a la página de edición
-                className="p-1 rounded hover:bg-gray-100"
-            >
-                <SquarePen size={16} color="#71277A"/> {/* Icono de editar */}
-            </button>
+            {canModify && (
+                <button
+                    onClick={handleEdit} // Ejecuta la navegación a la página de edición
+                    className="p-1 rounded hover:bg-gray-100"
+                >
+                    <SquarePen size={16} color="#71277A"/> {/* Icono de editar */}
+                </button>
+            )}
         </div>
     );
 }

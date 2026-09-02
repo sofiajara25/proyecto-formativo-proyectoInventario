@@ -30,27 +30,35 @@ function getAccess() {
     const raw = localStorage.getItem(STORAGE_KEY);
 
     if (!raw) {
-        return { userType: null, isAdmin: false, permissions: [] };
+        return { userType: null, isAdmin: false, isSuperAdmin: false, permissions: [] };
     }
 
     try {
         return JSON.parse(raw);
     } catch {
-        return { userType: null, isAdmin: false, permissions: [] };
+        return { userType: null, isAdmin: false, isSuperAdmin: false, permissions: [] };
     }
 }
 
-// true si el usuario logueado es Administrador (acceso total)
+// true si el usuario logueado es Administrador (etiqueta del grupo,
+// solo para decidir qué mostrar en la interfaz, no da permisos)
 export function isAdmin() {
     return getAccess().isAdmin === true;
 }
 
+// true si el usuario logueado es el Super Administrador: el único que
+// puede entrar a Grupos y Permisos. Es una bandera aparte (users.
+// is_super_admin), no un permiso ni un grupo, y no habilita nada más.
+export function isSuperAdmin() {
+    return getAccess().isSuperAdmin === true;
+}
+
 // true si el usuario logueado puede realizar la acción indicada
-// (permiso directo, heredado por grupo, o si es Administrador)
+// (permiso directo, o heredado por su grupo). Sin atajos: ni siquiera
+// el grupo "Administrador" se salta esto, tiene que tener el permiso
+// asignado en Grupos y permisos.
 export function hasPermission(permissionCodename) {
     const access = getAccess();
-
-    if (access.isAdmin) return true;
 
     return access.permissions.includes(permissionCodename);
 }

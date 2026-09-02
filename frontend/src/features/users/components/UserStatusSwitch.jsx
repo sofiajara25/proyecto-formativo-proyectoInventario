@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateUserStatus } from "../services/userService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function UserStatusSwitch({ user }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(user.user_status === "Activo");
+    const canChangeState = hasPermission("state_user");
 
     const handleChange = (checked) => {
         setNextValue(checked);
@@ -30,6 +32,14 @@ export default function UserStatusSwitch({ user }) {
         setIsModalOpen(false);
         setNextValue(null); // switch se queda igual
     };
+
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

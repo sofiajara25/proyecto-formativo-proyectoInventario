@@ -68,9 +68,13 @@ export async function getBrandById(id) {
 };
 
 export async function updateBrand(id, brandData) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`http://localhost:5000/api/brands/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(brandData),
     });
     if (!response.ok) throw new Error("Error al actualizar marca");
@@ -78,9 +82,13 @@ export async function updateBrand(id, brandData) {
 }
 
 export async function updateBrandStatus(id, status) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Navbar, Button, PhotoViewer, formatDate } from "@/shared";
 import { User } from "lucide-react";
 import { getCurrentUser } from "../../auth/services/authService";
-import { getUserById } from "../../users/services/userService";
+import { getMyProfile } from "../../users/services/userService";
 import { getTasksByUserId } from "../../tasks/services/taskService";
 import { isAdmin as checkIsAdmin } from "@/shared/utils/permissions";
 import { TaskEvidenceCard } from "../../tasks";
@@ -42,7 +42,7 @@ export default function ProfilePage() {
             return;
         }
 
-        getUserById(user.id)
+        getMyProfile()
             .then(setProfile)
             .catch((err) => console.error("Error cargando el perfil:", err))
             .finally(() => setLoadingProfile(false));

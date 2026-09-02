@@ -8,6 +8,8 @@ export const accessController = {
             userId,
             "list_user",
         );
+        // (ya recibía el codename como segundo argumento; ahora
+        // accessService.hasPermission también lo usa de verdad)
 
         res.json({
             userId,

@@ -111,27 +111,38 @@ export async function createReturnableMaterial(returnableMaterialData) {
 // Vista previa del tool_id que se le asignará al próximo material creado.
 // No reserva nada: solo consulta cuál sería.
 export async function getNextReturnableToolId() {
-    const response = await fetch(`${API_URL}/next-tool-id`);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/next-tool-id`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener el próximo ID");
     const data = await response.json();
     return data.toolId;
 }
 
 export async function getReturnables() {
-    const response = await fetch(API_URL);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener materiales devolutivos");
     return response.json();
 }
 
 export async function getReturnableById(id) {
-    const response = await fetch(`${API_URL}/${id}`);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener material devolutivo");
     return response.json();
 }
 
 export async function updateReturnable(id, data) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
         body: buildReturnableUpdateFormData(data),
     });
 
@@ -144,9 +155,13 @@ export async function updateReturnable(id, data) {
 }
 
 export async function updateReturnableStatus(id, status) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");

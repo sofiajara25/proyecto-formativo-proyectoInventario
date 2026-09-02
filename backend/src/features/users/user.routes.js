@@ -10,6 +10,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { userController } from "./user.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requireSuperAdmin, requirePermission } from "../../middlewares/permission.middleware.js";
 
 // Creamos una instancia del router de Express
 const router = Router();
@@ -45,6 +46,7 @@ const upload = multer({ storage });
 router.post(
     "/",
     authenticateToken,
+    requirePermission("create_user"),
     upload.array("userPhoto"),
     userController.create);
 
@@ -52,13 +54,24 @@ router.post(
 router.get(
     "/",
     authenticateToken,
+    requirePermission("list_user"),
     userController.list
+);
+
+// "Mi perfil": autoservicio, cualquiera con sesión iniciada puede ver
+// sus propios datos sin necesidad del permiso view_user. Debe ir ANTES
+// de "/:id" — si no, Express interpreta "me" como si fuera el :id.
+router.get(
+    "/me",
+    authenticateToken,
+    userController.getMe
 );
 
 // Obtener un usuario por ID
 router.get(
     "/:id",
     authenticateToken,
+    requirePermission("view_user"),
     userController.getById
 );
 
@@ -66,13 +79,27 @@ router.get(
 router.put(
     "/:id",
     authenticateToken,
+    requirePermission("modify_user"),
     upload.single("userPhoto"),
     userController.update
 );
 
-router.get("/:userId/permissions", userController.getPermissionsByUserId);
-router.put("/:userId/permissions", userController.updatePermissions);
-router.patch("/:id/status", authenticateToken, userController.updateStatus);
+// Ver/editar los permisos individuales de un usuario es parte de
+// Grupos y Permisos: exclusivo del Super Administrador. Antes no tenían
+// ni siquiera authenticateToken.
+router.get(
+    "/:userId/permissions",
+    authenticateToken,
+    requireSuperAdmin(),
+    userController.getPermissionsByUserId,
+);
+router.put(
+    "/:userId/permissions",
+    authenticateToken,
+    requireSuperAdmin(),
+    userController.updatePermissions,
+);
+router.patch("/:id/status", authenticateToken, requirePermission("state_user"), userController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

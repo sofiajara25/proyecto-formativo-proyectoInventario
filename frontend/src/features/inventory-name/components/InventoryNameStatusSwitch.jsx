@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateInventoryNameStatus } from "../services/inventoryNameService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 
 export default function InventoryNameStatusSwitch({ inventoryName }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(inventoryName.status === "Activo");
+    const canChangeState = hasPermission("state_inventory_name");
 
     const handleChange = (checked) => {
         setNextValue(checked);
@@ -31,6 +33,14 @@ export default function InventoryNameStatusSwitch({ inventoryName }) {
         setIsModalOpen(false);
         setNextValue(null); // switch se queda igual
     };
+
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

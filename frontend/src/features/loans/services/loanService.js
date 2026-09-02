@@ -111,8 +111,12 @@ export async function getLoanById(loanId) {
 }
 
 export async function updateLoan(loanId, loanData) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${loanId}`, {
         method: "PUT",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         body: buildLoanFormData(loanData),
     });
 
@@ -125,8 +129,11 @@ export async function updateLoan(loanId, loanData) {
 }
 
 export async function updateLoanStatus(loanId, isActive) {
-  const response = await axios.put(`${API_URL}/${loanId}/status`, {
-    is_active: isActive,
-  });
+  const token = sessionStorage.getItem("token");
+  const response = await axios.put(
+    `${API_URL}/${loanId}/status`,
+    { is_active: isActive },
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
   return response.data;
 }

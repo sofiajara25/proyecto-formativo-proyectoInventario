@@ -7,11 +7,14 @@ import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getReturns } from "../services/returnService";
 import { useEffect } from "react";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListReturnPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [returns, setReturns] = useState([]);
+    const canCreate = hasPermission("create_return");
+    const canReport = hasPermission("report_return");
 
     useEffect(() => {
         getReturns()
@@ -63,22 +66,26 @@ export default function ListReturnPage() {
                             Listado de retorno de material registrados
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar retorno
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/retorno")}
-                            >
-                                Crear retorno
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar retorno
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/retorno")}
+                                >
+                                    Crear retorno
+                                </Button>
+                            )}
                         </div>
                     </div>
 

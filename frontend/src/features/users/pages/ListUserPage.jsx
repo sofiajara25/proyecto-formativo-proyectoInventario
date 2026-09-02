@@ -7,10 +7,13 @@ import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getUsers } from "../services/userService";
 import { useEffect } from "react";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListUserPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const canCreate = hasPermission("create_user");
+    const canReport = hasPermission("report_user");
 
     const [users, setUsers] = useState([]);
 
@@ -59,22 +62,26 @@ export default function ListUserPage() {
                             Listado de usuarios registrados
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar usuario
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/usuarios")}
-                            >
-                                Crear usuario
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar usuario
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/usuarios")}
+                                >
+                                    Crear usuario
+                                </Button>
+                            )}
                         </div>
                     </div>
 

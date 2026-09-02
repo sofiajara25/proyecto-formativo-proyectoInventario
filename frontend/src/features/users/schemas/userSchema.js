@@ -54,7 +54,9 @@ export const userSchema = z.object({
     // La contraseña ya no se pide al crear el usuario: se genera sola en el
     // backend y queda hasheada, sin que nadie pueda verla.
 
-    userPhoto: singleFileSchema.optional()
+    userPhoto: singleFileSchema.optional(),
+
+    isSuperAdmin: z.boolean().optional(),
 }).refine((data) => {
     if (!data.userStartDate) return false;
 

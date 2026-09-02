@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoSena from "@/assets/images/logoSena.png";
 import { login as loginRequest } from "../services/authService";
+import { logout } from "../services/logoutSevice";
 import { getMyAccess } from "../../access/services/accessService";
 import { saveAccess } from "@/shared/utils/permissions";
 // import { useAuth } from "@/shared/context/useAuth";
@@ -21,6 +22,22 @@ export default function Login() {
         userPassword: "",
     });
     const [errors, setErrors] = useState({});
+    // Cuando el backend rechaza el login por sesión activa en otro lado,
+    // se guarda el mensaje acá para poder mostrar el botón de "forzar
+    // cierre" debajo del error, en vez de un simple alert().
+    const [activeSessionError, setActiveSessionError] = useState("");
+    const [isForcingLogin, setIsForcingLogin] = useState(false);
+
+    // Si esta pantalla se muestra teniendo todavía un token guardado (por
+    // ejemplo, usando las flechas atrás/adelante del navegador para volver
+    // al login sin haber dado clic en "Cerrar sesión"), esa sesión queda
+    // cerrada de verdad en ese mismo momento: local y en la base de datos.
+    // Así, llegar al login por cualquier camino significa quedar deslogueado.
+    useEffect(() => {
+        if (sessionStorage.getItem("token")) {
+            logout();
+        }
+    }, []);
 
     // ======================================
     //            Handle Genérico
@@ -48,6 +65,39 @@ export default function Login() {
      * Función que se ejecuta cuando se envía el formulario
      */
 
+    // Hace el login de verdad (llamada al backend + guardar token/acceso +
+    // redirigir). Se usa tanto en el submit normal como al forzar el
+    // cierre de una sesión activa en otro lado.
+    const performLogin = async (validData, { force = false } = {}) => {
+        try {
+            const data = await loginRequest(validData, { force });
+
+            // Guarda el token de forma centralizada (sessionStorage + avisa
+            // al resto de la app vía AuthContext)
+            sessionStorage.setItem("token", data.token); // clave
+
+            // Consultamos y guardamos los permisos del usuario para que
+            // el menú y las rutas sepan qué módulos puede ver/usar.
+            // Si esto falla, dejamos seguir el login pero sin permisos
+            // (por seguridad, el usuario simplemente no verá módulos extra).
+            try {
+                const access = await getMyAccess();
+                saveAccess(access);
+            } catch (accessError) {
+                console.error("No se pudo obtener el acceso del usuario:", accessError);
+                saveAccess({ userType: null, isAdmin: false, permissions: [] });
+            }
+
+            navigate("/dashboard/home");
+        } catch (error) {
+            if (error.code === "ACTIVE_SESSION") {
+                setActiveSessionError(error.message);
+                return;
+            }
+            alert(error.message);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -71,31 +121,22 @@ export default function Login() {
         }
 
         setErrors({});
+        setActiveSessionError("");
+        await performLogin(result.data);
+    };
 
+    // Botón que aparece cuando el login se rechazó por sesión activa: pide
+    // los mismos datos otra vez, pero con force para que el backend cierre
+    // la sesión anterior y deje entrar de todas formas.
+    const handleForceLogin = async () => {
+        const result = loginSchema.safeParse(formData);
+        if (!result.success) return;
+
+        setIsForcingLogin(true);
         try {
-            const data = await loginRequest(result.data);
-
-            // Guarda el token de forma centralizada (localStorage + avisa
-            // al resto de la app vía AuthContext, incluidas otras pestañas)
-            // login(data.token);
-            sessionStorage.setItem("token", data.token); // clave 
-
-            // Consultamos y guardamos los permisos del usuario para que
-            // el menú y las rutas sepan qué módulos puede ver/usar.
-            // Si esto falla, dejamos seguir el login pero sin permisos
-            // (por seguridad, el usuario simplemente no verá módulos extra).
-            try {
-                const access = await getMyAccess();
-                saveAccess(access);
-            } catch (accessError) {
-                console.error("No se pudo obtener el acceso del usuario:", accessError);
-                saveAccess({ userType: null, isAdmin: false, permissions: [] });
-            }
-
-            // navigate("/"); // o dashboard
-            navigate("/dashboard/home");
-        } catch (error) {
-            alert(error.message);
+            await performLogin(result.data, { force: true });
+        } finally {
+            setIsForcingLogin(false);
         }
     };
 
@@ -160,6 +201,23 @@ export default function Login() {
                         >
                             ¿Olvidaste tu contraseña?
                         </a>
+
+                        {/* Aviso de sesión activa en otro lado, con opción
+                            de cerrarla a la fuerza para poder entrar aquí. */}
+                        {activeSessionError && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-800 text-center flex flex-col gap-2">
+                                <span>{activeSessionError}</span>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleForceLogin}
+                                    disabled={isForcingLogin}
+                                >
+                                    {isForcingLogin ? "Cerrando la otra sesión..." : "Cerrar la otra sesión e iniciar aquí"}
+                                </Button>
+                            </div>
+                        )}
 
                         {/* Actions */}
                         <div className="flex items-center justify-center gap-12">

@@ -6,11 +6,14 @@ import { Button, Navbar } from "@/shared"
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getConsumables } from "../services/consumableMaterialService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListConsumablePage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [consumables, setConsumables] = useState([]);
+    const canCreate = hasPermission("create_consumable_material");
+    const canReport = hasPermission("report_consumable_material");
 
     useEffect(() => {
         getConsumables()
@@ -58,22 +61,26 @@ export default function ListConsumablePage() {
                             Listado de materiales de consumo registrados
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar material 
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/consumo")}
-                            >
-                                Crear material 
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar material
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/consumo")}
+                                >
+                                    Crear material
+                                </Button>
+                            )}
                         </div>
                     </div>
 

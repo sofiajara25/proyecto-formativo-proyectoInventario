@@ -10,6 +10,8 @@ import path from "path";
 // El router nunca implementa lógica,
 // solo delega la ejecución al controller.
 import { returnableMaterialController } from "./returnableMaterial.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -39,6 +41,8 @@ const upload = multer({ storage });
 // Express ejecuta el método create del controller.
 router.post(
     "/",
+    authenticateToken,
+    requirePermission("create_returnable_material"),
     upload.fields([
         { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
@@ -46,16 +50,24 @@ router.post(
     returnableMaterialController.create
 );
 
-router.get("/", returnableMaterialController.list);
+router.get("/", authenticateToken, requirePermission("list_returnable_material"), returnableMaterialController.list);
 
 // Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"
-// como si fuera el parámetro :id.
-router.get("/next-tool-id", returnableMaterialController.getNextToolId);
+// como si fuera el parámetro :id. Usa el mismo permiso que crear, porque
+// solo se usa para generar el id sugerido en el formulario de crear.
+router.get(
+    "/next-tool-id",
+    authenticateToken,
+    requirePermission("create_returnable_material"),
+    returnableMaterialController.getNextToolId,
+);
 
-router.get("/:id", returnableMaterialController.getById);
+router.get("/:id", authenticateToken, requirePermission("view_returnable_material"), returnableMaterialController.getById);
 
 router.put(
     "/:id",
+    authenticateToken,
+    requirePermission("modify_returnable_material"),
     upload.fields([
         { name: "photo", maxCount: 12 },
         { name: "materialTechnicalSheet", maxCount: 1 }
@@ -63,7 +75,12 @@ router.put(
     returnableMaterialController.update
 );
 
-router.patch("/:id/status", returnableMaterialController.updateStatus);
+router.patch(
+    "/:id/status",
+    authenticateToken,
+    requirePermission("state_returnable_material"),
+    returnableMaterialController.updateStatus,
+);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

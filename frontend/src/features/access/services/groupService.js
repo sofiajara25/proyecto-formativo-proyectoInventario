@@ -38,7 +38,12 @@ export async function createGroup(groupData) {
 };
 
 export async function getGroups() {
-    const response = await fetch(API_URL);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
 
     if (!response.ok) {
         throw new Error("Error obteniendo grupos");

@@ -2,6 +2,7 @@
 // El controller NO implementa lógica de negocio,
 // solo delega la operación al service correspondiente.
 import { userService } from "./user.service.js";
+import { accessRepository } from "../access/access.repository.js";
 
 
 // Exportamos un objeto controlador.
@@ -26,10 +27,18 @@ export const userController = {
       // Aquí ocurre la lógica real de negocio (validaciones, persistencia, etc.)
       // ruta del archivo subido
       const photoPath = req.files?.[0] ? `uploads/${req.files[0].filename}` : null;
-      // pasamos todos los datos al service
+      // isSuperAdmin llega como FormData: string "true"/"false" (o ausente
+      // si el checkbox no estaba marcado), hay que normalizarlo a boolean.
+      // Solo un Super Administrador puede marcar a alguien más como tal;
+      // si quien crea el usuario no lo es, se ignora lo que haya mandado
+      // el formulario y queda en false.
+      const requesterIsSuperAdmin = await accessRepository.isSuperAdmin(req.user.id);
+      const requestedIsSuperAdmin = req.body.isSuperAdmin === "true" || req.body.isSuperAdmin === true;
+
       const user = await userService.createUser({
         ...req.body,
         userPhoto: photoPath,
+        isSuperAdmin: requesterIsSuperAdmin && requestedIsSuperAdmin,
       });
 
 
@@ -73,6 +82,22 @@ export const userController = {
     }
   },
 
+  // Ver la propia información en "Mi perfil": autoservicio, igual que
+  // "Mis tareas". No depende de view_user (ese es para que otros vean
+  // el perfil de alguien más, ej. en el listado de usuarios).
+  async getMe(req, res) {
+    try {
+      const user = await userService.getUserById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+      res.status(200).json(user);
+    } catch (err) {
+      console.error("ERROR BACKEND:", err);
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   async getById(req, res) {
     try {
       const user = await userService.getUserById(req.params.id);
@@ -93,9 +118,24 @@ export const userController = {
       // ruta de la nueva foto si se subió
       const photoPath = req.file ? `uploads/${req.file.filename}` : null;
 
+      // Igual que en create: solo un Super Administrador puede cambiar la
+      // bandera de otro usuario. Si quien edita no lo es, se conserva el
+      // valor que el usuario ya tenía (se ignora lo que venga del
+      // formulario), para que no se pueda ni activarla ni desactivarla
+      // por fuera de Grupos y Permisos... digo, por fuera de este control.
+      const requesterIsSuperAdmin = await accessRepository.isSuperAdmin(req.user.id);
+      let isSuperAdmin;
+      if (requesterIsSuperAdmin) {
+        isSuperAdmin = req.body.isSuperAdmin === "true" || req.body.isSuperAdmin === true;
+      } else {
+        const currentUser = await userService.getUserById(id);
+        isSuperAdmin = currentUser?.is_super_admin === true;
+      }
+
       const updatedUser = await userService.updateUser(id, {
         ...req.body,
         userPhoto: photoPath,
+        isSuperAdmin,
       });
 
       res.status(200).json(updatedUser);

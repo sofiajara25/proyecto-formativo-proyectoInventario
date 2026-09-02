@@ -49,21 +49,31 @@ export async function createReturn(returnData) {
 }
 
 export async function getReturns() {
-    const response = await fetch(API_URL);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener retornos");
     return response.json();
 }
 
 export async function getReturnById(id) {
-    const response = await fetch(`${API_URL}/${id}`);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener retorno");
     return response.json();
 }
 
 export async function updateReturn(id, data) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error("Error al actualizar retorno");
@@ -71,9 +81,13 @@ export async function updateReturn(id, data) {
 }
 
 export async function updateReturnStatus(id, isAvailable) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ isAvailable }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");

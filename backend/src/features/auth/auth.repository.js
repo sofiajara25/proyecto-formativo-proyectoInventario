@@ -7,7 +7,7 @@ export const authRepository = {
     // Busca un usuario para correr electronico y devuelve solo los campos necesarios para validar el inicio de sesion 
     async findByEmail(userEmail) {
         const query = `
-            SELECT id, user_email, password, user_status
+            SELECT id, user_email, password, user_status, active_token
             FROM users
             WHERE user_email = $1
             LIMIT 1;
@@ -16,6 +16,31 @@ export const authRepository = {
         const result = await pool.query(query, [userEmail]);
 
         return result.rows[0];
+    },
+
+    // Guarda el token recién emitido como "el activo" para ese usuario.
+    // Mientras este token siga siendo válido, no se deja iniciar sesión
+    // de nuevo en otra pestaña/navegador (a menos que se fuerce).
+    async setActiveToken(userId, token) {
+        const query = `
+            UPDATE users
+            SET active_token = $1
+            WHERE id = $2;
+        `;
+
+        await pool.query(query, [token, userId]);
+    },
+
+    // Limpia la sesión activa (logout normal, o cuando se fuerza el cierre
+    // de la sesión anterior desde el login).
+    async clearActiveToken(userId) {
+        const query = `
+            UPDATE users
+            SET active_token = NULL
+            WHERE id = $1;
+        `;
+
+        await pool.query(query, [userId]);
     },
 
     // Busca un usuario por su email y devuelve solo el id

@@ -6,10 +6,13 @@ import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { useEffect, useState } from "react";
 import { getCategorys } from "../service/categoryService";
 import { categorysColumns } from "../table/categorysColumns";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListBrandPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const canCreate = hasPermission("create_category");
+    const canReport = hasPermission("report_category");
 
     const [categorys, setCategorys] = useState([]);
 
@@ -54,22 +57,26 @@ export default function ListBrandPage() {
                             Listado de categorías registradas
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar categoría
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/categoria")}
-                            >
-                                Crear categoría
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar categoría
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/categoria")}
+                                >
+                                    Crear categoría
+                                </Button>
+                            )}
                         </div>
                     </div>
 

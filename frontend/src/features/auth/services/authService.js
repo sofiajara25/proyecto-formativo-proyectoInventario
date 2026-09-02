@@ -2,7 +2,7 @@
 
 const API_URL = "http://localhost:5000/api/auth";
 
-export async function login(userData) {
+export async function login(userData, { force = false } = {}) {
     const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
@@ -12,12 +12,19 @@ export async function login(userData) {
         body: JSON.stringify({
             user_email: userData.userEmail,
             password: userData.userPassword,
+            force,
         }),
     });
 
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Error login");
+        const errorBody = await response.json();
+        const error = new Error(errorBody.error || "Error login");
+        // Código especial cuando el rechazo es por sesión activa en otro
+        // lado (ver auth.controller.js -> ACTIVE_SESSION), para que el
+        // formulario pueda ofrecer el botón de "forzar cierre" en vez de
+        // mostrarlo como un error de credenciales cualquiera.
+        error.code = errorBody.code;
+        throw error;
     }
 
     return response.json();

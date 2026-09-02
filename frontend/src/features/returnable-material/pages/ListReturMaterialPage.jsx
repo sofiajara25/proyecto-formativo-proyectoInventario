@@ -5,11 +5,14 @@ import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getReturnables } from "../services/returnableMaterialService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListReturnMaterialPage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [returnables, setReturnables] = useState([]);
+    const canCreate = hasPermission("create_returnable_material");
+    const canReport = hasPermission("report_returnable_material");
 
     useEffect(() => {
         getReturnables().then(setReturnables).catch(console.error);
@@ -34,12 +37,16 @@ export default function ListReturnMaterialPage() {
                             Listado de materiales devolutivos registrados
                         </p>
                         <div className="flex gap-3">
-                            <Button variant="primary" size="md" onClick={() => setIsReportModalOpen(true)}>
-                                Reportar material
-                            </Button>
-                            <Button variant="primary" size="md" onClick={() => navigate("/dashboard/devolutivo")}>
-                                Crear material 
-                            </Button>
+                            {canReport && (
+                                <Button variant="primary" size="md" onClick={() => setIsReportModalOpen(true)}>
+                                    Reportar material
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button variant="primary" size="md" onClick={() => navigate("/dashboard/devolutivo")}>
+                                    Crear material
+                                </Button>
+                            )}
                         </div>
                     </div>
 

@@ -24,7 +24,7 @@ function hashValue(value) {
 }
 
 export const authService = {
-    async login({ user_email, password }) {
+    async login({ user_email, password, force }) {
         const user = await authRepository.findByEmail(user_email);
 
         console.log("USER ENCONTRADO: ", user);
@@ -43,11 +43,37 @@ export const authService = {
             throw new Error("Usuario inactivo");
         }
 
+        // Solo se permite una sesión activa a la vez por usuario. Si ya
+        // hay un token guardado y todavía es válido (no expiró), se
+        // rechaza el login... a menos que "force" venga en true, en cuyo
+        // caso se cierra esa sesión anterior y se sigue con esta.
+        if (user.active_token && !force) {
+            try {
+                jwt.verify(user.active_token, process.env.JWT_SECRET);
+                // Si no lanzó error, la sesión anterior sigue vigente.
+                const sessionError = new Error(
+                    "Ya tienes una sesión activa en otro dispositivo o pestaña."
+                );
+                sessionError.code = "ACTIVE_SESSION";
+                throw sessionError;
+            } catch (err) {
+                // Si el error es justamente el que acabamos de lanzar,
+                // lo dejamos seguir hacia arriba. Si vino de jwt.verify
+                // (token vencido/corrupto), la sesión anterior ya no
+                // cuenta como activa y simplemente continuamos.
+                if (err.code === "ACTIVE_SESSION") {
+                    throw err;
+                }
+            }
+        }
+
         const token = jwt.sign(
             { id: user.id, email: user.user_email },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES },
         );
+
+        await authRepository.setActiveToken(user.id, token);
 
         return {
             token,
@@ -56,6 +82,12 @@ export const authService = {
                 email: user.user_email
             },
         };
+    },
+
+    // Cierra la sesión del usuario: limpia el token activo guardado, para
+    // que pueda volver a iniciar sesión en otra pestaña/navegador.
+    async logout(userId) {
+        await authRepository.clearActiveToken(userId);
     },
 
     // Paso 1: genera un código de 6 dígitos, lo guarda (hasheado) y lo envía por correo.

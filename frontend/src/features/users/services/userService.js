@@ -35,6 +35,7 @@ export async function createUser(userData) {
     formData.append("userAddress", userData.userAddress);
     formData.append("userPhone", userData.userPhone);
     formData.append("userStatus", userData.userStatus);
+    formData.append("isSuperAdmin", userData.isSuperAdmin ? "true" : "false");
     // La contraseña ya no se manda desde el formulario: el backend la genera
     // sola y no hay forma de verla.
 
@@ -72,6 +73,16 @@ export async function getUsers() {
     return response.json();
 };
 
+// "Mi perfil": autoservicio, no requiere el permiso view_user.
+export async function getMyProfile() {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener el perfil");
+    return response.json();
+};
+
 export async function getUserById(id) {
     const token = sessionStorage.getItem("token");
     const response = await fetch(`http://localhost:5000/api/users/${id}`, {
@@ -97,6 +108,7 @@ export async function updateUser(id, userData) {
     formData.append("userAddress", userData.userAddress);
     formData.append("userPhone", userData.userPhone);
     formData.append("userStatus", userData.userStatus);
+    formData.append("isSuperAdmin", userData.isSuperAdmin ? "true" : "false");
     if (userData.userPassword) {
         formData.append("userPassword", userData.userPassword);
     }

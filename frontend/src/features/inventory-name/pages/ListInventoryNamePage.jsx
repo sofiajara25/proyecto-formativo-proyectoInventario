@@ -6,10 +6,13 @@ import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { useEffect, useState } from "react";
 import { getInventoryName } from "../services/inventoryNameService";
 import { inventoryNamesColumns } from "../table/inventoryNameColumns";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ListInventoryNamePage() {
     const navigate = useNavigate();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const canCreate = hasPermission("create_inventory_name");
+    const canReport = hasPermission("report_inventory_name");
 
     const [inventoryNames, setinventoryNames] = useState([]);
 
@@ -54,22 +57,26 @@ export default function ListInventoryNamePage() {
                             Listado de nombres de inventarios registradas
                         </p>
                         <div className="flex gap-3">
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => setIsReportModalOpen(true)}
-                            >
-                                Reportar inventario
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                onClick={() => navigate("/dashboard/nombreInventario")}
-                            >
-                                Crear nombre inventario
-                            </Button>
+                            {canReport && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => setIsReportModalOpen(true)}
+                                >
+                                    Reportar inventario
+                                </Button>
+                            )}
+                            {canCreate && (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="md"
+                                    onClick={() => navigate("/dashboard/nombreInventario")}
+                                >
+                                    Crear nombre inventario
+                                </Button>
+                            )}
                         </div>
                     </div>
 

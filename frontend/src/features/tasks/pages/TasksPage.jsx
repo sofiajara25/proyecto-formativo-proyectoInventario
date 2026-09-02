@@ -5,6 +5,7 @@ import TaskCard, { getTaskDisplayStatus } from "@/shared/components/TaskCard";
 import { getTasksByUserName, getAllTasks } from "../services/taskService";
 import { getUsers } from "../../users/services/userService";
 import TasksRegisterForm from "../components/TasksRegisterForm"
+import { hasPermission } from "@/shared/utils/permissions";
 
 // Filtro de estado que se ve arriba de la lista de tareas.
 const STATUS_FILTERS = ["Todas", "Pendiente", "En revisión", "Completada", "Rechazada"];
@@ -18,6 +19,7 @@ export default function TasksPage() {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
     const [statusFilter, setStatusFilter] = useState("Todas");
+    const canCreate = hasPermission("create_task");
 
     useEffect(() => {
         getUsers()
@@ -120,18 +122,20 @@ export default function TasksPage() {
                     </div>
 
                     {/* 👇 Nuevo bloque para asignar tarea */}
-                    <div className="bg-white rounded-xl shadow-lg p-5 flex flex-col gap-3">
-                        <h2
-                            className="text-sm font-semibold"
-                            style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
-                        >
-                            Asignar nueva tarea
-                        </h2>
+                    {canCreate && (
+                        <div className="bg-white rounded-xl shadow-lg p-5 flex flex-col gap-3">
+                            <h2
+                                className="text-sm font-semibold"
+                                style={{ color: "var(--color-primary-950)", fontFamily: "var(--main-font)" }}
+                            >
+                                Asignar nueva tarea
+                            </h2>
 
-                        <Button variant="primary" size="sm" onClick={() => setIsRegisterOpen(true)}>
-                            Crear tarea
-                        </Button>
-                    </div>
+                            <Button variant="primary" size="sm" onClick={() => setIsRegisterOpen(true)}>
+                                Crear tarea
+                            </Button>
+                        </div>
+                    )}
 
                     {isRegisterOpen && (
                         <TasksRegisterForm

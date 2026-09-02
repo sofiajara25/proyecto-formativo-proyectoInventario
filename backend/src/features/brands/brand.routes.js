@@ -8,6 +8,8 @@ import { Router } from "express";
 // El router nunca implementa lógica,
 // solo delega la ejecución al controller.
 import { brandController } from "./brand.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -18,21 +20,19 @@ const router = Router();
 // POST /users
 // Cuando se recibe una petición POST en la raíz del recurso,
 // Express ejecuta el método create del controller.
-router.post("/", brandController.create);
-// Obtener todos los usuarios
-router.get(
-    "/",
-    brandController.list
-);
+router.post("/", authenticateToken, requirePermission("create_brand"), brandController.create);
 
-router.get("/", brandController.getAll);
+// (había una ruta GET "/" duplicada apuntando a brandController.getAll;
+// Express solo ejecutaba la primera, así que la segunda no hacía nada.
+// Se deja una sola.)
+router.get("/", authenticateToken, requirePermission("list_brand"), brandController.list);
 
 // routes/brand.routes.js
-router.get("/:id", brandController.getById);
+router.get("/:id", authenticateToken, requirePermission("view_brand"), brandController.getById);
 
-router.put("/:id", brandController.update);
+router.put("/:id", authenticateToken, requirePermission("modify_brand"), brandController.update);
 
-router.patch("/:id/status", brandController.updateStatus);
+router.patch("/:id/status", authenticateToken, requirePermission("state_brand"), brandController.updateStatus);
 
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))

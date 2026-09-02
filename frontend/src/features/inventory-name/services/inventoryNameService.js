@@ -68,9 +68,13 @@ export async function getInventoryNameById(inventoryName_id) {
 };
 
 export async function updateInventoryName(inventoryName_id, inventoryNameData) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${inventoryName_id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(inventoryNameData),
     });
     if (!response.ok) throw new Error("Error al actualizar el nombre del inventario");
@@ -78,9 +82,13 @@ export async function updateInventoryName(inventoryName_id, inventoryNameData) {
 }
 
 export async function updateInventoryNameStatus(inventoryName_id, status) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${inventoryName_id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar el nombre del inventario");

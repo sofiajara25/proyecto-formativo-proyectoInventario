@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateConsumableStatus } from "../services/consumableMaterialService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function ConsumableStatusSwitch({ consumable }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(consumable.status === "Activo");
+    const canChangeState = hasPermission("state_consumable_material");
 
     // Cuando se toca el switch, no cambia aún: abre el modal
     const handleChange = (checked) => {
@@ -33,6 +35,16 @@ export default function ConsumableStatusSwitch({ consumable }) {
         setIsModalOpen(false);
         setNextValue(null);
     };
+
+    // Sin el permiso de habilitar/deshabilitar, se muestra el estado como
+    // texto (informativo) en vez del switch interactivo.
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

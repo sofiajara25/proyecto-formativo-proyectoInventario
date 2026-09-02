@@ -13,11 +13,41 @@ export const authController = {
                 ...result,
             });
         } catch (err) {
+            // Sesión activa en otro lado: se distingue con su propio código
+            // para que el frontend pueda ofrecer el botón de "forzar cierre"
+            // en vez de mostrarlo como un error de credenciales cualquiera.
+            if (err.code === "ACTIVE_SESSION") {
+                return res.status(409).json({
+                    error: err.message,
+                    code: "ACTIVE_SESSION",
+                });
+            }
+
             res.status(401).json({
                 error: err.message,
             });
         }
         console.log("BODY LOGIN:", req.body);
+    },
+
+    // POST /api/auth/logout
+    // Limpia la sesión activa del usuario logueado (req.user viene del
+    // middleware authenticateToken), para que pueda volver a iniciar
+    // sesión en otra pestaña/navegador sin tener que forzarlo.
+    async logout(req, res) {
+        try {
+            await authService.logout(req.user.id);
+            res.status(200).json({ message: "Sesión cerrada correctamente" });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    // GET /api/auth/session
+    // Si llegó hasta acá es porque authenticateToken ya confirmó que la
+    // sesión sigue siendo válida (si no, ya habría respondido 401 antes).
+    async checkSession(req, res) {
+        res.status(200).json({ ok: true });
     },
 
     // POST /api/auth/forgot-password

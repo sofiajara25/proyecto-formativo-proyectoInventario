@@ -2,8 +2,19 @@
 
 import { Navbar, Card } from "@/shared";
 import { settings } from "../data/settings";
+import { isSuperAdmin, hasPermission } from "@/shared/utils/permissions";
 
 export default function SettinsPage() {
+  // La tarjeta de "Grupos" (Grupos y Permisos) solo la ve el Super
+  // Administrador. El resto de tarjetas se filtran por el permiso de
+  // "listar" de cada módulo (product.permission); si una tarjeta no
+  // declara permission, se deja visible.
+  const visibleSettings = settings.filter((product) => {
+    if (product.path === "/dashboard/access") return isSuperAdmin();
+    if (!product.permission) return true;
+    return hasPermission(product.permission);
+  });
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -18,15 +29,15 @@ export default function SettinsPage() {
       items-center 
       px-6"
       >
-        <div 
+        <div
         className="
-        grid
-        grid-cols-1 
-        sm:grid-cols-2 
-        lg:grid-cols-3 
-        gap-16"
+        flex
+        flex-wrap
+        justify-center
+        gap-16
+        max-w-5xl"
         >
-          {settings.map((product) => (
+          {visibleSettings.map((product) => (
             <Card key={product.id} product={product} />
           ))}
         </div>

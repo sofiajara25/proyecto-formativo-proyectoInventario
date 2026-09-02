@@ -31,6 +31,8 @@ export { fileSchema, singleFileSchema  } from "./schemas/fileSchema"
 // auth
 export {default as ProtectedRoute} from "./auth/ProtectedRoute"
 export {default as GuestRoute} from "./auth/GuestRoute"
+export {default as RequirePermission} from "./auth/RequirePermission"
+export {default as RequireSuperAdmin} from "./auth/RequireSuperAdmin"
 
 //Tasks
 export {default as TaskCard} from "./components/TaskCard"

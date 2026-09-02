@@ -33,6 +33,7 @@ export default function Navbar() {
     const [pendingConfirmations, setPendingConfirmations] = useState([]);
     const [reviewingTask, setReviewingTask] = useState(null);
     const [confirmError, setConfirmError] = useState("");
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     // Cuántas cosas nuevas hay para mostrar como "burbuja" sobre la
     // campana, sin que haga falta abrir el dropdown para darse cuenta:
@@ -54,6 +55,7 @@ export default function Navbar() {
 
     const handleLogout = () => {
         logout();
+        setIsLogoutModalOpen(false);
         navigate("/auth");
     };
 
@@ -125,7 +127,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-2 shrink-0 justify-end">
                         {/* Cerrar sesión — oculto en móvil, visible en sm+ */}
                         <div className="hidden sm:block">
-                            <Button onClick={handleLogout} variant="secondary" size="sm">
+                            <Button onClick={() => setIsLogoutModalOpen(true)} variant="secondary" size="sm">
                                 Cerrar sesión
                             </Button>
                         </div>
@@ -283,7 +285,7 @@ export default function Navbar() {
                                 {/* Cerrar sesión en móvil dentro del menú */}
                                 <DropdownItem className="sm:hidden">
                                     <button
-                                        onClick={handleLogout}
+                                        onClick={() => setIsLogoutModalOpen(true)}
                                         className="block w-full text-left"
                                         style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
                                     >
@@ -330,6 +332,18 @@ export default function Navbar() {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            {/* Confirmar cierre de sesión */}
+            <Modal
+                isOpen={isLogoutModalOpen}
+                title="Cerrar sesión"
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleLogout}
+                confirmText="Cerrar sesión"
+                cancelText="Cancelar"
+            >
+                <p>¿Seguro que deseas cerrar sesión?</p>
             </Modal>
         </nav>
     );

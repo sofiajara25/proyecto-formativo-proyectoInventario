@@ -3,6 +3,8 @@ import multer from "multer";
 import path from "path";
 
 import { quotationController } from "./quotation.controller.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { requirePermission } from "../../middlewares/permission.middleware.js";
 
 const router = Router();
 
@@ -28,9 +30,15 @@ const upload = multer({
     },
 });
 
-router.post("/", upload.single("pdf"), quotationController.create);
-router.get("/", quotationController.list);
-router.get("/:id", quotationController.getById);
-router.patch("/:id/status", quotationController.updateStatus);
+router.post(
+    "/",
+    authenticateToken,
+    requirePermission("create_quotation"),
+    upload.single("pdf"),
+    quotationController.create,
+);
+router.get("/", authenticateToken, requirePermission("list_quotation"), quotationController.list);
+router.get("/:id", authenticateToken, requirePermission("view_quotation"), quotationController.getById);
+router.patch("/:id/status", authenticateToken, requirePermission("state_quotation"), quotationController.updateStatus);
 
 export default router;

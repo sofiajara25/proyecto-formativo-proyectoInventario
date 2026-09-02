@@ -92,7 +92,10 @@ export async function createConsumableMaterial(consumableMaterialData) {
 // Vista previa del tool_id que se le asignará al próximo material creado.
 // No reserva nada: solo consulta cuál sería.
 export async function getNextConsumableToolId() {
-    const response = await fetch(`${API_URL}/next-tool-id`);
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/next-tool-id`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!response.ok) throw new Error("Error al obtener el próximo ID");
     const data = await response.json();
     return data.toolId;
@@ -118,6 +121,7 @@ export async function getConsumableById(id) {
 
 export async function updateConsumable(id, consumableMaterialData) {
 
+    const token = sessionStorage.getItem("token");
     const formData = new FormData();
 
     formData.append("materialAccountants", JSON.stringify(consumableMaterialData.materialAccountants ?? []));
@@ -164,7 +168,7 @@ export async function updateConsumable(id, consumableMaterialData) {
 
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
-        // headers: { "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
     });
     if (!response.ok) {
@@ -176,9 +180,13 @@ export async function updateConsumable(id, consumableMaterialData) {
 }
 
 export async function updateConsumableStatus(id, status) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");

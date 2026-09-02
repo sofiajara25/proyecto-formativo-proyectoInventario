@@ -68,9 +68,13 @@ export async function getCategoryById(id) {
 };
 
 export async function updateCategory(id, categoryData) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(categoryData),
     });
     if (!response.ok) throw new Error("Error al actualizar categoría");
@@ -78,9 +82,13 @@ export async function updateCategory(id, categoryData) {
 }
 
 export async function updateCategoryStatus(id, status) {
+    const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");

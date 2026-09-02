@@ -29,6 +29,7 @@ export const userRepository = {
       userStatus,
       userPassword,
       userPhoto,
+      isSuperAdmin,
     } = userData;
 
     // Definimos la consulta SQL parametrizada
@@ -40,7 +41,7 @@ export const userRepository = {
         user_lastname,
         document_type,
         document_number,
-        group_id, 
+        group_id,
         start_date,
         end_date,
         user_email,
@@ -48,9 +49,10 @@ export const userRepository = {
         user_address,
         user_status,
         password,
-        photo_url
+        photo_url,
+        is_super_admin
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
       RETURNING id;
     `;
 
@@ -71,6 +73,7 @@ export const userRepository = {
       userStatus,
       userPassword,
       userPhoto,
+      isSuperAdmin ?? false,
     ];
 
 
@@ -86,7 +89,7 @@ export const userRepository = {
 
   async findAll() {
     const query = `
-      SELECT 
+      SELECT
         u.id,
         u.user_name,
         u.user_lastname,
@@ -99,6 +102,7 @@ export const userRepository = {
         u.user_address,
         u.user_status,
         u.photo_url,
+        u.is_super_admin,
         g.group_name AS group_name
       FROM users u
       LEFT JOIN groups g ON u.group_id = g.group_id
@@ -109,13 +113,13 @@ export const userRepository = {
   },
   async findById(id) {
     const query = `
-      SELECT 
-        u.id, 
-        u.user_name, 
+      SELECT
+        u.id,
+        u.user_name,
         u.user_lastname,
-        u.document_type, 
+        u.document_type,
         u.document_number,
-        u.start_date, 
+        u.start_date,
         u.end_date,
         u.user_email,
         u.user_phone,
@@ -123,6 +127,7 @@ export const userRepository = {
         u.user_status,
         u.photo_url,
         u.group_id,
+        u.is_super_admin,
         g.group_name AS group_name
       FROM users u
       LEFT JOIN groups g ON u.group_id = g.group_id
@@ -147,6 +152,7 @@ export const userRepository = {
       userStatus,
       userPassword,
       userPhoto,
+      isSuperAdmin,
     } = userData;
 
     const query = `
@@ -163,8 +169,9 @@ export const userRepository = {
         user_address = $10,
         user_status = $11,
         password = COALESCE($12, password),
-        photo_url = COALESCE($13, photo_url)
-    WHERE id = $14
+        photo_url = COALESCE($13, photo_url),
+        is_super_admin = $14
+    WHERE id = $15
     RETURNING *;
   `;
 
@@ -182,6 +189,7 @@ export const userRepository = {
       userStatus,
       userPassword ?? null,
       userPhoto ?? null,
+      isSuperAdmin ?? false,
       id,
     ];
 

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateCategoryStatus } from "../service/categoryService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function CategoryStatusSwitch({ category }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(category.status === "Activo");
+    const canChangeState = hasPermission("state_category");
 
     const handleChange = (checked) => {
         setNextValue(checked);
@@ -30,6 +32,14 @@ export default function CategoryStatusSwitch({ category }) {
         setIsModalOpen(false);
         setNextValue(null); // switch se queda igual
     };
+
+    if (!canChangeState) {
+        return (
+            <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                {currentValue ? "Activo" : "Inactivo"}
+            </span>
+        );
+    }
 
     return (
         <>

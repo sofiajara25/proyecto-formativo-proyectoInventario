@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateQuotationStatus } from "../services/quotationService";
+import { hasPermission } from "@/shared/utils/permissions";
 
 export default function QuotationStatusSwitch({ quotation }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nextValue, setNextValue] = useState(null);
     const [currentValue, setCurrentValue] = useState(quotation.status === "Activo");
+    const canChangeState = hasPermission("state_quotation");
 
     const handleChange = (checked) => {
         setNextValue(checked);
@@ -31,6 +33,16 @@ export default function QuotationStatusSwitch({ quotation }) {
         setIsModalOpen(false);
         setNextValue(null);
     };
+
+    if (!canChangeState) {
+        return (
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-medium" style={{ color: currentValue ? "#15803d" : "#b91c1c" }}>
+                    {currentValue ? "Activo" : "Inactivo"}
+                </span>
+            </div>
+        );
+    }
 
     return (
         // stopPropagation: la tarjeta que envuelve esto no debe reaccionar
