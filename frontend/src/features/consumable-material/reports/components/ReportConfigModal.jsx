@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { consumableReportFields } from "../config/consumableReportFields";
 import { generateConsumableReport } from "../services/generateConsumableReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
+import { getInventoryName } from "../../../inventory-name/services/inventoryNameService";
 
 export default function ReportConfigModal({ isOpen, onClose }) {
   const [format, setFormat] = useState("pdf");
@@ -15,8 +16,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
   );
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/inventory-names")
-      .then((res) => res.json())
+    getInventoryName()
       .then((data) => {
         const options = data.map((i) => ({ value: i.inventory_name_id, label: i.inventory_name }));
         setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);

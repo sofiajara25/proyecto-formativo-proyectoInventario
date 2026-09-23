@@ -3,6 +3,8 @@ import { Input, Button, Select, Navbar, FileInput, IconButton, Modal, Checkbox }
 import { loanSchema } from "../schemas/loansSchema.js";
 import { createLoan, getLoanById } from "../services/loanService.js";
 import { getUsers } from "../../users/services/userService.js";
+import { getConsumables } from "../../consumable-material/services/consumableMaterialService.js";
+import { getReturnables } from "../../returnable-material/services/returnableMaterialService.js";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -62,19 +64,13 @@ export default function LoansRegisterForm() {
     const [consumableMaterials, setConsumableMaterials] = useState([]);
 
     useEffect(() => {
-        const token = sessionStorage.getItem("token");
-
-        fetch("http://localhost:5000/api/returnableMaterial")
-            .then((res) => res.json())
+        getReturnables()
             .then(setReturnableMaterials)
             .catch((err) => console.error("Error cargando materiales devolutivos:", err));
 
         // Material de consumo ahora requiere sesión (y el permiso
         // list_consumable_material) para listarse.
-        fetch("http://localhost:5000/api/consumableMaterial", {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => res.json())
+        getConsumables()
             .then(setConsumableMaterials)
             .catch((err) => console.error("Error cargando materiales de consumo:", err));
     }, []);

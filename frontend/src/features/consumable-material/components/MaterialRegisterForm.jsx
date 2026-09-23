@@ -4,6 +4,8 @@ import { materialSchema } from "../schemas/materialSchema";
 import { useNavigate } from "react-router-dom";
 import { createConsumableMaterial, getNextConsumableToolId } from "../services/consumableMaterialService";
 import { getCategorys } from "../../categorys/service/categoryService";
+import { getBrands } from "../../brands/service/brandService";
+import { getInventoryName } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
 
 export default function MaterialRegisterForm() {
@@ -70,8 +72,7 @@ export default function MaterialRegisterForm() {
     const localToday = `${yyyy}-${mm}-${dd}`;
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/brands")
-            .then(res => res.json())
+        getBrands()
             .then(data => {
                 const options = data.map(b => ({ value: b.id, label: b.marca }));
                 setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
@@ -79,8 +80,7 @@ export default function MaterialRegisterForm() {
             .catch(err => console.error("Error cargando marcas:", err));
     }, []);
     useEffect(() => {
-        fetch("http://localhost:5000/api/inventory-names")
-            .then(res => res.json())
+        getInventoryName()
             .then(data => {
                 const options = data.map(i => ({ value: i.inventory_name_id, label: i.inventory_name }));
                 setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);

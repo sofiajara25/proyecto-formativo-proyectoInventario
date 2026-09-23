@@ -4,6 +4,8 @@ import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
 import { getCategorys } from "../../categorys/service/categoryService";
+import { getBrands } from "../../brands/service/brandService";
+import { getInventoryName } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
 
 export default function ReturnableMaterialRegisterForm() {
@@ -58,8 +60,7 @@ export default function ReturnableMaterialRegisterForm() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/brands")
-      .then(res => res.json())
+    getBrands()
       .then(data => {
         const options = data.map(b => ({ value: b.id, label: b.marca }));
         setBrands([{ value: "", label: "Selecciona una marca" }, ...options]);
@@ -68,8 +69,7 @@ export default function ReturnableMaterialRegisterForm() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/inventory-names")
-      .then(res => res.json())
+    getInventoryName()
       .then(data => {
         const options = data.map(i => ({ value: i.inventory_name_id, label: i.inventory_name }));
         setInventoryNames([{ value: "", label: "Selecciona un nombre de inventario" }, ...options]);
