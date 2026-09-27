@@ -3,6 +3,7 @@ import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 import { getLoans } from "../../services/loanService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export async function generateLoanReport({
     format,
@@ -21,7 +22,7 @@ export async function generateLoanReport({
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 

@@ -4,6 +4,7 @@ import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 import { getReturns } from "../../services/returnService";
 import { getLoans } from "../../../loans/services/loanService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export async function generateReturnReport({
     format,
@@ -36,7 +37,7 @@ export async function generateReturnReport({
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 

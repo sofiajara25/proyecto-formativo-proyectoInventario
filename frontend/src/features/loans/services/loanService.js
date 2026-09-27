@@ -130,7 +130,9 @@ export async function updateLoan(loanId, loanData) {
 
 export async function updateLoanStatus(loanId, isActive) {
   const token = sessionStorage.getItem("token");
-  const response = await axios.put(
+  // Antes era PUT; se cambió a PATCH para seguir el mismo patrón que el
+  // resto de módulos con estado (brands, categorys, returns, etc.).
+  const response = await axios.patch(
     `${API_URL}/${loanId}/status`,
     { is_active: isActive },
     { headers: { Authorization: `Bearer ${token}` } },

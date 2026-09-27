@@ -34,7 +34,7 @@ export default function SettinsPage() {
         flex
         flex-wrap
         justify-center
-        gap-16
+        gap-8
         max-w-5xl"
         >
           {visibleSettings.map((product) => (

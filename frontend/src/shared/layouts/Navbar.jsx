@@ -14,18 +14,39 @@ import {
 } from "@/shared";
 import logoSena from "@/assets/images/LogoSena.png";
 import { logout } from "../../features/auth/services/logoutSevice";
-import { isAdmin as checkIsAdmin } from "@/shared/utils/permissions";
+import { isAdmin as checkIsAdmin, hasPermission, hasAnyPermission, isSuperAdmin } from "@/shared/utils/permissions";
 import { getCurrentUser } from "../../features/auth/services/authService";
 import { getTasksByUserId, getTasksPendingConfirmation, confirmTask } from "../../features/tasks/services/taskService";
 import { getLoans } from "../../features/loans/services/loanService";
+import { settings as settingsCards } from "../../features/home/settings/data/settings";
 
 const API_ORIGIN = "http://localhost:5000";
+
+// Mismos permisos que las tarjetas de "Listas" (ver
+// features/home/lists/components/ListsPage.jsx): si el usuario no tiene
+// ninguno de estos, esa pantalla le quedaría vacía, así que no tiene
+// sentido mostrarle el enlace.
+const LISTS_PERMISSIONS = [
+    "list_loan",
+    "list_returnable_material",
+    "list_return",
+    "list_consumable_material",
+];
 
 export default function Navbar() {
     const navigate = useNavigate();
     const isAdmin = checkIsAdmin();
     const [notifications, setNotifications] = useState([]);
     const [notifLoading, setNotifLoading] = useState(true);
+
+    // Cada enlace del menú se oculta si, con los permisos del usuario,
+    // la pantalla a la que lleva quedaría vacía. "Ajustes" también cuenta
+    // la tarjeta de Grupos, que no usa permisos sino isSuperAdmin.
+    const canSeeLists = hasAnyPermission(LISTS_PERMISSIONS);
+    const canSeeSettings =
+        isSuperAdmin() ||
+        hasAnyPermission(settingsCards.map((card) => card.permission).filter(Boolean));
+    const canSeeTasksSearch = hasPermission("list_task");
 
     // Tareas que ESTE usuario asignó (creó) y que están "En revisión",
     // esperando que las apruebe o las rechace. Aplica a cualquiera que
@@ -255,33 +276,57 @@ export default function Navbar() {
                                         Inicio
                                     </Link>
                                 </DropdownItem>
-                                <DropdownItem>
-                                    <Link
-                                        to="/dashboard/list"
-                                        className="block w-full"
-                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
-                                    >
-                                        Listas
-                                    </Link>
-                                </DropdownItem>
-                                <DropdownItem>
-                                    <Link
-                                        to="/dashboard/setting"
-                                        className="block w-full"
-                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
-                                    >
-                                        Ajustes
-                                    </Link>
-                                </DropdownItem>
-                                <DropdownItem>
-                                    <Link
-                                        to="/dashboard/tasks/search"
-                                        className="block w-full"
-                                        style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
-                                    >
-                                        Buscar tareas
-                                    </Link>
-                                </DropdownItem>
+                                {/* Se ve si tiene al menos uno de los permisos de las
+                                    tarjetas de adentro (ver LISTS_PERMISSIONS arriba). */}
+                                {canSeeLists && (
+                                    <DropdownItem>
+                                        <Link
+                                            to="/dashboard/list"
+                                            className="block w-full"
+                                            style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
+                                        >
+                                            Listas
+                                        </Link>
+                                    </DropdownItem>
+                                )}
+                                {/* Se ve si el usuario tiene el permiso "list_activity_log",
+                                    otorgable desde Grupos y Permisos (el Super Administrador
+                                    siempre lo tiene, por el bypass de hasPermission). */}
+                                {hasPermission("list_activity_log") && (
+                                    <DropdownItem>
+                                        <Link
+                                            to="/dashboard/logs"
+                                            className="block w-full"
+                                            style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
+                                        >
+                                            Logs de actividad
+                                        </Link>
+                                    </DropdownItem>
+                                )}
+                                {/* Se ve si tiene al menos uno de los permisos de las
+                                    tarjetas de Ajustes, o es Super Admin (por Grupos). */}
+                                {canSeeSettings && (
+                                    <DropdownItem>
+                                        <Link
+                                            to="/dashboard/setting"
+                                            className="block w-full"
+                                            style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
+                                        >
+                                            Ajustes
+                                        </Link>
+                                    </DropdownItem>
+                                )}
+                                {canSeeTasksSearch && (
+                                    <DropdownItem>
+                                        <Link
+                                            to="/dashboard/tasks/search"
+                                            className="block w-full"
+                                            style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}
+                                        >
+                                            Buscar tareas
+                                        </Link>
+                                    </DropdownItem>
+                                )}
                                 {/* Cerrar sesión en móvil dentro del menú */}
                                 <DropdownItem className="sm:hidden">
                                     <button

@@ -3,6 +3,7 @@ import { Input, Button, Modal, TextArea } from "@/shared";
 import { taskSchema } from "../schemas/taskSchema";
 import { updateTask } from "../services/taskService";
 import { getUserById } from "../../users/services/userService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,7 +84,7 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
             setIsModalOpen(false);
         } catch (err) {
             console.error("Error actualizando tarea:", err);
-            alert(err.message);
+            showAlert(err.message, { type: "error" });
         }
     };
 
@@ -166,3 +167,4 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
         </div>
     );
 }
+

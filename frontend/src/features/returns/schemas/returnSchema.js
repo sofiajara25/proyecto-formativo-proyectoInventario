@@ -13,9 +13,9 @@ export const returnSchema = z.object({
   returnQuantity: z
     .number()
     .min(0, "La cantidad devuelta no puede ser negativa"), // 👈 siempre presente
-  isAvailable: z.boolean(),
-  isMaintenance: z.boolean(),
-  isLow: z.boolean(),
+  // Antes eran 3 booleanos independientes que se podían marcar todos a
+  // la vez o ninguno; ahora es un solo estado real, uno de los 3.
+  status: z.enum(["Disponible", "Mantenimiento", "Baja"]),
 }).refine((data) => {
   if (!data.returnDate) return false;
 

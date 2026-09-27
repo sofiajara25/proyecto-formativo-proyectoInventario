@@ -3,6 +3,7 @@ import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 import { getBrands } from "../../service/brandService"
+import { showAlert } from "@/shared/utils/alertBus";
 export async function generateBrandReport({ format, selectedFields, scope, name }) {
     const brands = await getBrands(); // traer desde backend
 
@@ -14,7 +15,7 @@ export async function generateBrandReport({ format, selectedFields, scope, name 
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 
@@ -32,3 +33,4 @@ export async function generateBrandReport({ format, selectedFields, scope, name 
         });
     }
 }
+

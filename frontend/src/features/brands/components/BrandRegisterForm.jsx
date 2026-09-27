@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 // Si tienes un schema con Zod para marca
 import { brandSchema } from "../schemas/brandsSchema";
 import { createBrand } from "../service/brandService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function BrandRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +48,7 @@ export default function BrandRegisterForm() {
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
-      alert(error.message);
+      showAlert(error.message, { type: "error" });
     } finally {
       setIsSubmitting(false);
       setIsModalOpen(false);
@@ -130,3 +131,4 @@ export default function BrandRegisterForm() {
     </div>
   );
 }
+

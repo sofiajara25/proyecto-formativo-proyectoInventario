@@ -7,6 +7,7 @@ import {
     Input,
     Button,
 } from "@/shared";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function VerifyCode() {
     const navigate = useNavigate();
@@ -60,7 +61,7 @@ export default function VerifyCode() {
             await forgotPassword(email);
             setResent(true);
         } catch (err) {
-            alert(err.message);
+            showAlert(err.message, { type: "error" });
         } finally {
             setResending(false);
         }

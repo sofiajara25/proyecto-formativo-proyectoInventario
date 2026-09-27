@@ -35,18 +35,8 @@ export const returnReportFields = [
         default: true,
     },
     {
-        key: "is_available",
-        label: "Disponible",
-        default: false,
-    },
-    {
-        key: "is_maintenance",
-        label: "Mantenimiento",
-        default: false,
-    },
-    {
-        key: "is_low",
-        label: "Baja",
-        default: false,
+        key: "status",
+        label: "Estado",
+        default: true,
     },
 ];

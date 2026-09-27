@@ -6,6 +6,7 @@ import { updateReturn, getReturnById } from "../services/returnService";
 import { useEffect } from "react";
 import { getLoans } from "../../loans/services/loanService";
 import { updateReturnSchema } from "../schemas/updateReturnSchema";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function ReturnForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,9 +26,7 @@ export default function ReturnForm() {
     returnDate: "",
     returnDescription: "",
     returnQuantity: "",
-    isAvailable: true,
-    isMaintenance: false,
-    isLow: false,
+    status: "Disponible",
   });
 
   const [errors, setErrors] = useState({});
@@ -43,9 +42,7 @@ export default function ReturnForm() {
         returnDate: data.return_date?.slice(0, 10) || "",
         returnDescription: data.description,
         returnQuantity: data.quantity,
-        isAvailable: data.is_available,
-        isMaintenance: data.is_maintenance,
-        isLow: data.is_low,
+        status: data.status,
       }))
       .catch((err) => console.error("Error cargando material:", err));
   }, [id]);
@@ -80,6 +77,13 @@ export default function ReturnForm() {
     { id: "", label: "Seleccionar una opción" }, // opción inicial
     { id: "devolutivo", label: "Devolutivo" },
     { id: "consumible", label: "Consumible" },
+  ];
+
+  // Antes eran 3 checkboxes independientes; ahora es un solo estado real.
+  const statusOptions = [
+    { id: "Disponible", label: "Disponible" },
+    { id: "Mantenimiento", label: "Mantenimiento" },
+    { id: "Baja", label: "Baja" },
   ];
 
   useEffect(() => {
@@ -125,7 +129,7 @@ export default function ReturnForm() {
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
-      alert(error.message);
+      showAlert(error.message, { type: "error" });
     } finally {
       setIsSubmitting(false);
       setIsModalOpen(false);
@@ -224,30 +228,21 @@ export default function ReturnForm() {
               Estado del material
             </h3>
 
+            {/* Se ve como los 3 checkboxes de antes, pero solo uno puede
+                quedar marcado a la vez: al marcar uno, los otros dos se
+                desmarcan solos (el dato real sigue siendo un único
+                "status", no 3 booleanos independientes). */}
             <div className="flex flex-wrap justify-center gap-6">
-              <Checkbox
-                id="isAvailable"
-                name="isAvailable"
-                label="Disponible"
-                checked={formData.isAvailable}
-                onChange={handleChange}
-              />
-
-              <Checkbox
-                id="isMaintenance"
-                name="isMaintenance"
-                label="Mantenimiento"
-                checked={formData.isMaintenance}
-                onChange={handleChange}
-              />
-
-              <Checkbox
-                id="isLow"
-                name="isLow"
-                label="Baja"
-                checked={formData.isLow}
-                onChange={handleChange}
-              />
+              {statusOptions.map((opt) => (
+                <Checkbox
+                  key={opt.id}
+                  id={opt.id}
+                  name="status"
+                  label={opt.label}
+                  checked={formData.status === opt.id}
+                  onChange={() => setFormData((prev) => ({ ...prev, status: opt.id }))}
+                />
+              ))}
             </div>
           </div>
 

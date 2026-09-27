@@ -11,8 +11,7 @@
 // primera petición que haga esa pestaña (o la campana de notificaciones,
 // que consulta cada tanto) dispara este interceptor, que cierra sesión y
 // manda al login.
-import { clearToken } from "./tokenStorage";
-import { clearAccess } from "./permissions";
+import { triggerSessionEnd } from "./sessionEvents";
 
 const nativeFetch = window.fetch.bind(window);
 
@@ -20,6 +19,14 @@ function getRequestUrl(input) {
     if (typeof input === "string") return input;
     if (input instanceof URL) return input.toString();
     return input?.url ?? "";
+}
+
+// Traduce el "code" que manda el backend (ver auth.middleware.js) a la
+// razón que entiende el modal de sesión finalizada (SessionEndedModal.jsx).
+function reasonFromCode(code) {
+    if (code === "SESSION_REPLACED") return "replaced";
+    if (code === "TOKEN_EXPIRED") return "expired";
+    return "expired"; // token inválido / faltante: se trata igual que expirado
 }
 
 window.fetch = async (...args) => {
@@ -33,13 +40,21 @@ window.fetch = async (...args) => {
         // que no hay que interceptarlo.
         const isLoginAttempt = url.includes("/api/auth/login");
 
-        if (!isLoginAttempt) {
-            clearToken();
-            clearAccess();
-
-            if (!window.location.pathname.startsWith("/auth")) {
-                window.location.href = "/auth";
+        if (!isLoginAttempt && !window.location.pathname.startsWith("/auth")) {
+            // Se usa clone() porque el código que hizo el fetch original
+            // también va a querer leer este mismo response (ej. su propio
+            // .json() en el catch) — sin clonar, ese segundo intento de
+            // lectura del body fallaría.
+            let code;
+            try {
+                const body = await response.clone().json();
+                code = body?.code;
+            } catch {
+                // Respuesta sin JSON válido: se sigue tratando como sesión
+                // terminada de todas formas.
             }
+
+            triggerSessionEnd(reasonFromCode(code));
         }
     }
 

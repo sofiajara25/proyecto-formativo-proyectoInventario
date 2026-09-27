@@ -53,15 +53,34 @@ export const taskRepository = {
     },
 
     async findByUserName(userName) {
+        // Antes solo comparaba contra user_name, así que buscar por el
+        // apellido (o por "Nombre Apellido" completo) no encontraba nada.
+        //
+        // El intento anterior armaba el patrón de "nombre completo" con
+        // regexp_replace directamente en el SQL, pero eso seguía sin
+        // encontrar resultados (probablemente por cómo Postgres maneja
+        // el escape de '\s' ahí). Para no depender de eso, ahora la
+        // palabra se separa aquí en JavaScript y se arma una condición
+        // "cada palabra escrita debe aparecer en algún lugar del nombre
+        // completo", sin importar el orden ni cuántos espacios reales
+        // haya guardados entre nombre y apellido.
+        const words = userName.trim().split(/\s+/).filter(Boolean);
+
+        const wordConditions = words
+            .map((_, i) => `(u.user_name || ' ' || u.user_lastname) ILIKE '%' || $${i + 2} || '%'`)
+            .join(" AND ");
+
         const query = `
             SELECT ${TASK_COLUMNS},
                 u.user_name AS "userName",
                 u.user_lastname AS "userLastname"
             FROM tasks t
             JOIN users u ON t.userid = u.id
-            WHERE u.user_name ILIKE '%' || $1 || '%';
+            WHERE u.user_name ILIKE '%' || $1 || '%'
+               OR u.user_lastname ILIKE '%' || $1 || '%'
+               ${wordConditions ? `OR (${wordConditions})` : ""};
         `;
-        const result = await pool.query(query, [userName]);
+        const result = await pool.query(query, [userName, ...words]);
         return result.rows;
     },
 

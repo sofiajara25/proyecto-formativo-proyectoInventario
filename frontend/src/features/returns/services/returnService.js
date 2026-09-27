@@ -80,7 +80,7 @@ export async function updateReturn(id, data) {
     return response.json();
 }
 
-export async function updateReturnStatus(id, isAvailable) {
+export async function updateReturnStatus(id, status) {
     const token = sessionStorage.getItem("token");
     const response = await fetch(`${API_URL}/${id}/status`, {
         method: "PATCH",
@@ -88,7 +88,7 @@ export async function updateReturnStatus(id, isAvailable) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ isAvailable }),
+        body: JSON.stringify({ status }),
     });
     if (!response.ok) throw new Error("Error al actualizar estado");
     return response.json();

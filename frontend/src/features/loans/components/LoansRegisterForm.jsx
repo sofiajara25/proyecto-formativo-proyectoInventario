@@ -7,6 +7,7 @@ import { getConsumables } from "../../consumable-material/services/consumableMat
 import { getReturnables } from "../../returnable-material/services/returnableMaterialService.js";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
+import { showAlert } from "@/shared/utils/alertBus";
 
 function crearMaterialVacio() {
     return {
@@ -243,9 +244,10 @@ export default function LoansRegisterForm() {
                 });
                 setErrors(fieldErrors);
                 console.warn("Errores de validación al crear el préstamo:", fieldErrors);
-                alert(
+                showAlert(
                     "Revisa el formulario, hay campos con error:\n" +
-                        Object.entries(fieldErrors).map(([field, msg]) => `- ${field}: ${msg}`).join("\n")
+                        Object.entries(fieldErrors).map(([field, msg]) => `- ${field}: ${msg}`).join("\n"),
+                    { type: "warning" }
                 );
                 return;
             }
@@ -254,7 +256,7 @@ export default function LoansRegisterForm() {
 
             if (!formData.materials.length) {
                 setErrors({ materials: "Debe agregar al menos un material" });
-                alert("Debe agregar al menos un material.");
+                showAlert("Debe agregar al menos un material.", { type: "warning" });
                 return;
             }
 
@@ -284,7 +286,7 @@ export default function LoansRegisterForm() {
             }
         } catch (error) {
             console.error("Error creando préstamo:", error);
-            alert(error?.message || "Ocurrió un error inesperado al crear el préstamo.");
+            showAlert(error?.message || "Ocurrió un error inesperado al crear el préstamo.", { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);

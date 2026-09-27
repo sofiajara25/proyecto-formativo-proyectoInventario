@@ -16,9 +16,14 @@ export const brandService = {
         // - Validar longitud mínima/máxima (ya lo hace Zod en el schema)
         // - Evitar duplicados (opcional, depende de tu lógica)
 
+        // Igual que pasó en categorys: si "marca" llega undefined/null
+        // (por ejemplo, una petición directa a la API sin pasar por el
+        // formulario), ".trim()" directo revienta con "Cannot read
+        // properties of undefined (reading 'trim')" en vez de dar un
+        // error de validación limpio. Con "?." se evita el crash.
         const brandData = {
             ...data,
-            marca: data.marca.trim(),
+            marca: data.marca?.trim(),
         };
 
         console.log("SERVICE DATA:", brandData);

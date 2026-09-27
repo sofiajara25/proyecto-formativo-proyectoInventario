@@ -7,6 +7,7 @@ import { getGroups } from "../../access/services/groupService.js";
 import { getDocumentType } from "../services/selectServices.js";
 import { userSchema } from "../schemas/userSchema";
 import { createUser } from "../services/userService.js";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function UserRegisterForm() {
     const navigate = useNavigate();
@@ -146,7 +147,7 @@ export default function UserRegisterForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -392,3 +393,4 @@ export default function UserRegisterForm() {
         </div>
     );
 }
+

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Input, Button, Modal, TextArea, Select } from "@/shared";
 import { taskSchema } from "../schemas/taskSchema";
 import { createTask } from "../services/taskService";
+import { showAlert } from "@/shared/utils/alertBus";
 // import { getUsers } from "../../users/services/userService";
 
 export default function TasksRegisterForm({ users, onClose }) {
@@ -88,7 +89,7 @@ export default function TasksRegisterForm({ users, onClose }) {
 
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);

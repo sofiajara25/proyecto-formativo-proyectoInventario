@@ -63,6 +63,13 @@ export const taskController = {
                 ...req.body,
                 editedBy: req.user?.id ?? null,
             });
+
+            // Antes esto respondía 200 aunque la tarea no existiera, a
+            // diferencia de brands/categorys/inventory-name/returns/users.
+            if (!updatedTask) {
+                return res.status(404).json({ error: "Tarea no encontrada" });
+            }
+
             res.json({
                 message: "Tarea actualizada correctamente",
                 task: updatedTask,

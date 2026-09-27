@@ -2,6 +2,7 @@ import { useState } from "react";
 import { userReportFields } from "../config/UserReportFields";
 import { generateUserReport } from "../services/generateUserReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function ReportConfigModal({ isOpen, onClose }) {
 
@@ -32,7 +33,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
             onClose();
         } catch (error) {
             console.error("Error generando reporte:", error);
-            alert(error.message || "Error generando reporte");
+            showAlert(error.message || "Error generando reporte", { type: "error" });
         } finally {
             setIsGenerating(false);
         }
@@ -140,3 +141,4 @@ export default function ReportConfigModal({ isOpen, onClose }) {
         </div>
     );
 }
+

@@ -25,6 +25,8 @@ import inventoryNameRoutes from "./features/inventory-name/inventoryName.routes.
 import categoryRoutes from "./features/categorys/category.routes.js"
 import quotationRoutes from "./features/quotations/quotation.routes.js"
 import loanSignatureRoutes from "./features/loan-signatures/loanSignature.routes.js"
+import activityLogsRoutes from "./features/activity-logs/activityLog.routes.js"
+import { activityLogger } from "./middlewares/activityLogger.middleware.js";
 
 // Creamos la instancia principal de la aplicación Express
 const app = express();
@@ -40,6 +42,12 @@ app.use(cors({ origin: "http://localhost:5173" }));
 // Sin este middleware, req.body sería undefined
 app.use(express.json());
 
+// Bitácora automática de actividad (crear/actualizar/cambiar estado en
+// cualquier módulo). Va ANTES de las rutas para poder envolver res.json
+// de cada una; lee req.user en el momento en que la respuesta se envía,
+// así que igual queda disponible aunque authenticateToken corra después
+// de este punto dentro de cada router.
+app.use(activityLogger);
 
 // Registro del router de usuarios
 // Todas las rutas del feature users quedarán bajo el prefijo /api/users
@@ -104,6 +112,8 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/permissions", permissionsRoutes);
 
 app.use("/api/access", accessRoutes);
+
+app.use("/api/activity-logs", activityLogsRoutes);
 
 // Manejador de errores global.
 // Sin esto, cualquier error que ocurra ANTES de llegar a un controller

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { getCategoryById, updateCategory } from "../service/categoryService";
 import { categorySchema } from "../schemas/categorysSchema";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function CategoryUpdateForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function CategoryUpdateForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);

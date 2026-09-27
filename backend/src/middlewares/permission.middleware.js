@@ -8,9 +8,12 @@
 // 2. Si no -> 403 (a diferencia de 401: aquí sí sabemos quién es, solo
 //    que no puede hacer esto).
 //
-// Sin atajos: no hay bypass para ningún grupo, ni siquiera uno llamado
-// "Administrador". Ese grupo necesita tener sus permisos asignados
-// explícitamente en Grupos y permisos como cualquier otro.
+// No hay atajos para ningún grupo, ni siquiera uno llamado
+// "Administrador": ese grupo necesita tener sus permisos asignados
+// explícitamente en Grupos y permisos como cualquier otro. La única
+// excepción real es el Super Administrador (users.is_super_admin), que
+// por definición tiene acceso a todo el sistema sin que se le tengan que
+// asignar permisos uno por uno.
 //
 // Reutiliza accessRepository, que es la misma consulta que ya usa
 // /api/access/me para armar el resumen de acceso del frontend.
@@ -21,6 +24,11 @@ export function requirePermission(codename) {
         try {
             if (!req.user?.id) {
                 return res.status(401).json({ error: "Token requerido" });
+            }
+
+            const isSuperAdmin = await accessRepository.isSuperAdmin(req.user.id);
+            if (isSuperAdmin) {
+                return next();
             }
 
             const permissions = await accessRepository.getUserPermissions(req.user.id);

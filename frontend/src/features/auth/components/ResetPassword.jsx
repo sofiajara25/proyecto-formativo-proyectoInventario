@@ -7,6 +7,7 @@ import {
     Input,
     Button,
 } from "@/shared";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function ResetPassword() {
     const navigate = useNavigate();
@@ -51,10 +52,10 @@ export default function ResetPassword() {
 
         try {
             await resetPassword({ resetToken, newPassword: result.data.newPassword });
-            alert("Contraseña actualizada correctamente. Ya puedes iniciar sesión.");
+            showAlert("Contraseña actualizada correctamente. Ya puedes iniciar sesión.", { type: "success" });
             navigate("/auth");
         } catch (error) {
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setLoading(false);
         }

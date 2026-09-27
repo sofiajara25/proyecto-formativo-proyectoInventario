@@ -7,6 +7,7 @@ import { getCategorys } from "../../categorys/service/categoryService";
 import { getBrands } from "../../brands/service/brandService";
 import { getInventoryName } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function MaterialRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -151,7 +152,7 @@ export default function MaterialRegisterForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -441,3 +442,4 @@ export default function MaterialRegisterForm() {
         </div>
     );
 }
+

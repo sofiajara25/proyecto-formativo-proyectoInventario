@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateConsumableStatus } from "../services/consumableMaterialService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function ConsumableStatusSwitch({ consumable }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function ConsumableStatusSwitch({ consumable }) {
             // 👇 no mutamos consumable directamente, dejamos que el padre refresque datos si hace falta
         } catch (err) {
             console.error("Error al actualizar estado:", err);
+            showAlert(err.message || "Error al actualizar el estado del material de consumo", { type: "error" });
         } finally {
             setIsModalOpen(false);
             setNextValue(null);

@@ -6,6 +6,7 @@ import { getUserById, updateUser } from "../services/userService";
 import { getGroups } from "../../access/services/groupService.js";
 import { updateUserSchema } from "../schemas/updateUserSchema.js";
 import { isSuperAdmin } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 
 export default function UserUpdateForm() {
@@ -136,7 +137,7 @@ export default function UserUpdateForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -394,3 +395,4 @@ export default function UserUpdateForm() {
         </div>
     );
 }
+

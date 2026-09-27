@@ -7,7 +7,5 @@ export const updateReturnSchema = z.object({
     // 👆 aquí ya no hacemos refine para bloquear fechas anteriores
     returnDescription: z.string().min(3, "La descripción debe tener mínimo 3 caracteres"),
     returnQuantity: z.number({ invalid_type_error: "La cantidad debe ser un número" }).min(1),
-    isAvailable: z.boolean(),
-    isMaintenance: z.boolean(),
-    isLow: z.boolean(),
+    status: z.enum(["Disponible", "Mantenimiento", "Baja"]),
 });

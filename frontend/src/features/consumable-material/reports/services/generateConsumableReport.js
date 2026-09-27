@@ -2,6 +2,7 @@ import { getConsumables } from "../../services/consumableMaterialService"; // ah
 import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export async function generateConsumableReport({
     format,
@@ -24,7 +25,7 @@ export async function generateConsumableReport({
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 
@@ -44,3 +45,4 @@ export async function generateConsumableReport({
         });
     }
 }
+

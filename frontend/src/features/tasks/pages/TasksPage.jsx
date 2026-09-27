@@ -70,6 +70,14 @@ export default function TasksPage() {
         }
     };
 
+    // Para volver a ver todas las tareas después de buscar por persona,
+    // sin tener que recargar la página.
+    const handleClearSearch = () => {
+        setName("");
+        setNameError("");
+        fetchAllTasks();
+    };
+
     const handleEdit = (task) => {
         navigate(`/dashboard/tasks/${task.id}/edit`);
     };
@@ -116,9 +124,14 @@ export default function TasksPage() {
                         />
 
 
-                        <Button variant="secondary" size="sm" onClick={handleSearch} disabled={loading}>
-                            {loading ? "Buscando..." : "Buscar"}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button variant="secondary" size="sm" onClick={handleSearch} disabled={loading}>
+                                {loading ? "Buscando..." : "Buscar"}
+                            </Button>
+                            <Button variant="tertiary" size="sm" onClick={handleClearSearch} disabled={loading}>
+                                Ver todas
+                            </Button>
+                        </div>
                     </div>
 
                     {/* 👇 Nuevo bloque para asignar tarea */}

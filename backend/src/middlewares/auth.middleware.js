@@ -44,8 +44,16 @@ export const authenticateToken = async (req, res, next) => {
 
         next();
     } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({
+                message: "Tu sesión expiró",
+                code: "TOKEN_EXPIRED",
+            });
+        }
+
         return res.status(401).json({
-            message: "Token inválido o expirado",
+            message: "Token inválido",
+            code: "TOKEN_INVALID",
         });
     }
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateQuotationStatus } from "../services/quotationService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function QuotationStatusSwitch({ quotation }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function QuotationStatusSwitch({ quotation }) {
             setCurrentValue(updated.status === "Activo");
         } catch (err) {
             console.error("Error al actualizar estado:", err);
+            showAlert(err.message || "Error al actualizar el estado de la cotización", { type: "error" });
         } finally {
             setIsModalOpen(false);
             setNextValue(null);

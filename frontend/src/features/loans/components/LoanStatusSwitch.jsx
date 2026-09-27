@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateLoanStatus } from "../services/loanService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function LoanStatusSwitch({ loan }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function LoanStatusSwitch({ loan }) {
             // ❌ no mutar loan.is_active directamente
         } catch (error) {
             console.error("Error actualizando estado:", error.message);
+            showAlert(error.message || "Error al actualizar el estado del préstamo", { type: "error" });
             setCurrentValue(previousValue); // vuelve al valor anterior si falla
         } finally {
             setIsModalOpen(false);

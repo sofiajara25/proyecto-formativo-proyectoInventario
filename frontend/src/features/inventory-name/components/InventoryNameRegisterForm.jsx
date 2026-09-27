@@ -3,6 +3,7 @@ import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import { inventoryNameSchema } from "../schemas/inventoryNameSchema";
 import { createInventoryName } from "../services/inventoryNameService";
+import { showAlert } from "@/shared/utils/alertBus";
 // Si tienes un schema con Zod para inventoryName
 
 export default function InventoryNameRegisterForm() {
@@ -47,7 +48,7 @@ export default function InventoryNameRegisterForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -129,3 +130,4 @@ export default function InventoryNameRegisterForm() {
         </div>
     );
 }
+

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateUserStatus } from "../services/userService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function UserStatusSwitch({ user }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function UserStatusSwitch({ user }) {
             // ❌ no mutar user.user_status directamente
         } catch (err) {
             console.error("Error al actualizar estado:", err);
+            showAlert(err.message || "Error al actualizar el estado del usuario", { type: "error" });
         } finally {
             setIsModalOpen(false);
             setNextValue(null);

@@ -89,15 +89,7 @@ export default function ViewReturnPage() {
                                     margin: 0,
                                 }}
                             >
-                                Estado: {
-                                    returns.is_available
-                                        ? "Disponible"
-                                        : returns.is_maintenance
-                                            ? "En mantenimiento"
-                                            : returns.is_low
-                                                ? "Baja"
-                                                : "Sin estado"
-                                }
+                                Estado: {returns.status || "Sin estado"}
                             </p>
                         </div>
                     </div>

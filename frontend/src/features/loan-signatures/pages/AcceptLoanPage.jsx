@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/shared";
 import { getLoanSignature, acceptLoanSignature } from "../services/loanSignatureService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 // Página PÚBLICA (sin login): a esta se llega desde el enlace del correo,
 // y quien firma puede no tener cuenta en el sistema.
@@ -25,7 +26,7 @@ export default function AcceptLoanPage() {
             const response = await acceptLoanSignature(token);
             setSignature((prev) => ({ ...prev, ...response.signature }));
         } catch (err) {
-            alert(err.message);
+            showAlert(err.message, { type: "error" });
         } finally {
             setAccepting(false);
         }
@@ -84,3 +85,4 @@ export default function AcceptLoanPage() {
         </div>
     );
 }
+

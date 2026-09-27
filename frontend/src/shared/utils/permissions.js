@@ -46,19 +46,32 @@ export function isAdmin() {
     return getAccess().isAdmin === true;
 }
 
-// true si el usuario logueado es el Super Administrador: el único que
-// puede entrar a Grupos y Permisos. Es una bandera aparte (users.
-// is_super_admin), no un permiso ni un grupo, y no habilita nada más.
+// true si el usuario logueado es el Super Administrador: además de ser
+// el único que puede entrar a Grupos y Permisos, tiene acceso a TODO en
+// el sistema sin importar qué permisos tenga asignados (ver
+// hasPermission más abajo). Es una bandera aparte (users.is_super_admin),
+// no un permiso ni un grupo.
 export function isSuperAdmin() {
     return getAccess().isSuperAdmin === true;
 }
 
 // true si el usuario logueado puede realizar la acción indicada
-// (permiso directo, o heredado por su grupo). Sin atajos: ni siquiera
-// el grupo "Administrador" se salta esto, tiene que tener el permiso
-// asignado en Grupos y permisos.
+// (permiso directo, o heredado por su grupo). El Super Administrador es
+// la única excepción: se salta esta verificación y siempre puede hacer
+// cualquier cosa, así no tenga el permiso asignado en Grupos y permisos.
 export function hasPermission(permissionCodename) {
     const access = getAccess();
 
+    if (access.isSuperAdmin === true) return true;
+
     return access.permissions.includes(permissionCodename);
+}
+
+// true si el usuario tiene AL MENOS UNO de los permisos indicados. Sirve
+// para mostrar/ocultar un enlace que agrupa varias tarjetas (ej. "Listas"
+// o "Ajustes" en el menú de la Navbar): si no tiene ninguno de los
+// permisos de las tarjetas de adentro, no tiene sentido mostrar el
+// enlace, porque entraría a una pantalla vacía.
+export function hasAnyPermission(permissionCodenames) {
+    return permissionCodenames.some((codename) => hasPermission(codename));
 }

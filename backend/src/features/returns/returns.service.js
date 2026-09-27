@@ -33,7 +33,7 @@ export const returnService = {
         return await returnRepository.update(id, data);
     },
 
-    async updateReturnStatus(id, isAvailable) {
-        return await returnRepository.updateStatus(id, isAvailable);
+    async updateReturnStatus(id, status) {
+        return await returnRepository.updateStatus(id, status);
     }
 };

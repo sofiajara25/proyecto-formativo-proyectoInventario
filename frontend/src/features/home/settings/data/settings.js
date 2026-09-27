@@ -51,3 +51,6 @@ export const settings = [
         permission: "list_quotation",
     },
 ]
+// "Logs de actividad" no vive acá: se accede desde el menú de la Navbar
+// (junto a Inicio/Listas/Ajustes), visible solo para el Super
+// Administrador. Ver shared/layouts/Navbar.jsx.

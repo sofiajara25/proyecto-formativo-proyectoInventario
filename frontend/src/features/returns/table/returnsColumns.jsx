@@ -31,9 +31,9 @@ export const returnsColumns = [
         header: "Fecha de devolución",
     },
 
-    // Columna Estado (activo / inactivo)
+    // Columna Estado (Disponible / Mantenimiento / Baja)
     {
-        accessorKey: "is_available",
+        accessorKey: "status",
         header: "Estado",
         cell: ({ row }) => <ReturnStatusSwitch refund={row.original} />,
     },

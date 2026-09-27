@@ -3,6 +3,7 @@ import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 import { getReturnables } from "../../services/returnableMaterialService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export async function generateReturnableReport({
     format,
@@ -24,7 +25,7 @@ export async function generateReturnableReport({
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Input, Button, FileInput } from "@/shared";
 import { quotationSchema } from "../schemas/quotationSchema";
 import { createQuotation } from "../services/quotationService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function QuotationsRegisterForm({ onClose, onCreated }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +40,7 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
             onClose();
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
         }
@@ -96,3 +97,4 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
         document.body
     );
 }
+

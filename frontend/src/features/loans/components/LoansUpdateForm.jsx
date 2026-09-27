@@ -7,6 +7,7 @@ import { getConsumables } from "../../consumable-material/services/consumableMat
 import { getReturnables } from "../../returnable-material/services/returnableMaterialService.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
+import { showAlert } from "@/shared/utils/alertBus";
 
 function crearMaterialVacio() {
     return {
@@ -270,9 +271,10 @@ export default function LoansRegisterForm() {
                 });
                 setErrors(fieldErrors);
                 console.warn("Errores de validación al actualizar el préstamo:", fieldErrors);
-                alert(
+                showAlert(
                     "Revisa el formulario, hay campos con error:\n" +
-                        Object.entries(fieldErrors).map(([field, msg]) => `- ${field}: ${msg}`).join("\n")
+                        Object.entries(fieldErrors).map(([field, msg]) => `- ${field}: ${msg}`).join("\n"),
+                    { type: "warning" }
                 );
                 return;
             }
@@ -292,7 +294,7 @@ export default function LoansRegisterForm() {
             const loanDateChanged = formData.loanDate !== originalLoanDateRef.current;
             if (loanDateChanged && loanDate < today) {
                 setErrors({ loanDate: "La fecha de préstamo no puede ser anterior a hoy" });
-                alert("La fecha de préstamo no puede ser anterior a hoy.");
+                showAlert("La fecha de préstamo no puede ser anterior a hoy.", { type: "warning" });
                 return;
             }
 
@@ -303,7 +305,7 @@ export default function LoansRegisterForm() {
             const returnDateChanged = formData.loanReturnDate !== originalReturnDateRef.current;
             if ((loanDateChanged || returnDateChanged) && returnDate < loanDate) {
                 setErrors({ loanReturnDate: "La fecha de devolución no puede ser anterior a la fecha de préstamo" });
-                alert("La fecha de devolución no puede ser anterior a la fecha de préstamo.");
+                showAlert("La fecha de devolución no puede ser anterior a la fecha de préstamo.", { type: "warning" });
                 return;
             }
 
@@ -314,7 +316,7 @@ export default function LoansRegisterForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error actualizando préstamo:", error);
-            alert(error?.message || "Ocurrió un error inesperado al actualizar el préstamo.");
+            showAlert(error?.message || "Ocurrió un error inesperado al actualizar el préstamo.", { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);

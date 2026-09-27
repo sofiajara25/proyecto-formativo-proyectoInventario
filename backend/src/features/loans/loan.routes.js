@@ -62,7 +62,12 @@ router.put(
     upload.fields([{ name: "photo", maxCount: 12 }]),
     loanController.update,
 );
-router.put("/:loan_id/status", authenticateToken, requirePermission("state_loan"), loanController.updateStatus);
+// Antes era PUT, el único módulo con estado que no usaba PATCH como los
+// demás (brands, categorys, inventory-name, materiales, returns,
+// quotations, users). El payload sigue siendo "is_active" (booleano) y
+// no "status" (texto), porque la columna real de loans es un booleano
+// simple de 2 estados, no un estado de varios valores como en returns.
+router.patch("/:loan_id/status", authenticateToken, requirePermission("state_loan"), loanController.updateStatus);
 // Exportamos el router para ser registrado en la aplicación principal
 // (ej: app.use("/users", router))
 export default router;

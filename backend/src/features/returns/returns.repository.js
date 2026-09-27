@@ -42,9 +42,10 @@ export const returnRepository = {
             returnDate,
             returnDescription,
             returnQuantity,
-            isAvailable,
-            isMaintenance,
-            isLow
+            // Antes eran 3 columnas booleanas independientes (is_available,
+            // is_maintenance, is_low) que se podían marcar al mismo tiempo o
+            // ninguna. Ahora es un solo estado real de 3 valores.
+            status,
         } = returnData;
 
         const client = await pool.connect();
@@ -82,11 +83,9 @@ export const returnRepository = {
             return_date,
             description,
             quantity,
-            is_available,
-            is_maintenance,
-            is_low
+            status
           )
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+          VALUES ($1,$2,$3,$4,$5,$6,$7)
           RETURNING *;
         `;
 
@@ -97,9 +96,7 @@ export const returnRepository = {
                 returnDate,
                 returnDescription,
                 returnQuantity,
-                isAvailable,
-                isMaintenance,
-                isLow
+                status || "Disponible",
             ];
 
             const result = await client.query(query, values);
@@ -169,9 +166,7 @@ export const returnRepository = {
             returnDate,
             returnDescription,
             returnQuantity,
-            isAvailable,
-            isMaintenance,
-            isLow
+            status,
         } = returnData;
 
         const query = `
@@ -181,10 +176,8 @@ export const returnRepository = {
                 return_date = $3,
                 description = $4,
                 quantity = $5,
-                is_available = $6,
-                is_maintenance = $7,
-                is_low = $8   
-            WHERE id = $9
+                status = $6
+            WHERE id = $7
             RETURNING *;
         `;
         const values = [
@@ -193,24 +186,21 @@ export const returnRepository = {
             returnDate,
             returnDescription,
             returnQuantity,
-            isAvailable,
-            isMaintenance,
-            isLow,
+            status,
             id
         ];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
 
-    async updateStatus(id, isAvailable) {
+    async updateStatus(id, status) {
         const query = `
             UPDATE returns
-            SET is_available = $1,
-                is_low = $2
-            WHERE id = $3
+            SET status = $1
+            WHERE id = $2
             RETURNING *;
         `;
-        const values = [isAvailable, !isAvailable, id];
+        const values = [status, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     }

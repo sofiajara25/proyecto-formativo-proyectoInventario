@@ -5,6 +5,7 @@ import { createGroup, getGroups } from "../services/groupService";
 import { getGroupsPermissions, getUserPermissions } from "../services/permissionService";
 import { getUsers } from "../../users/services/userService";
 import { groupSchema } from "../schemas/groupSchema";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function AccessSidebar({
   selectedGroup,
@@ -43,7 +44,10 @@ export default function AccessSidebar({
 
   const userOptions = users.map((user) => ({
     value: String(user.id),
-    label: user.user_name,
+    // Nombre y apellido: con solo el nombre no se puede distinguir entre
+    // dos personas que se llaman igual (ver LoansRegisterForm/TasksRegisterForm,
+    // que ya usan esta misma combinación).
+    label: `${user.user_name} ${user.user_lastname}`,
   }));
 
 
@@ -78,7 +82,7 @@ export default function AccessSidebar({
       navigate(-1);
     } catch (error) {
       console.error("Error:", error.message);
-      alert(error.message);
+      showAlert(error.message, { type: "error" });
     } finally {
       setIsSubmitting(false);
       setIsModalOpen(false);

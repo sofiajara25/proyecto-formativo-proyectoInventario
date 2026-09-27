@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateInventoryNameStatus } from "../services/inventoryNameService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 
 export default function InventoryNameStatusSwitch({ inventoryName }) {
@@ -23,6 +24,7 @@ export default function InventoryNameStatusSwitch({ inventoryName }) {
             // ❌ no mutar inventoryName.status directamente
         } catch (err) {
             console.error("Error al actualizar estado:", err);
+            showAlert(err.message || "Error al actualizar el estado del nombre de inventario", { type: "error" });
         } finally {
             setIsModalOpen(false);
             setNextValue(null);

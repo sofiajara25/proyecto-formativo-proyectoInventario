@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Switch, Modal } from "@/shared";
 import { updateCategoryStatus } from "../service/categoryService";
 import { hasPermission } from "@/shared/utils/permissions";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function CategoryStatusSwitch({ category }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function CategoryStatusSwitch({ category }) {
             // ❌ no mutar category.status directamente
         } catch (err) {
             console.error("Error al actualizar estado:", err);
+            showAlert(err.message || "Error al actualizar el estado de la categoría", { type: "error" });
         } finally {
             setIsModalOpen(false);
             setNextValue(null);

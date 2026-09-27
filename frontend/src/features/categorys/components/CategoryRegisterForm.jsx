@@ -3,6 +3,7 @@ import { Button, Navbar, Modal, Select, Input } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import { categorySchema } from "../schemas/categorysSchema";
 import { createCategory } from "../service/categoryService";
+import { showAlert } from "@/shared/utils/alertBus";
 // Si tienes un schema con Zod para marca
 
 export default function CategoryRegisterForm() {
@@ -55,7 +56,7 @@ export default function CategoryRegisterForm() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -142,3 +143,4 @@ export default function CategoryRegisterForm() {
         </div>
     );
 }
+

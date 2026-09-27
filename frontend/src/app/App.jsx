@@ -1,11 +1,18 @@
 import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./router";
+import AlertProvider from "../shared/context/AlertProvider";
+import SessionModalProvider from "../shared/context/SessionModalProvider";
+import useIdleTimer from "../shared/hooks/useIdleTimer";
 
 const API_URL = "http://localhost:5000/api/auth";
 const SESSION_CHECK_INTERVAL_MS = 5000;
 
 export default function App() {
+  // Cierra la sesión (con aviso, ver SessionModalProvider) si la persona
+  // no interactúa con el sistema por un buen rato.
+  useIdleTimer();
+
   // Si el navegador restaura una página completa desde su caché de
   // atrás/adelante (bfcache) — por ejemplo al cerrar y volver a abrir la
   // pestaña — se fuerza una recarga para que ProtectedRoute/GuestRoute
@@ -42,5 +49,11 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AlertProvider>
+      <SessionModalProvider>
+        <RouterProvider router={router} />
+      </SessionModalProvider>
+    </AlertProvider>
+  );
 }

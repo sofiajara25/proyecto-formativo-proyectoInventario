@@ -26,6 +26,8 @@ import { AcceptLoanPage } from "@/features/loan-signatures"
 
 import { ProfilePage } from "@/features/profile"
 
+import { ListActivityLogsPage } from "@/features/activity-logs"
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -357,6 +359,14 @@ const router = createBrowserRouter([
           <RequireSuperAdmin>
             <AccessPage />
           </RequireSuperAdmin>
+        ),
+      },
+      {
+        path: "/dashboard/logs",
+        element: (
+          <RequirePermission permission="list_activity_log">
+            <ListActivityLogsPage />
+          </RequirePermission>
         ),
       },
     ],

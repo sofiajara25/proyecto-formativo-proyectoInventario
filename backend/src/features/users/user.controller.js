@@ -138,6 +138,11 @@ export const userController = {
         isSuperAdmin,
       });
 
+      // Antes esto respondía 200 con "undefined" si el id no existía, a
+      // diferencia de brands/categorys/inventory-name/returns, que sí
+      // devuelven 404 en ese caso.
+      if (!updatedUser) return res.status(404).json({ error: "Usuario no encontrado" });
+
       res.status(200).json(updatedUser);
     } catch (err) {
       res.status(500).json({ error: err.message });

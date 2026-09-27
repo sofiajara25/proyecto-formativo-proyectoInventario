@@ -3,6 +3,7 @@ import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { inventoryNameSchema } from "../schemas/inventoryNameSchema";
 import { getInventoryNameById, updateInventoryName } from "../services/inventoryNameService";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function UpdateInventoryNamePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,7 +46,7 @@ export default function UpdateInventoryNamePage() {
             navigate(-1);
         } catch (error) {
             console.error("Error:", error.message);
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -107,3 +108,4 @@ export default function UpdateInventoryNamePage() {
         </div>
     );
 }
+

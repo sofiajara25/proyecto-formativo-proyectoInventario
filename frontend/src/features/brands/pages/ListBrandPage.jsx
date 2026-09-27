@@ -33,7 +33,7 @@ export default function ListBrandPage() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-8 gap-4">
+            <div className="flex flex-col flex-1 px-10  gap-4">
                 {/* Título */}
                 <h1
                     style={{

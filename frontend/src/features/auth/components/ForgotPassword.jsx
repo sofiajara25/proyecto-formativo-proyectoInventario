@@ -7,6 +7,7 @@ import {
     Input,
     Button,
 } from "@/shared";
+import { showAlert } from "@/shared/utils/alertBus";
 
 export default function ForgotPassword() {
     const navigate = useNavigate();
@@ -53,7 +54,7 @@ export default function ForgotPassword() {
                 state: { email: result.data.userEmail },
             });
         } catch (error) {
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         } finally {
             setLoading(false);
         }

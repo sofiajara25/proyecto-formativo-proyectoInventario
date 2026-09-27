@@ -11,6 +11,7 @@ import {
     Input,
     Button,
 } from "@/shared";
+import { showAlert } from "@/shared/utils/alertBus";
 
 
 export default function Login() {
@@ -94,7 +95,7 @@ export default function Login() {
                 setActiveSessionError(error.message);
                 return;
             }
-            alert(error.message);
+            showAlert(error.message, { type: "error" });
         }
     };
 
@@ -144,7 +145,7 @@ export default function Login() {
         <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(to bottom, var(--color-primary-950) 72%, var(--color-tertiary-950) 100%)" }}>
 
             {/* Header */}
-            <div className="flex items-center gap-4 px-10 py-5">
+            <div className="flex items-center gap-4 px-10 py-4">
                 <img src={logoSena} alt="Logo SENA" className="h-14" />
                 <h1 className="text-white text-xl font-bold">
                     Sistema Inventario de Infraestructura y Teleinformática CDITI
@@ -152,9 +153,9 @@ export default function Login() {
             </div>
 
             {/* Contenido */}
-            <div className="flex flex-1 items-center justify-center pb-16">
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-6">
-                    <div className="bg-white rounded-2xl p-10 w-96 flex flex-col gap-5 shadow-lg">
+            <div className="flex flex-1 items-center justify-center">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center gap-4">
+                    <div className="bg-white rounded-2xl p-8 w-96 flex flex-col gap-4 shadow-lg">
                         <h2 className="text-center text-lg font-bold text-gray-800 tracking-wide">
                             INICIAR SESIÓN
                         </h2>

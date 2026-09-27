@@ -85,10 +85,17 @@ export default function ListUserPage() {
                         </div>
                     </div>
 
+                    {/* Antes tenía un onRowClick que llevaba a
+                        "/dashboard/users/:id" (sin "/view", una ruta que no
+                        existe) y que tampoco respetaba el permiso
+                        "view_user". DataTable ni siquiera usa esa prop
+                        (no está implementada ahí), así que no hacía nada
+                        salvo confundir. Ver/editar ya lo maneja bien
+                        UserRowActions (columna de acciones), igual que en
+                        el resto de módulos con tabla. */}
                     <DataTable
                         data={users}
                         columns={usersColumns}
-                        onRowClick={(row) => navigate(`/dashboard/users/${row.original.id}`)}
                     />
                 </div>
 

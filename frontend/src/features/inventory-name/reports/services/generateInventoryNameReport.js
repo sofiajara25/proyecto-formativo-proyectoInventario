@@ -2,6 +2,7 @@ import { getInventoryName } from "../../services/inventoryNameService";
 import { buildReportDataset } from "../utils/buildReportsDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { showAlert } from "@/shared/utils/alertBus";
 export async function generateInventoryNameReport({ format, selectedFields, scope, name }) {
     const inventoryNames = await getInventoryName(); // traer desde backend
 
@@ -13,7 +14,7 @@ export async function generateInventoryNameReport({ format, selectedFields, scop
     });
 
     if (!rows.length) {
-        alert("No hay datos para generar el reporte.");
+        showAlert("No hay datos para generar el reporte.", { type: "error" });
         return;
     }
 
@@ -31,3 +32,4 @@ export async function generateInventoryNameReport({ format, selectedFields, scop
         });
     }
 }
+
