@@ -47,6 +47,13 @@ export async function createBrand(brandData) {
     return response.json();
 };
 
+// Crea una marca desde el botón "+" de un formulario de material y la
+// devuelve con el formato de opción de <Select> ({ value, label }).
+export async function createBrandOption({ marca }) {
+    const response = await createBrand({ marca });
+    return { value: response.brandId, label: marca };
+}
+
 // Obtener todas las marcas (para la lista)
 export async function getBrands() {
     const token = sessionStorage.getItem("token");

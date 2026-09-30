@@ -56,6 +56,8 @@ export default function ViewConsumablePage() {
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Código herramienta:</strong> {consumable.tool_id}</p>
                         <p><strong>Placa SENA:</strong> {consumable.sena_plate || "—"}</p>
+                        <p><strong>Serial:</strong> {consumable.serial || "—"}</p>
+                        <p><strong>Modelo:</strong> {consumable.model || "—"}</p>
                         <p><strong>Fecha de ingreso:</strong> {formatDate(consumable.entry_date)}</p>
                         <p><strong>Fecha de compra:</strong> {consumable.purchase_date ? formatDate(consumable.purchase_date) : "—"}</p>
                         <p><strong>Cantidad:</strong> {consumable.quantity}</p>

@@ -15,9 +15,19 @@ export const consumableReportFields = [
         default: true,
     },
     {
+        key: "serial",
+        label: "Serial (SN)",
+        default: false,
+    },
+    {
         key: "material_name",
         label: "Nombre del material",
         default: true,
+    },
+    {
+        key: "model",
+        label: "Modelo",
+        default: false,
     },
     {
         key: "entry_date",

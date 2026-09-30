@@ -87,6 +87,21 @@ export const userRepository = {
     return result.rows[0];
   },
 
+  // Lista mínima (id + nombre completo) de los usuarios activos, para
+  // elegirlos como cuentadantes de un material. No incluye datos
+  // personales (correo, documento, etc.).
+  async findActiveOptions() {
+    const result = await pool.query(`
+      SELECT
+        u.id,
+        trim(trim(u.user_name) || ' ' || trim(coalesce(u.user_lastname, ''))) AS full_name
+      FROM users u
+      WHERE lower(u.user_status) = 'activo'
+      ORDER BY full_name;
+    `);
+    return result.rows;
+  },
+
   async findAll() {
     const query = `
       SELECT

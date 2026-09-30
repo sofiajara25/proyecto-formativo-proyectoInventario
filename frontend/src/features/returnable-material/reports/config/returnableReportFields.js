@@ -10,6 +10,11 @@ export const returnableReportFields = [
         default: true,
     },
     {
+        key: "serial",
+        label: "Serial (SN)",
+        default: false,
+    },
+    {
         key: "material_name",
         label: "Material",
         default: true,

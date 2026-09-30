@@ -32,11 +32,16 @@ export default function LoansRegisterForm() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         loanMaterialType: "",
+        // Id del usuario elegido en el select (solo cuando "Usuario
+        // registrado" está marcado). No se envía al backend: sirve para
+        // saber cuál está seleccionado; lo que se guarda sigue siendo
+        // loanUser (nombre) y loanUserIdentification (documento).
+        loanUserId: "",
         loanUser: "",
         loanUserIdentification: "",
         // Firma electrónica de aceptación del préstamo: si el usuario está
         // registrado, el correo se autocompleta con el suyo (ver
-        // handleLoanUserChange); si no, se escribe a mano.
+        // handleRegisteredUserSelect); si no, se escribe a mano.
         isUserRegistered: true,
         signerEmail: "",
         loanApprenticeGroup: "",
@@ -86,39 +91,55 @@ export default function LoansRegisterForm() {
             .catch((err) => console.error("Error cargando usuarios:", err));
     }, []);
 
-    // Mismo campo "Usuarios" de siempre, pero con autocompletado (datalist):
-    // al escribir, el navegador sugiere los usuarios registrados; si el
-    // nombre escrito coincide exactamente con uno de la lista, se completa
-    // solo el número de documento. Si no coincide (usuario no registrado),
-    // el campo de identificación queda libre para escribir el correo.
-    const handleLoanUserChange = (e) => {
+    // Nombre completo sin espacios de más (algunos usuarios tienen
+    // espacios al final del nombre o apellido guardados en la BD).
+    const fullNameOf = (u) =>
+        [u.user_name, u.user_lastname].map((part) => part?.trim()).filter(Boolean).join(" ");
+
+    // Opciones del select "Usuarios" cuando "Usuario registrado" está
+    // marcado: solo usuarios activos.
+    const registeredUserOptions = [
+        { value: "", label: "Selecciona un usuario" },
+        ...users
+            .filter((u) => u.user_status?.toLowerCase() === "activo")
+            .map((u) => ({ value: String(u.id), label: fullNameOf(u) }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
+    ];
+
+    // Usuario registrado: al elegirlo en el select se completan solos su
+    // nombre, su número de documento y su correo (para la firma).
+    const handleRegisteredUserSelect = (e) => {
         const { value } = e.target;
-        const chosen = users.find((u) => `${u.user_name} ${u.user_lastname}` === value);
+        const chosen = users.find((u) => String(u.id) === String(value));
         setFormData((prev) => ({
             ...prev,
-            loanUser: value,
-            loanUserIdentification: chosen ? chosen.document_number : prev.loanUserIdentification,
-            // Si el nombre coincide con un usuario registrado, tomamos su
-            // correo real para la firma automáticamente (solo aplica
-            // cuando "isUserRegistered" está marcado).
-            signerEmail: prev.isUserRegistered && chosen ? chosen.user_email : prev.signerEmail,
+            loanUserId: value,
+            loanUser: chosen ? fullNameOf(chosen) : "",
+            loanUserIdentification: chosen?.document_number ?? "",
+            signerEmail: chosen?.user_email ?? "",
         }));
     };
 
-    // Al desmarcar "Usuario registrado" se habilita el campo de correo
-    // manual; al volver a marcarlo, se limpia (se recalculará solo si el
-    // nombre coincide con un usuario registrado).
+    // Marcado -> "Usuarios" es un select de usuarios registrados.
+    // Desmarcado -> "Usuarios" es texto libre y se pide el correo a mano.
+    // Al cambiar de modo se limpian los datos del solicitante, porque ya
+    // no corresponden (un nombre escrito a mano no es un usuario elegido,
+    // y viceversa).
     const handleRegisteredToggle = (checked) => {
-        setFormData((prev) => {
-            const chosen = checked
-                ? users.find((u) => `${u.user_name} ${u.user_lastname}` === prev.loanUser)
-                : null;
-            return {
-                ...prev,
-                isUserRegistered: checked,
-                signerEmail: checked ? (chosen?.user_email ?? "") : prev.signerEmail,
-            };
-        });
+        setFormData((prev) => ({
+            ...prev,
+            isUserRegistered: checked,
+            loanUserId: "",
+            loanUser: "",
+            loanUserIdentification: "",
+            signerEmail: "",
+        }));
+        setErrors((prev) => ({
+            ...prev,
+            loanUser: undefined,
+            loanUserIdentification: undefined,
+            signerEmail: undefined,
+        }));
     };
 
     // Materiales disponibles para el tipo de préstamo elegido.
@@ -242,6 +263,11 @@ export default function LoansRegisterForm() {
                     const field = issue.path.join(".");
                     fieldErrors[field] = issue.message;
                 });
+                // Con "Usuario registrado" el campo es un select: si no se
+                // eligió a nadie, "mínimo 3 caracteres" no tiene sentido.
+                if (formData.isUserRegistered && !formData.loanUserId) {
+                    fieldErrors.loanUser = "Debe seleccionar un usuario registrado";
+                }
                 setErrors(fieldErrors);
                 console.warn("Errores de validación al crear el préstamo:", fieldErrors);
                 showAlert(
@@ -387,36 +413,45 @@ export default function LoansRegisterForm() {
                                 error={errors.loanMaterialType}
                             />
 
-                            {/* Mismo campo de siempre: si el nombre escrito coincide con
-                                un usuario registrado (sugerido por el navegador vía
-                                datalist), se autocompleta su documento abajo. Si no
-                                coincide, se asume que no está registrado. */}
-                            <Input
-                                label={<span>Usuarios<span style={{ color: "red" }}>*</span></span>}
-                                name="loanUser"
-                                placeholder="Nombre del solicitante"
-                                type="text"
-                                list="registered-users-list"
-                                value={formData.loanUser}
-                                onChange={handleLoanUserChange}
-                                error={errors.loanUser}
-                            />
-                            <datalist id="registered-users-list">
-                                {users.map((u) => (
-                                    <option key={u.id} value={`${u.user_name} ${u.user_lastname}`} />
-                                ))}
-                            </datalist>
+                            {/* Usuario registrado -> select con los usuarios del
+                                sistema (se autocompletan documento y correo).
+                                No registrado -> nombre escrito a mano. */}
+                            {formData.isUserRegistered ? (
+                                <Select
+                                    label={<span>Usuarios<span style={{ color: "red" }}>*</span></span>}
+                                    name="loanUserId"
+                                    options={registeredUserOptions}
+                                    value={formData.loanUserId}
+                                    onChange={handleRegisteredUserSelect}
+                                    error={errors.loanUser}
+                                    placeholder="Selecciona un usuario"
+                                />
+                            ) : (
+                                <Input
+                                    label={<span>Usuarios<span style={{ color: "red" }}>*</span></span>}
+                                    name="loanUser"
+                                    placeholder="Nombre del solicitante"
+                                    type="text"
+                                    value={formData.loanUser}
+                                    onChange={handleChange}
+                                    error={errors.loanUser}
+                                />
+                            )}
 
                             <Input
                                 label={<span>Identificación del Usuario<span style={{ color: "red" }}>*</span></span>}
                                 name="loanUserIdentification"
                                 // Si el solicitante está registrado, es su número de
-                                // documento (se autocompleta arriba). Si no está
-                                // registrado, aquí va su correo electrónico.
-                                placeholder="N° de documento o correo si no está registrado"
+                                // documento (se completa solo al elegirlo y no se
+                                // edita a mano). Si no está registrado, aquí va su
+                                // correo electrónico.
+                                placeholder={formData.isUserRegistered
+                                    ? "Se completa al elegir el usuario"
+                                    : "N° de documento o correo"}
                                 type="text"
                                 value={formData.loanUserIdentification}
                                 onChange={handleChange}
+                                readOnly={formData.isUserRegistered}
                                 error={errors.loanUserIdentification}
                                 // En tablet (2 columnas) este es el campo "sobrante" del
                                 // grupo de 3: en vez de quedar solo y angosto (320px) con
@@ -434,9 +469,9 @@ export default function LoansRegisterForm() {
                             grid-cols-1"
                         >
                             <Input
-                                label="Grupo de Aprendices"
+                                label="Grupo o Ficha"
                                 name="loanApprenticeGroup"
-                                placeholder="Ingrese el grupo de aprendices"
+                                placeholder="Ingrese el grupo o ficha aprendices"
                                 type="text"
                                 value={formData.loanApprenticeGroup}
                                 onChange={handleChange}

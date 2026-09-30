@@ -72,6 +72,17 @@ export const userController = {
     }
   },
 
+  // Usuarios activos (id + nombre) para el selector de cuentadantes.
+  async listOptions(req, res) {
+    try {
+      const options = await userService.getActiveUserOptions();
+      res.status(200).json(options);
+    } catch (err) {
+      console.error("ERROR BACKEND:", err);
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   async list(req, res) {
     try {
       const users = await userService.getAllUsers();

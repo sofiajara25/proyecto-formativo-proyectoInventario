@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
+import { useFloatingDropdown } from "../hooks/useFloatingDropdown";
 
 // Select "buscable": se ve y se comporta como el <select> de siempre, pero
 // al abrirlo aparece un campo de texto arriba de las opciones para
@@ -24,11 +26,20 @@ export default function Select({
     // que ocupe el ancho real de su columna dentro de una grilla responsiva.
     // Máximo 320px, pero se encoge si el espacio disponible es menor.
     containerClassName = "w-full max-w-[320px]",
+    // Opcional: un elemento (ej. un botón "+") que se muestra a la derecha
+    // del desplegable, en la misma línea. Lo usa QuickCreateSelect para
+    // crear una opción nueva sin salir del formulario.
+    action = null,
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
     const wrapperRef = useRef(null);
+    const anchorRef = useRef(null);
+    const dropdownRef = useRef(null);
     const searchInputRef = useRef(null);
+    // El desplegable se dibuja en <body> (ver useFloatingDropdown) para que
+    // no lo recorte una ventana con scroll, como "Asignar tarea".
+    const { style: dropdownStyle, updatePosition } = useFloatingDropdown(anchorRef, isOpen);
 
     // Igual que el <select> anterior: si la opción trae "id", ese es el
     // valor real que se guarda (para no cambiar el comportamiento de las
@@ -59,7 +70,11 @@ export default function Select({
         if (!isOpen) return;
 
         const handleClickOutside = (e) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+            // El desplegable está en <body>, fuera de wrapperRef: un click
+            // dentro de él tampoco cuenta como "afuera".
+            const insideField = wrapperRef.current?.contains(e.target);
+            const insideDropdown = dropdownRef.current?.contains(e.target);
+            if (!insideField && !insideDropdown) {
                 setIsOpen(false);
                 setSearch("");
             }
@@ -71,6 +86,7 @@ export default function Select({
 
     const openDropdown = () => {
         if (disabled) return;
+        updatePosition();
         setIsOpen(true);
         // Espera a que el input de búsqueda ya esté en el DOM.
         setTimeout(() => searchInputRef.current?.focus(), 0);
@@ -99,7 +115,8 @@ export default function Select({
                 </label>
             )}
 
-            <div className="relative">
+            <div className="flex items-center gap-2">
+            <div className="relative flex-1 min-w-0" ref={anchorRef}>
                 <button
                     type="button"
                     onClick={() => (isOpen ? setIsOpen(false) : openDropdown())}
@@ -131,9 +148,13 @@ export default function Select({
                     />
                 </button>
 
-                {isOpen && !disabled && (
-                    <div className="absolute z-50 mt-1 w-full bg-white border border-border rounded-md shadow-lg overflow-hidden">
-                        <div className="p-2 border-b border-border">
+                {isOpen && !disabled && dropdownStyle && createPortal(
+                    <div
+                        ref={dropdownRef}
+                        style={dropdownStyle}
+                        className="flex flex-col bg-white border border-border rounded-md shadow-lg overflow-hidden"
+                    >
+                        <div className="p-2 border-b border-border shrink-0">
                             <input
                                 ref={searchInputRef}
                                 type="text"
@@ -145,7 +166,7 @@ export default function Select({
                             />
                         </div>
 
-                        <ul className="max-h-56 overflow-y-auto">
+                        <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                             {filteredOptions.length === 0 && (
                                 <li className="px-4 py-2 text-sm text-gray-400">
                                     Sin resultados
@@ -167,8 +188,11 @@ export default function Select({
                                 </li>
                             ))}
                         </ul>
-                    </div>
+                    </div>,
+                    document.body
                 )}
+            </div>
+            {action}
             </div>
 
             {/* Feedback */}

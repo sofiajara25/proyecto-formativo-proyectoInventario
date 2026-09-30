@@ -6,7 +6,7 @@ import { createTask } from "../services/taskService";
 import { showAlert } from "@/shared/utils/alertBus";
 // import { getUsers } from "../../users/services/userService";
 
-export default function TasksRegisterForm({ users, onClose }) {
+export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
 
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,6 +67,8 @@ export default function TasksRegisterForm({ users, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        // Si ya se está guardando, un segundo click no vuelve a enviarla.
+        if (isSubmitting) return;
         setIsSubmitting(true);
 
         const result = taskSchema(userDates.start_date, userDates.end_date).safeParse(formData);
@@ -87,9 +89,16 @@ export default function TasksRegisterForm({ users, onClose }) {
             const response = await createTask(result.data);
             console.log("Tarea creado:", response);
 
+            // Se refresca la lista de tareas de la página y se cierra el
+            // formulario (antes se quedaba abierto después de crear).
+            showAlert("Tarea creada correctamente", { type: "success" });
+            onSaveTask?.();
+            onClose?.();
         } catch (error) {
             console.error("Error:", error.message);
-            showAlert(error.message, { type: "error" });
+            // 409: ya existe una tarea igual (mismo nombre, usuario y fecha
+            // de entrega). Se avisa y el formulario queda abierto.
+            showAlert(error.message, { type: error.status === 409 ? "warning" : "error" });
         } finally {
             setIsSubmitting(false);
             setIsModalOpen(false);
@@ -172,9 +181,15 @@ export default function TasksRegisterForm({ users, onClose }) {
                         <Select
                             label="Asignar a usuario"
                             name="userId"
+                            // "Nombre completo · N° de documento": así en el
+                            // buscador se puede encontrar a la persona por
+                            // cualquiera de los dos.
                             options={users.map((u) => ({
                                 value: u.id.toString(),
-                                label: `${u.user_name} ${u.user_lastname}`,
+                                label: [
+                                    [u.user_name, u.user_lastname].map((part) => part?.trim()).filter(Boolean).join(" "),
+                                    u.document_number,
+                                ].filter(Boolean).join(" · "),
                             }))}
                             value={formData.userId}
                             onChange={(value) => handleChange(value, "userId")}
@@ -187,7 +202,7 @@ export default function TasksRegisterForm({ users, onClose }) {
                         <Button type="button" variant="secondary" size="md" onClick={onClose}>
                             Cancelar
                         </Button>
-                        <Button variant="primary" size="md" type="submit">
+                        <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
                             {isSubmitting ? "Creando..." : "Crear tarea"}
                         </Button>
                     </div>

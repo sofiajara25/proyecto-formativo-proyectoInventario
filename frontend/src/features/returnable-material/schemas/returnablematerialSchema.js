@@ -46,8 +46,8 @@ export const returnablematerialSchema = z.object({
     .min(0, "El valor unitario no puede ser negativo"),
 
   materialCustodians: z
-    .array(z.string().min(1))
-    .min(1, "Debe agregar al menos un cuentadante"),
+    .array(z.number().int().positive())
+    .min(1, "Debe seleccionar al menos un cuentadante"),
 
   materialQuantity: z
     .number({

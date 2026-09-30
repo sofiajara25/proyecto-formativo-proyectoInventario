@@ -16,7 +16,8 @@ export const taskController = {
                 id: task.id,
             });
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            // 409: la tarea ya existe (ver taskService.createTask).
+            res.status(err.status ?? 500).json({ error: err.message });
         }
     },
 

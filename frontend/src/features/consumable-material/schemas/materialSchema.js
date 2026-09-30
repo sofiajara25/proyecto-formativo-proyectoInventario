@@ -5,8 +5,8 @@ import { fileSchema } from "@/shared";
 export const materialSchema = z.object({
 
   materialAccountants: z
-    .array(z.string().min(1))
-    .min(1, "Debe agregar al menos un cuentadante"),
+    .array(z.number().int().positive())
+    .min(1, "Debe seleccionar al menos un cuentadante"),
 
   // materialToolId ya no se valida ni se envía: el backend lo genera
   // automáticamente al crear el registro.
@@ -15,10 +15,30 @@ export const materialSchema = z.object({
     .string()
     .optional(),
 
+  materialSerial: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 3 && val.length <= 50),
+      {
+        message: "El serial debe tener entre 3 y 50 caracteres",
+      }
+    ),
+
   materialName: z
     .string()
     .min(3, "El nombre del material debe tener mínimo 3 caracteres")
     .max(100, "El nombre del material es demasiado largo"),
+
+  materialModel: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || (val.length >= 2 && val.length <= 50),
+      {
+        message: "El modelo debe tener entre 2 y 50 caracteres",
+      }
+    ),
 
   materialEntryDate: z
     .string()

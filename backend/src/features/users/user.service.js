@@ -30,6 +30,10 @@ export const userService = {
     return await userRepository.findAll();
   },
 
+  async getActiveUserOptions() {
+    return await userRepository.findActiveOptions();
+  },
+
   async getUserById(id) {
     return await userRepository.findById(id);
   },

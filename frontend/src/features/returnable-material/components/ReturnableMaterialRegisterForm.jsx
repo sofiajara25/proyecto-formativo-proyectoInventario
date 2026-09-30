@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, TagsInput } from "@/shared";
+import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, MultiSelect, QuickCreateSelect } from "@/shared";
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
 import { getCategorys } from "../../categorys/service/categoryService";
-import { getBrands } from "../../brands/service/brandService";
-import { getInventoryName } from "../../inventory-name/services/inventoryNameService";
+import { getBrands, createBrandOption } from "../../brands/service/brandService";
+import { getInventoryName, createInventoryNameOption } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
 import { showAlert } from "@/shared/utils/alertBus";
+import { brandSchema } from "../../brands/schemas/brandsSchema";
+import { inventoryNameSchema } from "../../inventory-name/schemas/inventoryNameSchema";
+import { hasPermission } from "@/shared/utils/permissions";
+import { getUserOptions } from "../../users/services/userService";
 
 export default function ReturnableMaterialRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,6 +45,16 @@ export default function ReturnableMaterialRegisterForm() {
   const [brands, setBrands] = useState([]);
 
   const [inventoryNames, setInventoryNames] = useState([]);
+
+  // Usuarios activos del sistema: los cuentadantes son usuarios reales
+  // (llave foránea a users), ya no texto libre.
+  const [userOptions, setUserOptions] = useState([]);
+
+  useEffect(() => {
+    getUserOptions()
+      .then(setUserOptions)
+      .catch((err) => console.error("Error cargando usuarios:", err));
+  }, []);
 
   const [categorias, setCategorias] = useState([]);
 
@@ -235,13 +249,21 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialName}
               />
-              <Select
+              <QuickCreateSelect
                 label="Marca"
                 name="brandId"
                 options={brands}
                 value={formData.brandId}
                 onChange={handleChange}
                 error={errors.brandId}
+                createOption={createBrandOption}
+                onOptionCreated={(option) => setBrands((prev) => [...prev, option])}
+                schema={brandSchema}
+                fieldKey="marca"
+                canCreate={hasPermission("create_brand")}
+                createTitle="Crear marca"
+                createLabel="Nombre de la marca"
+                createPlaceholder="Ej: Samsung"
               />
               <Input
                 label="Modelo"
@@ -278,20 +300,28 @@ export default function ReturnableMaterialRegisterForm() {
               />
 
               {/* Fila 4 — Gestión / asignación */}
-              <TagsInput
+              <MultiSelect
+                options={userOptions}
                 label={<span>Cuentadante(s) <span style={{ color: "red" }}>*</span></span>}
                 name="materialCustodians"
                 values={formData.materialCustodians}
                 onChange={(values) => setFormData((prev) => ({ ...prev, materialCustodians: values }))}
                 error={errors.materialCustodians}
               />
-              <Select
+              <QuickCreateSelect
                 label={<span>Nombre de inventario<span style={{ color: "red" }}>*</span></span>}
                 name="inventoryNameId"
                 options={inventoryNames}
                 value={formData.inventoryNameId}
                 onChange={handleChange}
                 error={errors.inventoryNameId}
+                createOption={createInventoryNameOption}
+                onOptionCreated={(option) => setInventoryNames((prev) => [...prev, option])}
+                schema={inventoryNameSchema}
+                fieldKey="inventoryName"
+                canCreate={hasPermission("create_inventory_name")}
+                createTitle="Crear nombre de inventario"
+                createLabel="Nombre del inventario"
               />
               <Select
                 label={<span>Estado <span style={{ color: "red" }}>*</span></span>}

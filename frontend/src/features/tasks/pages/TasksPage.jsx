@@ -29,11 +29,6 @@ export default function TasksPage() {
 
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);;
 
-    const handleSaveTask = (task) => {
-        // Aquí puedes llamar a createTask(task) para guardar en BD
-        setTasks((prev) => [...prev, task]);
-    };
-
     // Se usa tanto al montar la página como para refrescar la lista después
     // de editar una tarea (ver onTaskUpdated en <TaskCard> más abajo).
     const fetchAllTasks = async () => {
@@ -154,7 +149,10 @@ export default function TasksPage() {
                         <TasksRegisterForm
                             users={users} // 👈 lista de usuarios
                             onClose={() => setIsRegisterOpen(false)}
-                            onSaveTask={handleSaveTask}
+                            // Al crear una tarea se vuelve a cargar la lista
+                            // desde el backend (así la nueva aparece con todos
+                            // sus datos: usuario, estado, etc.).
+                            onSaveTask={fetchAllTasks}
                         />
                     )}
                 </div>

@@ -12,6 +12,7 @@ import {
     Button,
 } from "@/shared";
 import { showAlert } from "@/shared/utils/alertBus";
+import { SUPPORT_EMAIL } from "@/shared/utils/support";
 
 
 export default function Login() {
@@ -160,22 +161,6 @@ export default function Login() {
                             INICIAR SESIÓN
                         </h2>
 
-                        {/* Aviso fijo: como la contraseña de una cuenta nueva
-                            se genera sola y nadie la conoce (ni siquiera
-                            quien la creó), la única forma de entrar la
-                            primera vez es crear una contraseña propia desde
-                            "Recuperar contraseña". */}
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 text-center">
-                            ¿Te acaban de crear la cuenta? Ve a{" "}
-                            <a
-                                onClick={() => navigate("/auth/recovery")}
-                                className="underline cursor-pointer font-semibold"
-                            >
-                                Recuperar contraseña
-                            </a>{" "}
-                            para crear tu contraseña y poder ingresar.
-                        </div>
-
                         <Input
                             label="Email"
                             name="userEmail"
@@ -227,6 +212,16 @@ export default function Login() {
                                 Iniciar
                             </Button>
                         </div>
+
+                        {/* Soporte: solo para quien todavía no está registrado
+                            (las cuentas las crea un administrador, no hay
+                            registro propio). */}
+                        <p className="text-center text-xs text-gray-500 border-t border-gray-100 pt-3">
+                            ¿No estás registrado? Solicita tu cuenta escribiendo a{" "}
+                            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-green-700 underline">
+                                {SUPPORT_EMAIL}
+                            </a>
+                        </p>
                     </div>
                 </form>
             </div>

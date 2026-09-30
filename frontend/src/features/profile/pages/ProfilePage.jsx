@@ -7,10 +7,7 @@ import { getMyProfile } from "../../users/services/userService";
 import { getTasksByUserId } from "../../tasks/services/taskService";
 import { isAdmin as checkIsAdmin } from "@/shared/utils/permissions";
 import { TaskEvidenceCard } from "../../tasks";
-
-// Correo de soporte a mostrar en "Mi perfil". Puesto como constante para
-// cambiarlo fácil en un solo lugar el día que se confirme el definitivo.
-const SUPPORT_EMAIL = "soporte@sena.edu.co";
+import { SUPPORT_EMAIL } from "@/shared/utils/support";
 
 export default function ProfilePage() {
     const navigate = useNavigate();

@@ -2,6 +2,32 @@
 // Este pool es una instancia compartida configurada en la capa de infraestructura.
 import { pool } from "../../config/db.js";
 
+// Los cuentadantes llegan como arreglo de ids de usuario (viajan como JSON
+// en el FormData). Se descartan valores que no sean enteros positivos y los
+// repetidos, para no violar la PK de consumable_material_accountants.
+function toUserIdList(value) {
+    if (!Array.isArray(value)) return [];
+    const ids = value.map(Number).filter((id) => Number.isInteger(id) && id > 0);
+    return [...new Set(ids)];
+}
+
+// Cuentadantes de cada material: nombres (para tablas, detalle y reportes)
+// e ids (para precargar el selector al editar), en el mismo orden.
+const ACCOUNTANTS_SELECT = `
+                COALESCE(
+                    (SELECT json_agg(trim(trim(u.user_name) || ' ' || trim(coalesce(u.user_lastname, ''))) ORDER BY u.id)
+                    FROM consumable_material_accountants cma
+                    JOIN users u ON u.id = cma.user_id
+                    WHERE cma.consumable_material_id = m.id),
+                    '[]'
+                ) AS accountants,
+                COALESCE(
+                    (SELECT json_agg(cma.user_id ORDER BY cma.user_id)
+                    FROM consumable_material_accountants cma
+                    WHERE cma.consumable_material_id = m.id),
+                    '[]'
+                ) AS accountant_ids,`;
+
 // Exportamos el repositorio de usuarios.
 // El repository encapsula todas las consultas SQL relacionadas con users.
 export const consumableMaterialRepository = {
@@ -22,7 +48,9 @@ export const consumableMaterialRepository = {
         const {
             materialAccountants,
             materialSenaPlate,
+            materialSerial,
             materialName,
+            materialModel,
             materialEntryDate,
             materialPurchaseDate,
             materialQuantity,
@@ -40,7 +68,7 @@ export const consumableMaterialRepository = {
         } = consumableMaterialData;
 
         const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
-        const accountantList = Array.isArray(materialAccountants) ? materialAccountants : [];
+        const accountantIds = toUserIdList(materialAccountants);
 
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
@@ -56,7 +84,6 @@ export const consumableMaterialRepository = {
             // real generado por la base de datos.
             const insertQuery = `
         INSERT INTO consumable_materials (
-          accountants,
           tool_id,
           sena_plate,
           material_name,
@@ -72,14 +99,15 @@ export const consumableMaterialRepository = {
           technical_sheet,
           photo_url,
           brand_id,
-          category_id
+          category_id,
+          serial,
+          model
         )
-        VALUES ($1,'PENDIENTE',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+        VALUES ('PENDIENTE',$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
         RETURNING id;
       `;
 
             const insertValues = [
-                accountantList,
                 materialSenaPlate,
                 materialName,
                 materialEntryDate,
@@ -98,6 +126,10 @@ export const consumableMaterialRepository = {
                 // undefined como parámetro, así que lo convertimos a null.
                 brandId ?? null,
                 categoryId ?? null,
+                // Serial y modelo son opcionales: un campo vacío del
+                // formulario llega como "" y se guarda como NULL.
+                materialSerial || null,
+                materialModel || null,
             ];
 
             const insertResult = await client.query(insertQuery, insertValues);
@@ -129,9 +161,17 @@ export const consumableMaterialRepository = {
                 );
             }
 
+            // 5. Enlazamos los cuentadantes (usuarios del sistema).
+            for (const userId of accountantIds) {
+                await client.query(
+                    "INSERT INTO consumable_material_accountants (consumable_material_id, user_id) VALUES ($1, $2)",
+                    [id, userId]
+                );
+            }
+
             await client.query("COMMIT");
 
-            return { ...updateResult.rows[0], photos: photoList };
+            return { ...updateResult.rows[0], photos: photoList, accountant_ids: accountantIds };
         } catch (error) {
             await client.query("ROLLBACK");
             throw error;
@@ -160,7 +200,7 @@ export const consumableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,
+                c.element_type AS category_element_type,${ACCOUNTANTS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -201,7 +241,7 @@ export const consumableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,
+                c.element_type AS category_element_type,${ACCOUNTANTS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -244,7 +284,9 @@ export const consumableMaterialRepository = {
             materialAccountants,
             materialToolId,
             materialSenaPlate,
+            materialSerial,
             materialName,
+            materialModel,
             materialEntryDate,
             materialPurchaseDate,
             materialQuantity,
@@ -261,7 +303,7 @@ export const consumableMaterialRepository = {
             quotationIds,
         } = consumableData;
 
-        const accountantList = Array.isArray(materialAccountants) ? materialAccountants : [];
+        const accountantIds = toUserIdList(materialAccountants);
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -273,29 +315,29 @@ export const consumableMaterialRepository = {
 
             const query = `
                 UPDATE consumable_materials
-                SET accountants = $1,
-                    tool_id = $2,
-                    sena_plate = $3,
-                    material_name = $4,
-                    entry_date = $5,
-                    purchase_date = $6,
-                    quantity = $7,
-                    inventory_name_id = $8,
-                    location = $9,
-                    unit_value = $10,
-                    total_value = $11,
-                    status = $12,
-                    description = $13,
-                    technical_sheet = COALESCE($14, technical_sheet),
-                    photo_url = COALESCE($15, photo_url),
-                    brand_id = $16,
-                    category_id = $17
-                WHERE id = $18
+                SET tool_id = $1,
+                    sena_plate = $2,
+                    material_name = $3,
+                    entry_date = $4,
+                    purchase_date = $5,
+                    quantity = $6,
+                    inventory_name_id = $7,
+                    location = $8,
+                    unit_value = $9,
+                    total_value = $10,
+                    status = $11,
+                    description = $12,
+                    technical_sheet = COALESCE($13, technical_sheet),
+                    photo_url = COALESCE($14, photo_url),
+                    brand_id = $15,
+                    category_id = $16,
+                    serial = $17,
+                    model = $18
+                WHERE id = $19
                 RETURNING *;
             `;
 
             const values = [
-                accountantList,
                 materialToolId,
                 materialSenaPlate,
                 materialName,
@@ -312,6 +354,8 @@ export const consumableMaterialRepository = {
                 coverPhoto,
                 brandId ?? null,
                 categoryId ?? null,
+                materialSerial || null,
+                materialModel || null,
                 id,
             ];
 
@@ -350,6 +394,18 @@ export const consumableMaterialRepository = {
                         [id, quotationId]
                     );
                 }
+            }
+
+            // Cuentadantes: igual, se reemplaza la selección completa.
+            await client.query(
+                "DELETE FROM consumable_material_accountants WHERE consumable_material_id = $1",
+                [id]
+            );
+            for (const userId of accountantIds) {
+                await client.query(
+                    "INSERT INTO consumable_material_accountants (consumable_material_id, user_id) VALUES ($1, $2)",
+                    [id, userId]
+                );
             }
 
             await client.query("COMMIT");

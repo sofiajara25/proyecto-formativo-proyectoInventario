@@ -17,7 +17,9 @@ export async function createConsumableMaterial(consumableMaterialData) {
     formData.append("materialAccountants", JSON.stringify(consumableMaterialData.materialAccountants ?? []));
     // materialToolId ya no se envía: el backend lo genera automáticamente.
     formData.append("materialSenaPlate", consumableMaterialData.materialSenaPlate);
+    formData.append("materialSerial", consumableMaterialData.materialSerial ?? "");
     formData.append("materialName", consumableMaterialData.materialName);
+    formData.append("materialModel", consumableMaterialData.materialModel ?? "");
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
     formData.append("materialPurchaseDate", consumableMaterialData.materialPurchaseDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);
@@ -127,7 +129,9 @@ export async function updateConsumable(id, consumableMaterialData) {
     formData.append("materialAccountants", JSON.stringify(consumableMaterialData.materialAccountants ?? []));
     formData.append("materialToolId", consumableMaterialData.materialToolId);
     formData.append("materialSenaPlate", consumableMaterialData.materialSenaPlate);
+    formData.append("materialSerial", consumableMaterialData.materialSerial ?? "");
     formData.append("materialName", consumableMaterialData.materialName);
+    formData.append("materialModel", consumableMaterialData.materialModel ?? "");
     formData.append("materialEntryDate", consumableMaterialData.materialEntryDate);
     formData.append("materialPurchaseDate", consumableMaterialData.materialPurchaseDate);
     formData.append("materialQuantity", consumableMaterialData.materialQuantity);

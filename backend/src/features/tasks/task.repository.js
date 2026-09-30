@@ -16,6 +16,22 @@ const TASK_COLUMNS = `
 `;
 
 export const taskRepository = {
+    // Busca una tarea igual ya creada: mismo nombre (sin importar
+    // mayúsculas ni espacios de más), mismo usuario asignado y misma fecha
+    // de entrega. Se usa para no crear la misma tarea dos veces por error.
+    async findDuplicate({ taskName, userId, taskDeliveryDate }) {
+        const result = await pool.query(
+            `SELECT id
+             FROM tasks
+             WHERE lower(trim(task_name)) = lower(trim($1))
+               AND userId = $2
+               AND delivery_date IS NOT DISTINCT FROM $3::date
+             LIMIT 1;`,
+            [taskName ?? "", userId, taskDeliveryDate || null]
+        );
+        return result.rows[0] ?? null;
+    },
+
     async create(taskData) {
         const {
             taskName,

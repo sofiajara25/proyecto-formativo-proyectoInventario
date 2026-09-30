@@ -1,6 +1,7 @@
 export { default as Input } from "./components/Input";
 export { default as Button } from "./components/Button";
 export { default as Select } from "./components/Select";
+export { default as QuickCreateSelect } from "./components/QuickCreateSelect";
 export { default as AuthLayout } from "./layouts/AuthLayout";
 export { default as DashboardLayout } from "./layouts/DashboardLayout";
 export {
@@ -22,7 +23,7 @@ export { default as Lightbox } from "./components/Lightbox";
 export { default as FileViewer } from "./components/FileViewer";
 export { default as TextArea } from "./components/TextArea";
 export { default as Modal } from "./components/Modal";
-export { default as TagsInput } from "./components/TagsInput";
+export { default as MultiSelect } from "./components/MultiSelect";
 export { default as PageLayout } from "./layouts/PageLayout";
 
 // schemas

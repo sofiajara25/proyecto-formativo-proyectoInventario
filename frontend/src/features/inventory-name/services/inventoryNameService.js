@@ -47,6 +47,13 @@ export async function createInventoryName(inventoryNameData) {
     return response.json();
 };
 
+// Crea un nombre de inventario desde el botón "+" de un formulario de
+// material y lo devuelve con el formato de opción de <Select> ({ value, label }).
+export async function createInventoryNameOption({ inventoryName }) {
+    const created = await createInventoryName({ inventoryName });
+    return { value: created.inventory_name_id, label: created.inventory_name };
+}
+
 // Obtener todas las marcas (para la lista)
 export async function getInventoryName() {
     const token = sessionStorage.getItem("token");

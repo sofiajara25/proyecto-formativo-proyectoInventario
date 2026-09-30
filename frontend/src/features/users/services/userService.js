@@ -62,6 +62,19 @@ export async function createUser(userData) {
     return response.json();
 };
 
+// Usuarios activos (solo id + nombre completo) para elegir cuentadantes en
+// los formularios de materiales. No requiere el permiso list_user: basta
+// con poder crear o editar materiales.
+export async function getUserOptions() {
+    const token = sessionStorage.getItem("token");
+    const response = await fetch(`${API_URL}/options`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error al obtener los usuarios");
+    const data = await response.json();
+    return data.map((user) => ({ value: user.id, label: user.full_name }));
+}
+
 export async function getUsers() {
     const token = sessionStorage.getItem("token");
     const response = await fetch(API_URL, {

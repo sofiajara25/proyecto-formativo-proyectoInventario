@@ -10,7 +10,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { userController } from "./user.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requireSuperAdmin, requirePermission } from "../../middlewares/permission.middleware.js";
+import { requireSuperAdmin, requirePermission, requireAnyPermission } from "../../middlewares/permission.middleware.js";
 
 // Creamos una instancia del router de Express
 const router = Router();
@@ -65,6 +65,22 @@ router.get(
     "/me",
     authenticateToken,
     userController.getMe
+);
+
+// Usuarios activos (solo id + nombre) para elegir cuentadantes en los
+// formularios de materiales. Basta con poder crear o editar materiales;
+// no exige list_user porque no expone datos personales. Debe ir ANTES
+// de "/:id".
+router.get(
+    "/options",
+    authenticateToken,
+    requireAnyPermission([
+        "create_consumable_material",
+        "modify_consumable_material",
+        "create_returnable_material",
+        "modify_returnable_material",
+    ]),
+    userController.listOptions
 );
 
 // Obtener un usuario por ID

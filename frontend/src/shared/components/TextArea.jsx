@@ -28,7 +28,10 @@ export default function TextArea({
     }, [props.value, minRows, maxRows]);
 
     return (
-        <div className={`w-[320px] ${containerClassName}`}>
+        // Igual que Input: "w-full max-w-[320px]" en vez de "w-[320px]" fijo.
+        // Así, aunque el formulario lo estire (ej. "[&>div]:w-full"), nunca
+        // pasa de 320px y queda del mismo ancho que los demás campos.
+        <div className={`w-full max-w-[320px] ${containerClassName}`}>
             {label && (
                 <label
                     className={`

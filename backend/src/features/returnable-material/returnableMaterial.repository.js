@@ -2,6 +2,32 @@
 // Este pool es una instancia compartida configurada en la capa de infraestructura.
 import { pool } from "../../config/db.js";
 
+// Los cuentadantes llegan como arreglo de ids de usuario (viajan como JSON
+// en el FormData). Se descartan valores que no sean enteros positivos y los
+// repetidos, para no violar la PK de returnable_material_custodians.
+function toUserIdList(value) {
+    if (!Array.isArray(value)) return [];
+    const ids = value.map(Number).filter((id) => Number.isInteger(id) && id > 0);
+    return [...new Set(ids)];
+}
+
+// Cuentadantes de cada material: nombres (para tablas, detalle y reportes)
+// e ids (para precargar el selector al editar), en el mismo orden.
+const CUSTODIANS_SELECT = `
+                COALESCE(
+                    (SELECT json_agg(trim(trim(u.user_name) || ' ' || trim(coalesce(u.user_lastname, ''))) ORDER BY u.id)
+                    FROM returnable_material_custodians rmc
+                    JOIN users u ON u.id = rmc.user_id
+                    WHERE rmc.returnable_material_id = m.id),
+                    '[]'
+                ) AS custodians,
+                COALESCE(
+                    (SELECT json_agg(rmc.user_id ORDER BY rmc.user_id)
+                    FROM returnable_material_custodians rmc
+                    WHERE rmc.returnable_material_id = m.id),
+                    '[]'
+                ) AS custodian_ids,`;
+
 
 // Exportamos el repositorio de usuarios.
 // El repository encapsula todas las consultas SQL relacionadas con users.
@@ -42,7 +68,7 @@ export const returnableMaterialRepository = {
         } = returnableMaterialData;
 
         const quotationIdList = Array.isArray(quotationIds) ? quotationIds : [];
-        const custodianList = Array.isArray(materialCustodians) ? materialCustodians : [];
+        const custodianIds = toUserIdList(materialCustodians);
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -64,7 +90,6 @@ export const returnableMaterialRepository = {
           material_name,
           model,
           unit_value,
-          custodians,
           quantity,
           status,
           total_value,
@@ -76,7 +101,7 @@ export const returnableMaterialRepository = {
           photo_url,
           brand_id
         )
-        VALUES ('PENDIENTE',$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+        VALUES ('PENDIENTE',$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
         RETURNING id;
       `;
 
@@ -87,7 +112,6 @@ export const returnableMaterialRepository = {
                 materialName,
                 materialModel,
                 materialUnitValue,
-                custodianList,
                 materialQuantity,
                 materialStatus,
                 materialTotalValue,
@@ -132,9 +156,17 @@ export const returnableMaterialRepository = {
                 );
             }
 
+            // 5. Enlazamos los cuentadantes (usuarios del sistema).
+            for (const userId of custodianIds) {
+                await client.query(
+                    "INSERT INTO returnable_material_custodians (returnable_material_id, user_id) VALUES ($1, $2)",
+                    [id, userId]
+                );
+            }
+
             await client.query("COMMIT");
 
-            return { ...updateResult.rows[0], photos: photoList };
+            return { ...updateResult.rows[0], photos: photoList, custodian_ids: custodianIds };
         } catch (error) {
             await client.query("ROLLBACK");
             throw error;
@@ -163,7 +195,7 @@ export const returnableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,
+                c.element_type AS category_element_type,${CUSTODIANS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -200,7 +232,7 @@ export const returnableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,
+                c.element_type AS category_element_type,${CUSTODIANS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -259,7 +291,7 @@ export const returnableMaterialRepository = {
             quotationIds,
         } = returnableMaterialData;
 
-        const custodianList = Array.isArray(materialCustodians) ? materialCustodians : [];
+        const custodianIds = toUserIdList(materialCustodians);
         const photoList = Array.isArray(photos) ? photos : [];
         const coverPhoto = photoList[0] ?? null;
         const extraPhotos = photoList.slice(1);
@@ -278,18 +310,17 @@ export const returnableMaterialRepository = {
                     material_name = $5,
                     model = $6,
                     unit_value = $7,
-                    custodians = $8,
-                    quantity = $9,
-                    status = $10,
-                    total_value = $11,
-                    dimensions = $12,
-                    description = $13,
-                    technical_sheet = COALESCE($14, technical_sheet),
-                    inventory_name_id = $15,
-                    location = $16,
-                    photo_url = COALESCE($17, photo_url),
-                    brand_id = $18
-                WHERE id = $19
+                    quantity = $8,
+                    status = $9,
+                    total_value = $10,
+                    dimensions = $11,
+                    description = $12,
+                    technical_sheet = COALESCE($13, technical_sheet),
+                    inventory_name_id = $14,
+                    location = $15,
+                    photo_url = COALESCE($16, photo_url),
+                    brand_id = $17
+                WHERE id = $18
                 RETURNING *;
             `;
             const values = [
@@ -300,7 +331,6 @@ export const returnableMaterialRepository = {
                 materialName,
                 materialModel,
                 materialUnitValue,
-                custodianList,
                 materialQuantity,
                 materialStatus,
                 materialTotalValue,
@@ -346,6 +376,18 @@ export const returnableMaterialRepository = {
                         [id, quotationId]
                     );
                 }
+            }
+
+            // Cuentadantes: se reemplaza la selección completa.
+            await client.query(
+                "DELETE FROM returnable_material_custodians WHERE returnable_material_id = $1",
+                [id]
+            );
+            for (const userId of custodianIds) {
+                await client.query(
+                    "INSERT INTO returnable_material_custodians (returnable_material_id, user_id) VALUES ($1, $2)",
+                    [id, userId]
+                );
             }
 
             await client.query("COMMIT");

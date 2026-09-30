@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const updateMaterialSchema = z.object({
     materialAccountants: z
-        .array(z.string().min(1))
-        .min(1, "Debe agregar al menos un cuentadante"),
+        .array(z.number().int().positive())
+        .min(1, "Debe seleccionar al menos un cuentadante"),
 
     materialToolId: z
         .string()
@@ -13,10 +13,30 @@ export const updateMaterialSchema = z.object({
         .string()
         .optional(),
 
+    materialSerial: z
+        .string()
+        .refine(
+            (val) => !val || (val.length >= 3 && val.length <= 50),
+            {
+                message: "El serial debe tener entre 3 y 50 caracteres",
+            }
+        )
+        .optional(),
+
     materialName: z
         .string()
         .min(3)
         .max(100),
+
+    materialModel: z
+        .string()
+        .refine(
+            (val) => !val || (val.length >= 2 && val.length <= 50),
+            {
+                message: "El modelo debe tener entre 2 y 50 caracteres",
+            }
+        )
+        .optional(),
 
     materialEntryDate: z
         .string()

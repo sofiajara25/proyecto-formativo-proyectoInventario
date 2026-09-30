@@ -50,8 +50,8 @@ export const updateReturnableSchema = z.object({
         .optional(),
 
     materialCustodians: z
-        .array(z.string().min(1))
-        .min(1, "Debe agregar al menos un cuentadante"),
+        .array(z.number().int().positive())
+        .min(1, "Debe seleccionar al menos un cuentadante"),
 
     materialQuantity: z
         .number({

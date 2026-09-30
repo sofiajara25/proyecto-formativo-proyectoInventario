@@ -2,6 +2,20 @@ import { taskRepository } from "./task.repository.js";
 
 export const taskService = {
     async createTask(data) {
+        // Evita crear la misma tarea dos veces (ej. por hacer click varias
+        // veces en "Crear tarea"). Va fuera del try de abajo para que el
+        // error conserve su status 409 y su mensaje tal cual.
+        if (data.userId) {
+            const duplicate = await taskRepository.findDuplicate(data);
+            if (duplicate) {
+                const error = new Error(
+                    "Ya creaste esta tarea para este usuario con la misma fecha de entrega"
+                );
+                error.status = 409;
+                throw error;
+            }
+        }
+
         try {
             if (!data.userId) {
                 throw new Error("El campo userId es obligatorio");

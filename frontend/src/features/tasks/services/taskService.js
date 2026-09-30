@@ -20,7 +20,10 @@ export async function createTask(taskData) {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Error al crear tarea");
+        const err = new Error(error.error || "Error al crear tarea");
+        // 409 = la tarea ya existe; el formulario lo muestra como aviso.
+        err.status = response.status;
+        throw err;
     }
 
     return response.json();

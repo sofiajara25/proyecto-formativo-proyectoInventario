@@ -46,6 +46,37 @@ export function requirePermission(codename) {
     };
 }
 
+// Igual que requirePermission, pero basta con tener UNO de los permisos
+// indicados. Sirve para datos de apoyo que usan varias pantallas (ej. la
+// lista de usuarios para elegir cuentadantes, que la necesitan quienes
+// crean o editan materiales de consumo o devolutivos).
+export function requireAnyPermission(codenames) {
+    return async (req, res, next) => {
+        try {
+            if (!req.user?.id) {
+                return res.status(401).json({ error: "Token requerido" });
+            }
+
+            const isSuperAdmin = await accessRepository.isSuperAdmin(req.user.id);
+            if (isSuperAdmin) {
+                return next();
+            }
+
+            const permissions = await accessRepository.getUserPermissions(req.user.id);
+
+            if (codenames.some((codename) => permissions.includes(codename))) {
+                return next();
+            }
+
+            return res.status(403).json({
+                error: "No tienes permiso para realizar esta acción",
+            });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    };
+}
+
 // Guarda exclusiva de Grupos y Permisos: solo la persona marcada como
 // Super Administrador (users.is_super_admin) puede ver o modificar
 // grupos, permisos de grupo o permisos individuales. Es independiente
