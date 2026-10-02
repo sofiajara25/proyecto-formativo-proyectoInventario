@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Input, Button, Modal, TextArea, Select } from "@/shared";
 import { taskSchema } from "../schemas/taskSchema";
 import { createTask } from "../services/taskService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 // import { getUsers } from "../../users/services/userService";
 
 export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
@@ -18,6 +19,8 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
         taskCreationDate: "",
         userId: "",
     });
+    // Pregunta antes de cerrar la ventana si ya hay datos ingresados.
+    const { requestExit, exitModal } = useFormExitGuard(formData, () => onClose?.());
     const [errors, setErrors] = useState({});
     const [userDates, setUserDates] = useState({ start_date: "", end_date: "" });
 
@@ -91,9 +94,8 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
 
             // Se refresca la lista de tareas de la página y se cierra el
             // formulario (antes se quedaba abierto después de crear).
-            showAlert("Tarea creada correctamente", { type: "success" });
             onSaveTask?.();
-            onClose?.();
+            showSuccessAndThen("Tarea creada con éxito", () => onClose?.());
         } catch (error) {
             console.error("Error:", error.message);
             // 409: ya existe una tarea igual (mismo nombre, usuario y fecha
@@ -199,7 +201,7 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <Button type="button" variant="secondary" size="md" onClick={onClose}>
+                        <Button type="button" variant="secondary" size="md" onClick={() => requestExit()}>
                             Cancelar
                         </Button>
                         <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
@@ -208,10 +210,16 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
                     </div>
                 </form>
 
+                {exitModal}
                 <Modal
                     isOpen={isModalOpen}
                     title="Confirmar creación de tarea"
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        // Cancelar la confirmación también pregunta si de verdad
+                        // quiere salir, porque ya hay datos ingresados.
+                        setIsModalOpen(false);
+                        requestExit({ always: true });
+                    }}
                     onConfirm={handleSubmit}
                     confirmText="Crear"
                     cancelText="Cancelar"

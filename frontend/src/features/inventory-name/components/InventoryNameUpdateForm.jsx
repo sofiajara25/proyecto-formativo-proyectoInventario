@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { inventoryNameSchema } from "../schemas/inventoryNameSchema";
 import { getInventoryNameById, updateInventoryName } from "../services/inventoryNameService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function UpdateInventoryNamePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,15 +12,25 @@ export default function UpdateInventoryNamePage() {
     const { id } = useParams();
 
     const [formData, setFormData] = useState({ inventoryName: "" });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
+    // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+    const setLoadedData = useCallback((data) => {
+        setFormData(data);
+        markClean(data);
+    }, [markClean]);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Cargar inventoryName existente
     useEffect(() => {
         getInventoryNameById(id)
-            .then((data) => setFormData({ inventoryName: data.inventory_name }))
+            .then((data) => setLoadedData({ inventoryName: data.inventory_name }))
             .catch((err) => console.error("Error cargando inventoryName:", err));
-    }, [id]);
+    }, [id, setLoadedData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,7 +54,7 @@ export default function UpdateInventoryNamePage() {
         setErrors({});
         try {
             await updateInventoryName(id, result.data);
-            navigate(-1);
+            showSuccessAndThen("Nombre de inventario actualizado con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -83,7 +94,7 @@ export default function UpdateInventoryNamePage() {
                                 {errors.inventoryName && <p className="text-red-500 text-xs mt-1">{errors.inventoryName}</p>}
                             </div>
                             <div className="flex flex-wrap justify-end gap-3 pt-2">
-                                <Button type="button" variant="secondary" size="md" onClick={() => navigate(-1)}>
+                                <Button type="button" variant="secondary" size="md" onClick={() => requestExit()}>
                                     Cancelar
                                 </Button>
                                 <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
@@ -91,10 +102,16 @@ export default function UpdateInventoryNamePage() {
                                 </Button>
                             </div>
                         </form>
+                        {exitModal}
                         <Modal
                             isOpen={isModalOpen}
                             title="Confirmar actualización de nombre de inventario"
-                            onClose={() => setIsModalOpen(false)}
+                            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                             onConfirm={handleSubmit}
                             confirmText="Actualizar"
                             cancelText="Cancelar"

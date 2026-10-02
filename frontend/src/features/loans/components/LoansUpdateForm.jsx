@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, IconButton } from "@/shared";
 import { loanUpdateSchema } from "../schemas/loansUpdateSchema.js";
 import { getLoanById, updateLoan } from "../services/loanService.js";
@@ -7,7 +7,8 @@ import { getConsumables } from "../../consumable-material/services/consumableMat
 import { getReturnables } from "../../returnable-material/services/returnableMaterialService.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 function crearMaterialVacio() {
     return {
@@ -37,6 +38,18 @@ export default function LoansRegisterForm() {
         loanType: "",
         photo: [],
     });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
+    // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+    const setLoadedData = useCallback((updater) =>
+        setFormData((prev) => {
+            const next = updater(prev);
+            markClean(next);
+            return next;
+        }), [markClean]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
@@ -160,7 +173,7 @@ export default function LoansRegisterForm() {
                 // completo: si no lo hacemos así, campos que no se listan acá
                 // (como "materials") quedan en undefined y rompen el .map()
                 // del render.
-                return setFormData((prev) => ({
+                return setLoadedData((prev) => ({
                     ...prev,
                     // Ojo: si el backend devuelve null (columna vacía en la
                     // BD) en vez de un string vacío, Zod lo rechaza porque
@@ -204,7 +217,7 @@ export default function LoansRegisterForm() {
                 hydratedRef.current = true;
             })
             .catch((err) => console.error("Error cargando prestamo:", err));
-    }, [loan_id]);
+    }, [loan_id, setLoadedData]);
 
     // Si el usuario cambia el tipo de préstamo DESPUÉS de que ya cargó
     // (Devolutivo <-> Consumo), la lista de materiales disponibles cambia
@@ -313,7 +326,7 @@ export default function LoansRegisterForm() {
 
             const response = await updateLoan(loan_id, result.data);
             console.log("Préstamo actualizado:", response);
-            navigate(-1);
+            showSuccessAndThen("Préstamo actualizado con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error actualizando préstamo:", error);
             showAlert(error?.message || "Ocurrió un error inesperado al actualizar el préstamo.", { type: "error" });
@@ -597,7 +610,7 @@ export default function LoansRegisterForm() {
                                 type="button"
                                 variant="secondary"
                                 size="md"
-                                onClick={() => navigate(-1)}
+                                onClick={() => requestExit()}
                             >
                                 Cancelar
                             </Button>
@@ -608,10 +621,16 @@ export default function LoansRegisterForm() {
                         </div>
 
                     </form>
+                    {exitModal}
                     <Modal
                         isOpen={isModalOpen}
                         title="Confirmar actualización de préstamo"
-                        onClose={() => setIsModalOpen(false)}
+                        onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                         onConfirm={handleSubmit}
                         confirmText="Actualizar"
                         cancelText="Cancelar"

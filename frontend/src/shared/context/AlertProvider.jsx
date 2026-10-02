@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AlertModal from "../components/AlertModal";
 import { setAlertHandler } from "../utils/alertBus";
 
@@ -23,13 +23,18 @@ function inferTitle(type) {
  */
 export default function AlertProvider({ children }) {
     const [alertState, setAlertState] = useState(null);
+    // Callback opcional que se ejecuta una sola vez al cerrarse la alerta
+    // (ej. volver a la lista después de "creado con éxito").
+    const onCloseRef = useRef(null);
 
     const handleShowAlert = useCallback((message, options = {}) => {
         const type = options.type ?? "info";
+        onCloseRef.current = options.onClose ?? null;
         setAlertState({
             message,
             type,
             title: options.title || inferTitle(type),
+            autoCloseMs: options.autoCloseMs ?? null,
         });
     }, []);
 
@@ -38,7 +43,20 @@ export default function AlertProvider({ children }) {
         return () => setAlertHandler(null);
     }, [handleShowAlert]);
 
-    const closeAlert = useCallback(() => setAlertState(null), []);
+    const closeAlert = useCallback(() => {
+        setAlertState(null);
+        const callback = onCloseRef.current;
+        onCloseRef.current = null;
+        callback?.();
+    }, []);
+
+    // Alertas que se cierran solas (ej. las de éxito): pasado el tiempo,
+    // se cierran igual que si se hubiera presionado "Aceptar".
+    useEffect(() => {
+        if (!alertState?.autoCloseMs) return;
+        const timer = setTimeout(closeAlert, alertState.autoCloseMs);
+        return () => clearTimeout(timer);
+    }, [alertState, closeAlert]);
 
     return (
         <>

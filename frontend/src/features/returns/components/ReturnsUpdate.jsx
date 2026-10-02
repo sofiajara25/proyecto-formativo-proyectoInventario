@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Input, Button, Select, Checkbox, Navbar, Modal, TextArea } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
@@ -6,7 +6,8 @@ import { updateReturn, getReturnById } from "../services/returnService";
 import { useEffect } from "react";
 import { getLoans } from "../../loans/services/loanService";
 import { updateReturnSchema } from "../schemas/updateReturnSchema";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function ReturnForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,13 +30,23 @@ export default function ReturnForm() {
     status: "Disponible",
   });
 
+  // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+  // del formulario y Cancelar de la ventana de confirmación).
+  const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
+  // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+  const setLoadedData = useCallback((data) => {
+      setFormData(data);
+      markClean(data);
+  }, [markClean]);
+
   const [errors, setErrors] = useState({});
 
   const { id } = useParams();
 
   useEffect(() => {
     getReturnById(id)
-      .then((data) => setFormData({
+      .then((data) => setLoadedData({
         materialType: data.material_type,
         loanId: data.loan_id,
         loanItemId: data.loan_item_id ?? "",
@@ -45,7 +56,7 @@ export default function ReturnForm() {
         status: data.status,
       }))
       .catch((err) => console.error("Error cargando material:", err));
-  }, [id]);
+  }, [id, setLoadedData]);
 
   const [loans, setLoans] = useState([]);
 
@@ -126,7 +137,7 @@ export default function ReturnForm() {
     try {
       const response = await updateReturn(id, result.data);
       console.log("Retorno actualizado:", response);
-      navigate(-1);
+      showSuccessAndThen("Devolución actualizada con éxito", () => navigate(-1));
     } catch (error) {
       console.error("Error:", error.message);
       showAlert(error.message, { type: "error" });
@@ -252,7 +263,7 @@ export default function ReturnForm() {
               type="button"
               variant="secondary"
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => requestExit()}
             >
               Cancelar
             </Button>
@@ -266,10 +277,16 @@ export default function ReturnForm() {
             </Button>
           </div>
         </form>
+        {exitModal}
         <Modal
           isOpen={isModalOpen}
           title="Confirmar actualización de retorno"
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
           onConfirm={handleSubmit}
           confirmText="Actualizar"
           cancelText="Cancelar"

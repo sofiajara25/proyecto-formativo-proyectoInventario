@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input, Button, Select, Navbar, FileInput, Modal, Checkbox } from "@/shared";
 import { getDocumentType } from "../services/selectServices.js";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,7 +6,8 @@ import { getUserById, updateUser } from "../services/userService";
 import { getGroups } from "../../access/services/groupService.js";
 import { updateUserSchema } from "../schemas/updateUserSchema.js";
 import { isSuperAdmin } from "@/shared/utils/permissions";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 
 export default function UserUpdateForm() {
@@ -33,6 +34,16 @@ export default function UserUpdateForm() {
         userPhoto: [],
         isSuperAdmin: false,
     });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
+    // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+    const setLoadedData = useCallback((data) => {
+        setFormData(data);
+        markClean(data);
+    }, [markClean]);
     const [errors, setErrors] = useState({});
 
     const [groups, setGroups] = useState([]);
@@ -57,7 +68,7 @@ export default function UserUpdateForm() {
     // Cargar datos actuales
     useEffect(() => {
         getUserById(id).then((data) => {
-            setFormData({
+            setLoadedData({
                 userName: data.user_name || "",
                 userLastname: data.user_lastname || "",
                 userDocumentType: data.document_type || "",
@@ -76,7 +87,7 @@ export default function UserUpdateForm() {
                 isSuperAdmin: data.is_super_admin === true,
             });
         });
-    }, [id]);
+    }, [id, setLoadedData]);
     useEffect(() => {
         getDocumentType().then(setDocumentType);
     }, []);
@@ -134,7 +145,7 @@ export default function UserUpdateForm() {
             console.log("Usuario actualizado:", response);
 
             // 🔹 Redirigir al listado
-            navigate(-1);
+            showSuccessAndThen("Usuario actualizado con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -161,7 +172,7 @@ export default function UserUpdateForm() {
         >
             <Navbar />
 
-            <div className="flex flex-col flex-1 px-10 py-1 gap-1 justify-center">
+            <div className="flex flex-col flex-1 px-10 gap-1 justify-center">
 
                 {/* Título y tarjeta comparten el mismo ancho máximo y quedan
                             centrados juntos, así el título siempre queda a la par
@@ -174,7 +185,7 @@ export default function UserUpdateForm() {
                     </h1>
 
                     {/* Card */}
-                    <div className="bg-white rounded-2xl flex flex-col gap-1 w-full" style={{ padding: "14px" }}>
+                    <div className="bg-white rounded-2xl flex flex-col gap-1 w-full" style={{ padding: "10px" }}>
 
                         <form
                             onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}
@@ -303,18 +314,16 @@ export default function UserUpdateForm() {
                                     onChange={handleChange}
                                     error={errors.userStatus}
                                 />
-                                {/* Se muestra en gris, sin valor: la contraseña se
-                                    generó sola al crear el usuario y no se
-                                    puede ver ni cambiar desde aquí. */}
-                                <Input
-                                    label="Contraseña"
-                                    name="userPasswordDisplay"
-                                    placeholder="Esta contraseña no se puede cambiar"
-                                    type="password"
-                                    value=""
-                                    disabled
-                                    readOnly
-                                />
+                                {/* Antes había un campo "Contraseña" desactivado que no
+                                    hacía nada: la contraseña se generó sola al crear el
+                                    usuario y no se puede ver ni cambiar desde aquí. */}
+                                <div className="w-full max-w-[320px] flex flex-col justify-center">
+                                    <p className="text-caption text-gray-500">
+                                        La contraseña no se puede ver ni cambiar desde aquí. Si el
+                                        usuario la olvidó, la puede crear de nuevo con "¿Olvidaste tu
+                                        contraseña?" en el inicio de sesión.
+                                    </p>
+                                </div>
 
                                 {/* Super Administrador: el único que puede entrar a
                                     Grupos y Permisos y decidir quién tiene qué
@@ -363,7 +372,7 @@ export default function UserUpdateForm() {
                                     type="button"
                                     variant="secondary"
                                     size="md"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => requestExit()}
                                 >
                                     Cancelar
                                 </Button>
@@ -377,10 +386,16 @@ export default function UserUpdateForm() {
                             </div>
 
                         </form>
+                        {exitModal}
                         <Modal
                             isOpen={isModalOpen}
                             title="Confirmar actualización de usuario"
-                            onClose={() => setIsModalOpen(false)}
+                            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                             onConfirm={handleSubmit}
                             confirmText="Actualizar"
                             cancelText="Cancelar"

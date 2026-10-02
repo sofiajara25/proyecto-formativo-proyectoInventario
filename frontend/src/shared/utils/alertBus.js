@@ -25,13 +25,28 @@ export function setAlertHandler(handlerFn) {
  * @param {Object} [options]
  * @param {"info"|"success"|"error"|"warning"} [options.type="info"]
  * @param {string} [options.title] - Si no se da, se infiere del type.
+ * @param {number} [options.autoCloseMs] - Si se da, la alerta se cierra sola.
+ * @param {Function} [options.onClose] - Se ejecuta al cerrarse la alerta.
  */
 export function showAlert(message, options = {}) {
     if (!listener) {
         // AlertProvider todavía no se montó (o se quitó). No se pierde el
         // mensaje silenciosamente: se deja constancia en consola.
         console.warn("showAlert llamado sin AlertProvider montado:", message);
+        options.onClose?.();
         return;
     }
     listener(message, options);
+}
+
+// Tiempo que dura visible la alerta de éxito antes de cerrarse sola.
+export const SUCCESS_ALERT_MS = 2000;
+
+/**
+ * Alerta de éxito que se cierra sola en unos segundos y luego ejecuta
+ * "then" (normalmente volver a la lista). Si la persona presiona
+ * "Aceptar" antes, se cierra y continúa de inmediato.
+ */
+export function showSuccessAndThen(message, then) {
+    showAlert(message, { type: "success", autoCloseMs: SUCCESS_ALERT_MS, onClose: then });
 }

@@ -15,9 +15,11 @@ export const categoryRepository = {
 
         // Desestructuramos explícitamente las propiedades esperadas
         // Esto hace el contrato de datos claro y evita acceder a propiedades inexistentes
+        // La categoría solo tiene nombre (ya no depende de un "tipo de
+        // elemento", ver migración 085). El estado arranca en "Activo" por
+        // el DEFAULT de la columna.
         const {
             categoryName,
-            categoryElementType
         } = categoryData;
 
         // Definimos la consulta SQL parametrizada
@@ -25,11 +27,10 @@ export const categoryRepository = {
         // RETURNING permite obtener datos generados por la base de datos (category_id)
         const query = `
       INSERT INTO categorys (
-        category_name,
-        element_type
+        category_name
       )
-      VALUES ($1,$2)
-      RETURNING category_id;
+      VALUES ($1)
+      RETURNING category_id, category_name;
     `;
 
 
@@ -37,7 +38,6 @@ export const categoryRepository = {
         // El orden debe coincidir EXACTAMENTE con los placeholders del SQL
         const values = [
             categoryName,
-            categoryElementType
         ];
 
 
@@ -52,7 +52,8 @@ export const categoryRepository = {
     },
 
     async findAll() {
-        const result = await pool.query("SELECT * FROM categorys");
+        // Primero las 3 por defecto, luego las demás por nombre.
+        const result = await pool.query("SELECT * FROM categorys ORDER BY is_default DESC, category_name");
         return result.rows;
     },
 
@@ -64,20 +65,17 @@ export const categoryRepository = {
     async update(id, categoryData) {
         const {
             categoryName,
-            categoryElementType
         } = categoryData;
 
         const query = `
             UPDATE categorys
-            SET category_name = $1,
-                element_type = $2
-            WHERE category_id = $3
+            SET category_name = $1
+            WHERE category_id = $2
             RETURNING *;
         `;
 
         const values = [
             categoryName,
-            categoryElementType,
             id];
         const result = await pool.query(query, values);
         return result.rows[0];

@@ -195,7 +195,7 @@ export const returnableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,${CUSTODIANS_SELECT}
+                ${CUSTODIANS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -216,7 +216,7 @@ export const returnableMaterialRepository = {
             LEFT JOIN inventory_names inv ON inv.inventory_name_id = m.inventory_name_id
             LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN returnable_material_photos mp ON mp.returnable_material_id = m.id
-            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name
             ORDER BY m.id;
         `);
         return result.rows.map(({ gallery_photos, ...row }) => ({
@@ -232,7 +232,7 @@ export const returnableMaterialRepository = {
                 b.marca AS brand_name,
                 inv.inventory_name AS inventory_name,
                 c.category_name AS category_name,
-                c.element_type AS category_element_type,${CUSTODIANS_SELECT}
+                ${CUSTODIANS_SELECT}
                 COALESCE(
                     json_agg(mp.photo_url ORDER BY mp.id) FILTER (WHERE mp.photo_url IS NOT NULL),
                     '[]'
@@ -254,7 +254,7 @@ export const returnableMaterialRepository = {
             LEFT JOIN categorys c ON c.category_id = m.category_id
             LEFT JOIN returnable_material_photos mp ON mp.returnable_material_id = m.id
             WHERE m.id = $1
-            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name, c.element_type;
+            GROUP BY m.id, b.marca, inv.inventory_name, c.category_name;
         `, [id]);
 
         const row = result.rows[0];

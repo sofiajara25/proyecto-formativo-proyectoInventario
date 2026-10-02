@@ -7,7 +7,8 @@ import { getConsumables } from "../../consumable-material/services/consumableMat
 import { getReturnables } from "../../returnable-material/services/returnableMaterialService.js";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 function crearMaterialVacio() {
     return {
@@ -56,6 +57,10 @@ export default function LoansRegisterForm() {
         loanType: "",
         photo: [],
     });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -308,7 +313,7 @@ export default function LoansRegisterForm() {
                 setCreatedLoanId(response.loan_id);
                 setIsWaitingSignatureOpen(true);
             } else {
-                window.history.back();
+                showSuccessAndThen("Préstamo creado con éxito", () => window.history.back());
             }
         } catch (error) {
             console.error("Error creando préstamo:", error);
@@ -331,7 +336,7 @@ export default function LoansRegisterForm() {
                 const loan = await getLoanById(createdLoanId);
                 if (loan.signature_status === "Aceptado") {
                     clearInterval(interval);
-                    window.history.back();
+                    showSuccessAndThen("El préstamo fue firmado y creado con éxito", () => window.history.back());
                 }
             } catch (err) {
                 console.error("Error consultando el estado de la firma:", err);
@@ -652,7 +657,7 @@ export default function LoansRegisterForm() {
                                 type="button"
                                 variant="secondary"
                                 size="md"
-                                onClick={() => navigate(-1)}
+                                onClick={() => requestExit()}
                             >
                                 Cancelar
                             </Button>
@@ -663,10 +668,16 @@ export default function LoansRegisterForm() {
                         </div>
 
                     </form>
+                    {exitModal}
                     <Modal
                         isOpen={isModalOpen}
                         title="Confirmar creación de préstamo"
-                        onClose={() => setIsModalOpen(false)}
+                        onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                         onConfirm={handleSubmit}
                         confirmText="Crear"
                         cancelText="Cancelar"

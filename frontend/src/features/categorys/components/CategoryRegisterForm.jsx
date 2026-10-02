@@ -1,28 +1,27 @@
 import { useState } from "react";
-import { Button, Navbar, Modal, Select, Input } from "@/shared";
+import { Button, Navbar, Modal, Input } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import { categorySchema } from "../schemas/categorysSchema";
 import { createCategory } from "../service/categoryService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 // Si tienes un schema con Zod para marca
 
 export default function CategoryRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    // La categoría solo tiene nombre, igual que Marcas y Nombres de
+    // inventario (ya no depende de un "tipo de elemento").
     const [formData, setFormData] = useState({
-        categoryElementType: "",
         categoryName: ""
     });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const tipoElemento = [
-        { value: "", label: "Selecciona una opción" },
-        { value: "Herramientas", label: "Herramientas" },
-        { value: "Muebles y Enseres", label: "Muebles y Enseres" },
-        { value: "Equipo y Maquinar", label: "Equipo y Maquinar"}
-    ];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +52,7 @@ export default function CategoryRegisterForm() {
             const payload = result.data;
             const response = await createCategory(payload);
             console.log("Categoría creada:", response);
-            navigate(-1);
+            showSuccessAndThen("Categoría creada con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -92,16 +91,6 @@ export default function CategoryRegisterForm() {
                         </p>
                         <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col gap-6 w-full">
                             <div className="flex flex-col gap-2">
-                                <Select
-                                    label={<span>Tipo de elemento <span style={{ color: "red" }}>*</span></span>}
-                                    name="categoryElementType"
-                                    options={tipoElemento}
-                                    value={formData.categoryElementType}
-                                    onChange={handleChange}
-                                    error={errors.categoryElementType}
-                                />
-
-                                {/* Fila 5 — Detalles */}
                                 <Input
                                     label={<span>Nombre de la categoría <span style={{ color: "red" }}>*</span></span>}
                                     name="categoryName"
@@ -116,7 +105,7 @@ export default function CategoryRegisterForm() {
                                     type="button"
                                     variant="secondary"
                                     size="md"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => requestExit()}
                                 >
                                     Cancelar
                                 </Button>
@@ -126,10 +115,16 @@ export default function CategoryRegisterForm() {
                                 </Button>
                             </div>
                         </form>
+                        {exitModal}
                         <Modal
                             isOpen={isModalOpen}
                             title="Confirmar creación de categoría"
-                            onClose={() => setIsModalOpen(false)}
+                            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                             onConfirm={handleSubmit}
                             confirmText="Crear"
                             cancelText="Cancelar"

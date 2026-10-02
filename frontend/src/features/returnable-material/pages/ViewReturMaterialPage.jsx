@@ -103,7 +103,7 @@ export default function ViewReturMaterialPage() {
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Código herramienta:</strong> {retornable.tool_id}</p>
                         <p><strong>Placa SENA:</strong> {retornable.sena_plate}</p>
-                        <p><strong>Categoria:</strong> {retornable.category_name ? `${retornable.category_name} (${retornable.category_element_type})` : "—"}</p>
+                        <p><strong>Categoría:</strong> {retornable.category_name || "—"}</p>
 
                         <p><strong>Serial:</strong> {retornable.serial || "—"}</p>
                         <p><strong>Modelo:</strong> {retornable.model || "—"}</p>

@@ -5,7 +5,7 @@ import { createGroup, getGroups } from "../services/groupService";
 import { getGroupsPermissions, getUserPermissions } from "../services/permissionService";
 import { getUsers } from "../../users/services/userService";
 import { groupSchema } from "../schemas/groupSchema";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
 
 export default function AccessSidebar({
   selectedGroup,
@@ -79,7 +79,7 @@ export default function AccessSidebar({
       const payload = result.data;
       const response = await createGroup(payload); // 🔹 enviar objeto con group_name
       console.log("Grupo creado:", response);
-      navigate(-1);
+      showSuccessAndThen("Grupo creado con éxito", () => navigate(-1));
     } catch (error) {
       console.error("Error:", error.message);
       showAlert(error.message, { type: "error" });

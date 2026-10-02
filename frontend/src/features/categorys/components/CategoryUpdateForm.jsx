@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, PageLayout } from "@/shared";
+import { useState, useCallback } from "react";
+import { Input, Button, Navbar, Modal } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { getCategoryById, updateCategory } from "../service/categoryService";
 import { categorySchema } from "../schemas/categorysSchema";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function CategoryUpdateForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,29 +14,35 @@ export default function CategoryUpdateForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
-        categoryElementType: "",
         categoryName: ""
     });
 
-    const [errors, setErrors] = useState({});
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
 
-    const tipoElemento = [
-        { value: "", label: "Selecciona una opción" },
-        { value: "Herramientas", label: "Herramientas" },
-        { value: "Muebles y Enseres", label: "Muebles y Enseres" },
-        { value: "Equipo y Maquinar", label: "Equipo y Maquinar" }
-    ];
+    // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+    const setLoadedData = useCallback((data) => {
+        setFormData(data);
+        markClean(data);
+    }, [markClean]);
+
+    // Las 3 categorías por defecto (Herramientas, Equipo y Maquinaria,
+    // Muebles y Enseres) no se pueden renombrar: el backend lo rechaza.
+    const [isDefault, setIsDefault] = useState(false);
+
+    const [errors, setErrors] = useState({});
 
     const { id } = useParams();
 
     useEffect(() => {
         getCategoryById(id)
-            .then((data) => setFormData({
-                categoryElementType: data.element_type,
-                categoryName: data.category_name,
-            }))
+            .then((data) => {
+                setLoadedData({ categoryName: data.category_name });
+                setIsDefault(Boolean(data.is_default));
+            })
             .catch((err) => console.error("Error cargando categoría:", err));
-    }, [id]);
+    }, [id, setLoadedData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -59,7 +66,7 @@ export default function CategoryUpdateForm() {
         setErrors({});
         try {
             await updateCategory(id, result.data);
-            navigate(-1);
+            showSuccessAndThen("Categoría actualizada con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -114,22 +121,19 @@ export default function CategoryUpdateForm() {
                             className="flex flex-col gap-6 w-full"
                         >
                             <div className="flex flex-col gap-2">
-                                <Select
-                                    label="Tipo de elemento"
-                                    name="categoryElementType"
-                                    options={tipoElemento}
-                                    value={formData.categoryElementType}
-                                    onChange={handleChange}
-                                    error={errors.categoryElementType}
-                                />
-
                                 <Input
                                     label="Nombre de la categoría"
                                     name="categoryName"
                                     value={formData.categoryName}
                                     onChange={handleChange}
+                                    disabled={isDefault}
                                     error={errors.categoryName}
                                 />
+                                {isDefault && (
+                                    <p className="text-caption text-gray-500">
+                                        Esta es una categoría por defecto del sistema: no se puede renombrar ni desactivar.
+                                    </p>
+                                )}
                             </div>
 
                             {/* Acciones */}
@@ -138,7 +142,7 @@ export default function CategoryUpdateForm() {
                                     type="button"
                                     variant="secondary"
                                     size="md"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => requestExit()}
                                 >
                                     Cancelar
                                 </Button>
@@ -148,10 +152,16 @@ export default function CategoryUpdateForm() {
                                 </Button>
                             </div>
                         </form>
+                        {exitModal}
                         <Modal
                             isOpen={isModalOpen}
                             title="Confirmar actualización de categoría"
-                            onClose={() => setIsModalOpen(false)}
+                            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                             onConfirm={handleSubmit}
                             confirmText="Actualizar"
                             cancelText="Cancelar"

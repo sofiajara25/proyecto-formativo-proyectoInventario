@@ -18,7 +18,9 @@ export default function CategoryStatusSwitch({ category }) {
     const confirmChange = async () => {
         try {
             const newStatus = nextValue ? "Activo" : "Inactivo";
-            const updated = await updateCategoryStatus(category.id, newStatus);
+            // Antes usaba category.id, que no existe (la PK es category_id):
+            // la petición salía sin id y el cambio de estado nunca funcionaba.
+            const updated = await updateCategoryStatus(category.category_id, newStatus);
             setCurrentValue(updated.status === "Activo"); // ✅ actualiza visual
             // ❌ no mutar category.status directamente
         } catch (err) {
@@ -34,6 +36,16 @@ export default function CategoryStatusSwitch({ category }) {
         setIsModalOpen(false);
         setNextValue(null); // switch se queda igual
     };
+
+    // Las 3 categorías por defecto deben estar siempre activas: no se
+    // muestra el switch (el backend igual rechazaría desactivarlas).
+    if (category.is_default) {
+        return (
+            <span className="text-xs font-medium" style={{ color: "#15803d" }} title="Categoría por defecto: siempre activa">
+                Activo
+            </span>
+        );
+    }
 
     if (!canChangeState) {
         return (
@@ -60,7 +72,7 @@ export default function CategoryStatusSwitch({ category }) {
                 cancelText="Cancelar"
             >
                 <p>
-                    ¿Seguro que deseas {nextValue ? "activar" : "desactivar"} esta marca?
+                    ¿Seguro que deseas {nextValue ? "activar" : "desactivar"} esta categoría?
                 </p>
             </Modal>
         </>

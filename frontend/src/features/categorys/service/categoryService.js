@@ -47,7 +47,14 @@ export async function createCategory(categoryData) {
     return response.json();
 };
 
-// Obtener todas las marcas (para la lista)
+// Crea una categoría desde el botón "+" de un formulario de material y la
+// devuelve con el formato de opción de <Select> ({ value, label }).
+export async function createCategoryOption({ categoryName }) {
+    const created = await createCategory({ categoryName });
+    return { value: created.category_id, label: created.category_name };
+}
+
+// Obtener todas las categorías (para la lista)
 export async function getCategorys() {
     const token = sessionStorage.getItem("token");
     const response = await fetch(API_URL, {
@@ -77,7 +84,12 @@ export async function updateCategory(id, categoryData) {
         },
         body: JSON.stringify(categoryData),
     });
-    if (!response.ok) throw new Error("Error al actualizar categoría");
+    if (!response.ok) {
+        // Ej. "Ya existe una categoría con ese nombre" o "no se puede
+        // renombrar" (categorías por defecto): se muestra tal cual.
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Error al actualizar categoría");
+    }
     return response.json();
 }
 
@@ -91,7 +103,11 @@ export async function updateCategoryStatus(id, status) {
         },
         body: JSON.stringify({ status }),
     });
-    if (!response.ok) throw new Error("Error al actualizar estado");
+    if (!response.ok) {
+        // Ej. "no se puede desactivar" (categorías por defecto).
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Error al actualizar estado");
+    }
     return response.json();
 }
 

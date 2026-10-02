@@ -11,11 +11,18 @@ export const categorysColumns = [
     {
         accessorKey: "category_name", // Campo real en la base
         header: "Nombre",
-    },
-
-    {
-        accessorKey: "element_type", // Campo real en la base
-        header: "Tipo de elemento",
+        // Las 3 categorías por defecto llevan una etiqueta para que se
+        // entienda por qué no se pueden desactivar.
+        cell: ({ row }) => (
+            <span className="inline-flex items-center gap-2">
+                {row.original.category_name}
+                {row.original.is_default && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                        Por defecto
+                    </span>
+                )}
+            </span>
+        ),
     },
 
     // Columna Estado (activo / inactivo)

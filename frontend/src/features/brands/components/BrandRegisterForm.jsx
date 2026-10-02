@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 // Si tienes un schema con Zod para marca
 import { brandSchema } from "../schemas/brandsSchema";
 import { createBrand } from "../service/brandService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function BrandRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,10 @@ export default function BrandRegisterForm() {
   const [formData, setFormData] = useState({
     marca: ""
   });
+
+  // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+  // del formulario y Cancelar de la ventana de confirmación).
+  const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,7 +50,7 @@ export default function BrandRegisterForm() {
       const payload = result.data;
       const response = await createBrand(payload);
       console.log("Marca creada:", response);
-      navigate(-1);
+      showSuccessAndThen("Marca creada con éxito", () => navigate(-1));
     } catch (error) {
       console.error("Error:", error.message);
       showAlert(error.message, { type: "error" });
@@ -104,7 +109,7 @@ export default function BrandRegisterForm() {
                   type="button"
                   variant="secondary"
                   size="md"
-                  onClick={() => navigate(-1)}
+                  onClick={() => requestExit()}
                 >
                   Cancelar
                 </Button>
@@ -114,10 +119,16 @@ export default function BrandRegisterForm() {
                 </Button>
               </div>
             </form>
+            {exitModal}
             <Modal
               isOpen={isModalOpen}
               title="Confirmar creación de marca"
-              onClose={() => setIsModalOpen(false)}
+              onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
               onConfirm={handleSubmit}
               confirmText="Crear"
               cancelText="Cancelar"

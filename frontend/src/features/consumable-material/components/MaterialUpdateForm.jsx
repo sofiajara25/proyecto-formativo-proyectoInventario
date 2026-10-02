@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Input, Button, Navbar, FileInput, Modal, TextArea, Select, MultiSelect, QuickCreateSelect } from "@/shared";
 import { useNavigate, useParams } from "react-router-dom";
 import { getConsumableById, updateConsumable } from "../services/consumableMaterialService";
 import { updateMaterialSchema } from "../schemas/updateMaterialSchema";
-import { getCategorys } from "../../categorys/service/categoryService";
+import { getCategorys, createCategoryOption } from "../../categorys/service/categoryService";
 import { getBrands, createBrandOption } from "../../brands/service/brandService";
 import { getInventoryName, createInventoryNameOption } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
 import { brandSchema } from "../../brands/schemas/brandsSchema";
 import { inventoryNameSchema } from "../../inventory-name/schemas/inventoryNameSchema";
 import { hasPermission } from "@/shared/utils/permissions";
 import { getUserOptions } from "../../users/services/userService";
+import { categorySchema } from "../../categorys/schemas/categorysSchema";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function MaterialRegisterForm() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,6 +44,16 @@ export default function MaterialRegisterForm() {
         photo: [],
     });
 
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { markClean, requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
+    // Lo que se carga de la base de datos no cuenta como "datos ingresados".
+    const setLoadedData = useCallback((data) => {
+        setFormData(data);
+        markClean(data);
+    }, [markClean]);
+
     const [errors, setErrors] = useState({});
 
     const [brands, setBrands] = useState([]);
@@ -65,7 +77,7 @@ export default function MaterialRegisterForm() {
             .then((data) => {
                 const options = data.map((c) => ({
                     value: c.category_id,
-                    label: `${c.category_name} (${c.element_type})`,
+                    label: c.category_name,
                 }));
                 setCategorias([{ value: "", label: "Selecciona una categoría" }, ...options]);
             })
@@ -93,7 +105,7 @@ export default function MaterialRegisterForm() {
     useEffect(() => {
         getConsumableById(id)
             .then((data) =>
-                setFormData({
+                setLoadedData({
                     materialAccountants: Array.isArray(data.accountant_ids) ? data.accountant_ids : [],
                     materialToolId: data.tool_id,
                     materialSenaPlate: data.sena_plate,
@@ -140,7 +152,7 @@ export default function MaterialRegisterForm() {
                 })
             )
             .catch((err) => console.error("Error cargando material:", err));
-    }, [id]);
+    }, [id, setLoadedData]);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -192,7 +204,7 @@ export default function MaterialRegisterForm() {
         setErrors({});
         try {
             await updateConsumable(id, result.data);
-            navigate(-1);
+            showSuccessAndThen("Material de consumo actualizado con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -429,13 +441,21 @@ export default function MaterialRegisterForm() {
                                 />
                             </div>
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
-                                <Select
+                                <QuickCreateSelect
                                     label="Categoría"
                                     name="categoryId"
                                     options={categorias}
                                     value={formData.categoryId}
                                     onChange={handleChange}
                                     error={errors.categoryId}
+                                    createOption={createCategoryOption}
+                                    onOptionCreated={(option) => setCategorias((prev) => [...prev, option])}
+                                    schema={categorySchema}
+                                    fieldKey="categoryName"
+                                    canCreate={hasPermission("create_category")}
+                                    createTitle="Crear categoría"
+                                    createLabel="Nombre de la categoría"
+                                    createPlaceholder="Ej: Electrónica"
                                 />
                             </div>
                             <div className="w-full [&>div]:w-full [&>div>input]:w-full">
@@ -490,7 +510,7 @@ export default function MaterialRegisterForm() {
                                 type="button"
                                 variant="secondary"
                                 size="md"
-                                onClick={() => navigate(-1)}
+                                onClick={() => requestExit()}
                             >
                                 Cancelar
                             </Button>
@@ -501,10 +521,16 @@ export default function MaterialRegisterForm() {
 
                     </form>
 
+                    {exitModal}
                     <Modal
                         isOpen={isModalOpen}
                         title="Confirmar actualización de material de consumo"
-                        onClose={() => setIsModalOpen(false)}
+                        onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                         onConfirm={handleSubmit}
                         confirmText="Actualizar"
                         cancelText="Cancelar"

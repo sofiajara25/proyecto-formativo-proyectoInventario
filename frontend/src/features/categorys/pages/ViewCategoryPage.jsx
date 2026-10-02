@@ -82,7 +82,12 @@ export default function ViewCategoryPage() {
                     {/* Detalles en vertical */}
                     <div className="grid grid-cols-2 gap-4">
                         <p><strong>Nombre de la categoría:</strong> {category.category_name}</p>
-                        <p><strong>Tipo de elemento:</strong> {category.element_type}</p>
+                        <p><strong>Estado:</strong> {category.status}</p>
+                        {category.is_default && (
+                            <p className="col-span-2 text-sm text-gray-500">
+                                Categoría por defecto del sistema: siempre está activa y no se puede renombrar.
+                            </p>
+                        )}
                     </div>
 
                     {/* Divider */}

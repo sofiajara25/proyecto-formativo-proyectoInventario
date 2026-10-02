@@ -5,7 +5,7 @@ export const categoryReportFields = [
         label: "Nombre de la categoría"
     },
     {
-        key: "element_type",
-        label: "Tipo de elemento"
+        key: "status",
+        label: "Estado"
     },
 ];

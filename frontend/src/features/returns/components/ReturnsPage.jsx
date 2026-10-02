@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { CircleArrowLeft } from "lucide-react";
 import { createReturn } from "../services/returnService";
 import { getLoans } from "../../loans/services/loanService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function ReturnForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,10 @@ export default function ReturnForm() {
     returnQuantity: "",
     status: "Disponible",
   });
+
+  // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+  // del formulario y Cancelar de la ventana de confirmación).
+  const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
 
   const [errors, setErrors] = useState({});
 
@@ -165,7 +170,7 @@ export default function ReturnForm() {
     try {
       const response = await createReturn(result.data);
       console.log("Retorno creado:", response);
-      navigate(-1);
+      showSuccessAndThen("Devolución registrada con éxito", () => navigate(-1));
     } catch (error) {
       console.error("Error:", error.message);
       showAlert(error.message, { type: "error" });
@@ -301,7 +306,7 @@ export default function ReturnForm() {
               type="button"
               variant="secondary"
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => requestExit()}
             >
               Cancelar
             </Button>
@@ -315,10 +320,16 @@ export default function ReturnForm() {
             </Button>
           </div>
         </form>
+        {exitModal}
         <Modal
           isOpen={isModalOpen}
           title="Confirmar creación de retorno"
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
           onConfirm={handleSubmit}
           confirmText="Crear"
           cancelText="Cancelar"

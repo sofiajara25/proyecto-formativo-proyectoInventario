@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Input, Button, FileInput } from "@/shared";
 import { quotationSchema } from "../schemas/quotationSchema";
 import { createQuotation } from "../services/quotationService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function QuotationsRegisterForm({ onClose, onCreated }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -11,6 +12,8 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
         quotationName: "",
         pdf: [],
     });
+    // Pregunta antes de cerrar la ventana si ya hay datos ingresados.
+    const { requestExit, exitModal } = useFormExitGuard(formData, onClose);
     const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
@@ -37,7 +40,7 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
         try {
             const response = await createQuotation(result.data);
             onCreated?.(response.quotation);
-            onClose();
+            showSuccessAndThen("Cotización creada con éxito", onClose);
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -49,7 +52,7 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
     return createPortal(
         <div
             className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30"
-            onClick={onClose}
+            onClick={() => requestExit()}
         >
             <div
                 className="bg-white rounded-lg shadow-lg p-6 w-[420px]"
@@ -84,7 +87,7 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <Button type="button" variant="secondary" size="md" onClick={onClose}>
+                        <Button type="button" variant="secondary" size="md" onClick={() => requestExit()}>
                             Cancelar
                         </Button>
                         <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
@@ -92,6 +95,7 @@ export default function QuotationsRegisterForm({ onClose, onCreated }) {
                         </Button>
                     </div>
                 </form>
+                {exitModal}
             </div>
         </div>,
         document.body

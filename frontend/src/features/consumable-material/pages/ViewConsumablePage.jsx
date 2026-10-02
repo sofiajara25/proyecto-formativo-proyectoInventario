@@ -67,7 +67,7 @@ export default function ViewConsumablePage() {
                         <p><strong>Valor total:</strong> ${consumable.total_value}</p>
                         <p><strong>Descripción:</strong> {consumable.description}</p>
                         <p><strong>Marca:</strong> {consumable.brand_name || "—"}</p>
-                        <p><strong>Categoría:</strong> {consumable.category_name ? `${consumable.category_name} (${consumable.category_element_type})` : "—"}</p>
+                        <p><strong>Categoría:</strong> {consumable.category_name || "—"}</p>
 
                     </div>
 

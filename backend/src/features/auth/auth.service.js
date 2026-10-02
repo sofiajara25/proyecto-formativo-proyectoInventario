@@ -39,7 +39,9 @@ export const authService = {
             throw new Error("Credenciales invalidas");
         }
 
-        if (user.user_status !== "Activo") {
+        // Sin importar mayúsculas ni espacios: usuarios viejos quedaron con
+        // "activo" en minúscula y por eso no podían entrar (ver migración 084).
+        if (user.user_status?.trim().toLowerCase() !== "activo") {
             throw new Error("Usuario inactivo");
         }
 

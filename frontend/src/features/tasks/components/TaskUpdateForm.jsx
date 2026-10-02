@@ -3,7 +3,8 @@ import { Input, Button, Modal, TextArea } from "@/shared";
 import { taskSchema } from "../schemas/taskSchema";
 import { updateTask } from "../services/taskService";
 import { getUserById } from "../../users/services/userService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +18,9 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
         // validación con "Invalid input: expected string, received number".
         userId: task?.userId != null ? String(task.userId) : "",
     });
+    // Pregunta antes de cerrar la ventana si se cambió algo de la tarea
+    // (los datos iniciales ya vienen de la tarea, así que no cuentan).
+    const { requestExit, exitModal } = useFormExitGuard(formData, onClose);
     const [errors, setErrors] = useState({});
     // Datos ya validados, guardados aquí al enviar el formulario, para que
     // el modal de confirmación solo tenga que guardarlos (sin volver a
@@ -79,9 +83,9 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
 
         try {
             const updated = await updateTask(task.id, validatedData);
-            onTaskUpdated?.(updated);
-            onClose();
             setIsModalOpen(false);
+            onTaskUpdated?.(updated);
+            showSuccessAndThen("Tarea actualizada con éxito", onClose);
         } catch (err) {
             console.error("Error actualizando tarea:", err);
             showAlert(err.message, { type: "error" });
@@ -91,7 +95,7 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            onClick={onClose}
+            onClick={() => requestExit()}
         >
             <div
                 className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-[380px] lg:max-w-[740px] max-h-[90vh] overflow-y-auto"
@@ -144,7 +148,7 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <Button type="button" variant="secondary" size="md" onClick={onClose}>
+                        <Button type="button" variant="secondary" size="md" onClick={() => requestExit()}>
                             Cancelar
                         </Button>
                         <Button variant="primary" size="md" type="submit">
@@ -153,10 +157,16 @@ export default function TaskUpdateForm({ task, onClose, onTaskUpdated }) {
                     </div>
                 </form>
 
+                {exitModal}
                 <Modal
                     isOpen={isModalOpen}
                     title="Confirmar actualizacion"
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        // Cancelar la confirmación también pregunta si de verdad
+                        // quiere salir, porque ya hay datos ingresados.
+                        setIsModalOpen(false);
+                        requestExit({ always: true });
+                    }}
                     onConfirm={handleUpdateTask}
                     confirmText="Actualizar"
                     cancelText="Cancelar"

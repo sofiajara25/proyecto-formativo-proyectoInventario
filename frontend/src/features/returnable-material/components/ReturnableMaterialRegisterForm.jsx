@@ -3,15 +3,17 @@ import { Input, Button, Select, Navbar, FileInput, Modal, TextArea, MultiSelect,
 import { returnablematerialSchema } from "../schemas/returnablematerialSchema";
 import { useNavigate } from "react-router-dom";
 import { createReturnableMaterial, getNextReturnableToolId } from "../services/returnableMaterialService";
-import { getCategorys } from "../../categorys/service/categoryService";
+import { getCategorys, createCategoryOption } from "../../categorys/service/categoryService";
 import { getBrands, createBrandOption } from "../../brands/service/brandService";
 import { getInventoryName, createInventoryNameOption } from "../../inventory-name/services/inventoryNameService";
 import { QuotationsPicker } from "../../quotations";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
 import { brandSchema } from "../../brands/schemas/brandsSchema";
 import { inventoryNameSchema } from "../../inventory-name/schemas/inventoryNameSchema";
 import { hasPermission } from "@/shared/utils/permissions";
 import { getUserOptions } from "../../users/services/userService";
+import { categorySchema } from "../../categorys/schemas/categorysSchema";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 
 export default function ReturnableMaterialRegisterForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,6 +42,10 @@ export default function ReturnableMaterialRegisterForm() {
     photo: [],
   });
 
+  // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+  // del formulario y Cancelar de la ventana de confirmación).
+  const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
+
   const [errors, setErrors] = useState({});
 
   const [brands, setBrands] = useState([]);
@@ -67,7 +73,7 @@ export default function ReturnableMaterialRegisterForm() {
       .then((data) => {
         const options = data.map((c) => ({
           value: c.category_id,
-          label: `${c.category_name} (${c.element_type})`,
+          label: c.category_name,
         }));
         setCategorias([{ value: "", label: "Seleccione una opción" }, ...options]);
       })
@@ -156,7 +162,7 @@ export default function ReturnableMaterialRegisterForm() {
     try {
       const response = await createReturnableMaterial(result.data);
       console.log("Material creado:", response);
-      navigate(-1);
+      showSuccessAndThen("Material devolutivo creado con éxito", () => navigate(-1));
     } catch (error) {
       console.error("Error:", error.message);
       showAlert(error.message, { type: "error" });
@@ -225,13 +231,21 @@ export default function ReturnableMaterialRegisterForm() {
                 onChange={handleChange}
                 error={errors.materialSenaPlate}
               />
-              <Select
+              <QuickCreateSelect
                 label={<span>Categoria <span style={{ color: "red" }}>*</span></span>}
                 name="categoryId"
                 options={categorias}
                 value={formData.categoryId}
                 onChange={handleChange}
                 error={errors.categoryId}
+                createOption={createCategoryOption}
+                onOptionCreated={(option) => setCategorias((prev) => [...prev, option])}
+                schema={categorySchema}
+                fieldKey="categoryName"
+                canCreate={hasPermission("create_category")}
+                createTitle="Crear categoría"
+                createLabel="Nombre de la categoría"
+                createPlaceholder="Ej: Electrónica"
               />
               <Input
                 label="Serial Number (SN)"
@@ -398,7 +412,7 @@ export default function ReturnableMaterialRegisterForm() {
                 type="button"
                 variant="secondary"
                 size="md"
-                onClick={() => navigate(-1)}
+                onClick={() => requestExit()}
               >
                 Cancelar
               </Button>
@@ -408,10 +422,16 @@ export default function ReturnableMaterialRegisterForm() {
             </div>
           </form>
 
+          {exitModal}
           <Modal
             isOpen={isModalOpen}
             title="Confirmar creación de material devolutivo"
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
             onConfirm={handleSubmit}
             confirmText="Crear"
             cancelText="Cancelar"

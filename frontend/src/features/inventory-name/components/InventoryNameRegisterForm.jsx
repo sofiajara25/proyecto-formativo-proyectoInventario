@@ -3,7 +3,8 @@ import { Button, Navbar, Modal } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import { inventoryNameSchema } from "../schemas/inventoryNameSchema";
 import { createInventoryName } from "../services/inventoryNameService";
-import { showAlert } from "@/shared/utils/alertBus";
+import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
+import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
 // Si tienes un schema con Zod para inventoryName
 
 export default function InventoryNameRegisterForm() {
@@ -13,6 +14,10 @@ export default function InventoryNameRegisterForm() {
     const [formData, setFormData] = useState({
         inventoryName: ""
     });
+
+    // Pregunta antes de salir si ya hay datos ingresados (botón Cancelar
+    // del formulario y Cancelar de la ventana de confirmación).
+    const { requestExit, exitModal } = useFormExitGuard(formData, () => navigate(-1));
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,7 +50,7 @@ export default function InventoryNameRegisterForm() {
             const payload = result.data;
             const response = await createInventoryName(payload);
             console.log("Marca creada:", response);
-            navigate(-1);
+            showSuccessAndThen("Nombre de inventario creado con éxito", () => navigate(-1));
         } catch (error) {
             console.error("Error:", error.message);
             showAlert(error.message, { type: "error" });
@@ -103,7 +108,7 @@ export default function InventoryNameRegisterForm() {
                                     type="button"
                                     variant="secondary"
                                     size="md"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => requestExit()}
                                 >
                                     Cancelar
                                 </Button>
@@ -113,10 +118,16 @@ export default function InventoryNameRegisterForm() {
                                 </Button>
                             </div>
                         </form>
+                        {exitModal}
                         <Modal
                             isOpen={isModalOpen}
                             title="Confirmar creación de nombre de inventario"
-                            onClose={() => setIsModalOpen(false)}
+                            onClose={() => {
+                // Cancelar la confirmación también pregunta si de verdad
+                // quiere salir, porque ya hay datos ingresados.
+                setIsModalOpen(false);
+                requestExit({ always: true });
+            }}
                             onConfirm={handleSubmit}
                             confirmText="Crear"
                             cancelText="Cancelar"
