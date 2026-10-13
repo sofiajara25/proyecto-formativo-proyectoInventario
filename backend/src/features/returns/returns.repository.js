@@ -52,6 +52,19 @@ export const returnRepository = {
         try {
             await client.query("BEGIN");
 
+            // Solo se puede devolver material de un préstamo cuya firma
+            // electrónica ya fue aceptada por quien lo recibió. Un préstamo
+            // sin firma o con la firma pendiente todavía no está formalizado.
+            const signatureResult = await client.query(
+                `SELECT status FROM loan_signatures
+                 WHERE loan_id = $1
+                 ORDER BY id DESC LIMIT 1`,
+                [loanId]
+            );
+            if (signatureResult.rows[0]?.status !== "Aceptado") {
+                throw new Error("Solo se pueden registrar devoluciones de préstamos con la firma electrónica aceptada.");
+            }
+
             // El material puntual que se está devolviendo, bloqueado para
             // evitar que dos devoluciones concurrentes lo procesen a la vez.
             const itemResult = await client.query(

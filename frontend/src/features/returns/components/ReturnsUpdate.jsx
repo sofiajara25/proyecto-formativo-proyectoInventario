@@ -65,12 +65,17 @@ export default function ReturnForm() {
   // completo para armar la etiqueta (mismo criterio que en el crear).
   const loanOptions = [
     { id: "", label: "Seleccionar una opción" }, // opción inicial
-    ...loans.map((l) => {
-      const names = Array.isArray(l.materials) && l.materials.length
-        ? l.materials.map((m) => m.product_name).join(", ")
-        : l.product_name;
-      return { id: l.loan_id, label: `${names} - ${l.loan_user}` };
-    }),
+    // Solo préstamos con la firma electrónica aceptada. Se conserva además
+    // el préstamo que ya tiene esta devolución (aunque sea anterior a esta
+    // regla), para que el select no aparezca vacío al editar.
+    ...loans
+      .filter((l) => l.signature_status === "Aceptado" || String(l.loan_id) === String(formData.loanId))
+      .map((l) => {
+        const names = Array.isArray(l.materials) && l.materials.length
+          ? l.materials.map((m) => m.product_name).join(", ")
+          : l.product_name;
+        return { id: l.loan_id, label: `${names} - ${l.loan_user}` };
+      }),
   ];
 
   // Material puntual vinculado a este retorno, solo para mostrarlo (no se

@@ -1,9 +1,26 @@
 import { useEffect, useRef } from "react";
-import { isAuthenticated } from "../utils/tokenStorage";
+import { getToken, isAuthenticated } from "../utils/tokenStorage";
 import { triggerSessionEnd } from "../utils/sessionEvents";
 
-// 20 minutos sin actividad -> se cierra la sesión por inactividad.
-const IDLE_TIMEOUT_MS = 20 * 60 * 1000;
+const LOGOUT_URL = "http://localhost:5000/api/auth/logout";
+
+// Avisa al backend que la sesión terminó, para que la libere de inmediato.
+// Antes, al cerrarse por inactividad solo se borraba el token en el
+// navegador y el backend seguía creyendo que la sesión estaba activa, así
+// que al volver a entrar aparecía "Ya tienes una sesión activa".
+function notifyLogout() {
+    const token = getToken();
+    if (!token) return;
+    fetch(LOGOUT_URL, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        keepalive: true,
+    }).catch((err) => console.error("Error cerrando la sesión por inactividad:", err));
+}
+
+// 10 minutos sin actividad -> se cierra la sesión por inactividad
+// (RNF09: máximo 10 minutos).
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 
 // Eventos que cuentan como "la persona sigue usando el sistema".
 const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
@@ -26,6 +43,7 @@ export default function useIdleTimer() {
             if (!isAuthenticated()) return;
 
             timeoutRef.current = setTimeout(() => {
+                notifyLogout();
                 triggerSessionEnd("inactivity");
             }, IDLE_TIMEOUT_MS);
         }

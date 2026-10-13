@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logoSena from "@/assets/images/logoSena.png";
 import { resetPassword } from "../services/passwordRecoveryService";
 import { resetPasswordSchema } from "../schemas/passwordRecoveryService";
+import { PASSWORD_RULES, passwordMeetsRules } from "../schemas/passwordRules";
+import { Check, X } from "lucide-react";
 import {
     Input,
     Button,
@@ -103,6 +105,23 @@ export default function ResetPassword() {
                             error={errors.newPassword}
                         />
 
+                        {/* Requisitos de la contraseña (RNF10): cada uno se marca
+                            en verde a medida que se cumple. */}
+                        <ul className="flex flex-col gap-1 -mt-2" aria-label="Requisitos de la contraseña">
+                            {PASSWORD_RULES.map((rule) => {
+                                const ok = rule.test(formData.newPassword);
+                                return (
+                                    <li
+                                        key={rule.label}
+                                        className={`flex items-center gap-2 text-xs ${ok ? "text-green-700" : "text-gray-500"}`}
+                                    >
+                                        {ok ? <Check size={14} aria-hidden="true" /> : <X size={14} aria-hidden="true" />}
+                                        <span>{rule.label}</span>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+
                         <Input
                             label="Confirmar contraseña"
                             name="confirmPassword"
@@ -123,7 +142,13 @@ export default function ResetPassword() {
                                 Cancelar
                             </Button>
 
-                            <Button variant="primary" size="sm" type="submit" disabled={loading}>
+                            {/* No se puede guardar hasta cumplir todos los requisitos. */}
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                type="submit"
+                                disabled={loading || !passwordMeetsRules(formData.newPassword)}
+                            >
                                 {loading ? "Guardando..." : "Cambiar "}
                             </Button>
                         </div>

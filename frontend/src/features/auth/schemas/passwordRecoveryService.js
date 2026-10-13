@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { passwordMeetsRules } from "./passwordRules";
 
 // Formulario donde el usuario pide el enlace de recuperación
 export const forgotPasswordSchema = z.object({
@@ -16,8 +17,10 @@ export const verifyCodeSchema = z.object({
 // Formulario donde el usuario define su nueva contraseña
 export const resetPasswordSchema = z
     .object({
-        newPassword: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
-        confirmPassword: z.string().min(8, "Debe confirmar la contraseña"),
+        newPassword: z
+            .string()
+            .refine(passwordMeetsRules, "La contraseña no cumple todos los requisitos"),
+        confirmPassword: z.string().min(1, "Debe confirmar la contraseña"),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
         message: "Las contraseñas no coinciden",

@@ -6,6 +6,20 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { authRepository } from "./auth.repository.js";
 import { transporter, MAIL_FROM } from "../../config/mailer.js";
+import { missingPasswordRules } from "./passwordPolicy.js";
+
+// Bloqueo por intentos fallidos de inicio de sesión (RNF11).
+const MAX_LOGIN_ATTEMPTS = 3;
+const LOCK_MINUTES = 15;
+
+function lockedError(minutes) {
+    const error = new Error(
+        `Tu cuenta está bloqueada por ${MAX_LOGIN_ATTEMPTS} intentos fallidos. ` +
+        `Intenta de nuevo en ${minutes} minuto${minutes === 1 ? "" : "s"} o recupera tu contraseña.`
+    );
+    error.code = "ACCOUNT_LOCKED";
+    return error;
+}
 
 // Tiempo de validez del código de 6 dígitos que se envía por correo
 const RESET_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutos
@@ -33,10 +47,28 @@ export const authService = {
             throw new Error("Credenciales invalidas");
         }
 
+        // Cuenta bloqueada por intentos fallidos: no se revisa la contraseña
+        // hasta que pase el tiempo de bloqueo.
+        if (user.is_locked) {
+            throw lockedError(Math.max(1, user.lock_minutes_left ?? LOCK_MINUTES));
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            throw new Error("Credenciales invalidas");
+            const result = await authRepository.registerFailedLogin(user.id, MAX_LOGIN_ATTEMPTS, LOCK_MINUTES);
+            if (result?.is_locked) {
+                throw lockedError(LOCK_MINUTES);
+            }
+            const left = MAX_LOGIN_ATTEMPTS - (result?.failed_login_attempts ?? 0);
+            throw new Error(
+                `Credenciales invalidas. Te queda${left === 1 ? "" : "n"} ${left} intento${left === 1 ? "" : "s"} antes de que la cuenta se bloquee.`
+            );
+        }
+
+        // Contraseña correcta: los intentos fallidos vuelven a 0.
+        if (user.failed_login_attempts > 0) {
+            await authRepository.resetLoginAttempts(user.id);
         }
 
         // Sin importar mayúsculas ni espacios: usuarios viejos quedaron con
@@ -49,7 +81,10 @@ export const authService = {
         // hay un token guardado y todavía es válido (no expiró), se
         // rechaza el login... a menos que "force" venga en true, en cuyo
         // caso se cierra esa sesión anterior y se sigue con esta.
-        if (user.active_token && !force) {
+        // Además, la sesión anterior solo cuenta como activa si sigue dando
+        // "señal de vida" (session_alive): si se cerró la pestaña o el
+        // navegador sin cerrar sesión, se deja entrar sin preguntar.
+        if (user.active_token && user.session_alive && !force) {
             try {
                 jwt.verify(user.active_token, process.env.JWT_SECRET);
                 // Si no lanzó error, la sesión anterior sigue vigente.
@@ -90,6 +125,13 @@ export const authService = {
     // que pueda volver a iniciar sesión en otra pestaña/navegador.
     async logout(userId) {
         await authRepository.clearActiveToken(userId);
+    },
+
+    // La pestaña abierta avisa cada pocos segundos que la sesión sigue en
+    // uso. Si deja de avisar (pestaña cerrada, equipo apagado...), el login
+    // deja de tratarla como sesión activa (ver SESSION_STALE_MINUTES).
+    async touchSession(userId) {
+        await authRepository.touchLastSeen(userId);
     },
 
     // Paso 1: genera un código de 6 dígitos, lo guarda (hasheado) y lo envía por correo.
@@ -156,8 +198,11 @@ export const authService = {
             throw new Error("Faltan datos");
         }
 
-        if (newPassword.length < 8) {
-            throw new Error("La contraseña debe tener al menos 8 caracteres");
+        // Política de complejidad (RNF10). El frontend muestra las mismas
+        // reglas, pero se revisan también aquí para que no se puedan saltar.
+        const missing = missingPasswordRules(newPassword);
+        if (missing.length) {
+            throw new Error(`La contraseña debe tener ${missing.join(", ")}.`);
         }
 
         const hashedToken = hashValue(resetToken);

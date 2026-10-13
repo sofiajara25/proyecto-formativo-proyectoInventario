@@ -27,7 +27,6 @@ export const authController = {
                 error: err.message,
             });
         }
-        console.log("BODY LOGIN:", req.body);
     },
 
     // POST /api/auth/logout
@@ -46,8 +45,15 @@ export const authController = {
     // GET /api/auth/session
     // Si llegó hasta acá es porque authenticateToken ya confirmó que la
     // sesión sigue siendo válida (si no, ya habría respondido 401 antes).
+    // Además registra la "señal de vida" de la sesión (ver
+    // authService.touchSession).
     async checkSession(req, res) {
-        res.status(200).json({ ok: true });
+        try {
+            await authService.touchSession(req.user.id);
+            res.status(200).json({ ok: true });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
     },
 
     // POST /api/auth/forgot-password

@@ -41,8 +41,9 @@ export default function ReturnForm() {
   const localToday = `${yyyy}-${mm}-${dd}`;
 
   // Opciones del select definidas afuera
-  // Solo préstamos vigentes (is_active): uno ya devuelto no debería
-  // aparecer aquí de nuevo (el backend además lo rechaza si se intenta).
+  // Solo préstamos vigentes (is_active) y con la firma electrónica
+  // aceptada: uno ya devuelto, sin firma o con la firma pendiente no
+  // debería aparecer aquí (el backend además lo rechaza si se intenta).
   // Un préstamo puede tener varios materiales (ej. "Escritorio" + "Sillas"
   // en el mismo préstamo); "product_name" en loans solo guarda el primero
   // como respaldo, así que si el select lo usara solo, el resto de
@@ -51,7 +52,7 @@ export default function ReturnForm() {
   const loanOptions = [
     { id: "", label: "Seleccionar una opción" }, // opción inicial
     ...loans
-      .filter((l) => l.is_active)
+      .filter((l) => l.is_active && l.signature_status === "Aceptado")
       .map((l) => {
         const names = Array.isArray(l.materials) && l.materials.length
           ? l.materials.map((m) => m.product_name).join(", ")
@@ -223,7 +224,7 @@ export default function ReturnForm() {
               disabled
             />
             <Select
-              label="Préstamo"
+              label={<span>Préstamo <span style={{ color: "red" }}>*</span></span>}
               name="loanId"
               value={formData.loanId}
               onChange={handleLoanChange}
@@ -231,7 +232,7 @@ export default function ReturnForm() {
             />
 
             <Select
-              label="Material a devolver"
+              label={<span>Material a devolver <span style={{ color: "red" }}>*</span></span>}
               name="loanItemId"
               value={formData.loanItemId}
               onChange={handleMaterialChange}
@@ -244,7 +245,7 @@ export default function ReturnForm() {
             />
 
             <Input
-              label="Fecha de Devolución"
+              label={<span>Fecha de Devolución <span style={{ color: "red" }}>*</span></span>}
               name="returnDate"
               type="date"
               value={formData.returnDate}
@@ -254,7 +255,7 @@ export default function ReturnForm() {
             />
 
             <Input
-              label="Cantidad Devuelta"
+              label={<span>Cantidad Devuelta <span style={{ color: "red" }}>*</span></span>}
               name="returnQuantity"
               type="number"
               min="0"
@@ -266,7 +267,7 @@ export default function ReturnForm() {
 
             <div className="md:col-span-1">
               <TextArea
-                label="Descripción / Observaciones"
+                label={<span>Descripción / Observaciones <span style={{ color: "red" }}>*</span></span>}
                 name="returnDescription"
                 value={formData.returnDescription}
                 onChange={handleChange}
@@ -279,7 +280,7 @@ export default function ReturnForm() {
           {/* Estado del material */}
           <div className="flex flex-col items-center gap-5 pt-2 border-t border-gray-200">
             <h3 className="text-lg font-medium text-gray-800">
-              Estado del material
+              Estado del material <span style={{ color: "red" }}>*</span>
             </h3>
 
             {/* Se ve como los 3 checkboxes de antes, pero solo uno puede
