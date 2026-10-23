@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Input, Button, Modal, TextArea, Select } from "@/shared";
-import { taskSchema } from "../schemas/taskSchema";
+import { taskSchema, toDay } from "../schemas/taskSchema";
 import { createTask } from "../services/taskService";
 import { showAlert, showSuccessAndThen } from "@/shared/utils/alertBus";
 import { useFormExitGuard } from "@/shared/hooks/useFormExitGuard";
@@ -74,7 +74,7 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
         if (isSubmitting) return;
         setIsSubmitting(true);
 
-        const result = taskSchema(userDates.start_date, userDates.end_date).safeParse(formData);
+        const result = taskSchema(userDates.start_date, userDates.end_date, { notBeforeToday: true }).safeParse(formData);
 
         if (!result.success) {
             const fieldErrors = {};
@@ -140,9 +140,9 @@ export default function TasksRegisterForm({ users, onClose, onSaveTask }) {
                             <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-2 text-xs">
                                 <p className="text-blue-800">
                                     Este usuario tiene rango de fechas desde{" "}
-                                    <strong>{new Date(userDates.start_date).toLocaleDateString()} </strong>
+                                    <strong>{toDay(userDates.start_date).split("-").reverse().join("/")} </strong>
                                     hasta{" "}
-                                    <strong>{new Date(userDates.end_date).toLocaleDateString()}</strong>.
+                                    <strong>{toDay(userDates.end_date).split("-").reverse().join("/")}</strong>.
                                     Las tareas deben estar dentro de este intervalo.
                                 </p>
                             </div>

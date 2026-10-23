@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/returnableMaterial";
+const API_URL = "/api/returnableMaterial";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 

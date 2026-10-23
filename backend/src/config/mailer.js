@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import os from "os";
 
 // El transporter se conecta a Gmail usando una "contraseña de aplicación",
 // NO la contraseña normal de la cuenta.
@@ -38,10 +39,33 @@ export async function sendPasswordResetEmail(to, code) {
 
     await transporter.sendMail(mailOptions);
 }
-// URL base del frontend para armar el enlace de aceptación. En producción
-// esto debería salir de una variable de entorno; por ahora coincide con el
-// origen que ya está fijo en el CORS del backend (localhost:5173).
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+// URL base del frontend para armar el enlace de aceptación.
+// Si FRONTEND_URL apunta a una dirección real (ej. un dominio o una IP),
+// se usa tal cual. Si apunta a "localhost" (o no está), se cambia por la
+// IP de este computador en la red Wi-Fi: "localhost" en un celular es el
+// mismo celular, así que el enlace del correo no abriría nada. Con la IP,
+// cualquier celular conectado a la misma red puede aceptar el préstamo.
+// Se calcula en cada correo porque la IP cambia según la red (casa, SENA).
+const FRONTEND_PORT = 5173;
+
+function getLanIp() {
+    const ignored = /vethernet|virtualbox|vmware|wsl|hyper-v|docker|loopback/i;
+    for (const [name, addresses] of Object.entries(os.networkInterfaces())) {
+        if (ignored.test(name)) continue;
+        const ipv4 = (addresses || []).find((a) => a.family === "IPv4" && !a.internal);
+        if (ipv4) return ipv4.address;
+    }
+    return null;
+}
+
+function getFrontendUrl() {
+    const configured = process.env.FRONTEND_URL;
+    if (configured && !/localhost|127\.0\.0\.1/.test(configured)) {
+        return configured.replace(/\/+$/, "");
+    }
+    const ip = getLanIp();
+    return ip ? `http://${ip}:${FRONTEND_PORT}` : `http://localhost:${FRONTEND_PORT}`;
+}
 
 /**
  * Envía el correo con el enlace público para aceptar (firmar) un préstamo.
@@ -52,7 +76,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
  * @param {{ loanUser: string, materialsSummary: string, loanDate: string, returnDate: string }} loan
  */
 export async function sendLoanAcceptanceEmail(to, token, loan) {
-    const acceptUrl = `${FRONTEND_URL}/aceptar-prestamo/${token}`;
+    const acceptUrl = `${getFrontendUrl()}/aceptar-prestamo/${token}`;
 
     const mailOptions = {
         from: `"Soporte" <${process.env.GMAIL_USER}>`,

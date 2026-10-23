@@ -3,7 +3,7 @@
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
-const API_URL = "http://localhost:5000/api/users";
+const API_URL = "/api/users";
 
 // El formulario de creación guarda userPhoto como un File suelto (o null),
 // mientras que el de edición lo guarda como arreglo (File nuevo, string con
@@ -98,7 +98,7 @@ export async function getMyProfile() {
 
 export async function getUserById(id) {
     const token = sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+    const response = await fetch(`/api/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error("Error al obtener usuario");

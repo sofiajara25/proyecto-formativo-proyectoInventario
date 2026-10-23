@@ -11,7 +11,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { loanController } from "./loan.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, RETURN_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -53,7 +53,8 @@ router.post(
     upload.fields([{ name: "photo", maxCount: 12 }]),
     loanController.create,
 );
-router.get("/", authenticateToken, requirePermission("list_loan"), loanController.list);
+// También lo pide el select de préstamos del formulario de retornos.
+router.get("/", authenticateToken, requireAnyPermission(["list_loan", ...RETURN_FORM_PERMISSIONS]), loanController.list);
 router.get("/:loan_id", authenticateToken, requirePermission("view_loan"), loanController.getById);
 router.put(
     "/:loan_id",

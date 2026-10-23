@@ -9,7 +9,7 @@ import { Router } from "express";
 // solo delega la ejecución al controller.
 import { categoryController } from "./category.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, MATERIAL_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -23,7 +23,10 @@ const router = Router();
 router.post("/", authenticateToken, requirePermission("create_category"), categoryController.create);
 
 // (había una ruta GET "/" duplicada; Express solo ejecutaba la primera)
-router.get("/", authenticateToken, requirePermission("list_category"), categoryController.list);
+// Listado: también lo necesitan los selects de los formularios de
+// material, así que basta con poder listar este catálogo O con poder
+// crear/editar materiales.
+router.get("/", authenticateToken, requireAnyPermission(["list_category", ...MATERIAL_FORM_PERMISSIONS]), categoryController.list);
 
 // routes/brand.routes.js
 router.get("/:id", authenticateToken, requirePermission("view_category"), categoryController.getById);

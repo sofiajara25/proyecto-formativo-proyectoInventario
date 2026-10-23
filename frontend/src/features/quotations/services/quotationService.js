@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/quotations";
+const API_URL = "/api/quotations";
 
 export async function createQuotation(quotationData) {
     const token = sessionStorage.getItem("token");

@@ -1,6 +1,6 @@
 // Estas dos llamadas son públicas (sin token de sesión): quien firma puede
 // no tener cuenta en el sistema.
-const API_URL = "http://localhost:5000/api/loan-signatures";
+const API_URL = "/api/loan-signatures";
 
 export async function getLoanSignature(token) {
     const response = await fetch(`${API_URL}/${token}`);

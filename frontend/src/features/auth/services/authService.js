@@ -1,6 +1,6 @@
 // Consumir Api login
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "/api/auth";
 
 export async function login(userData, { force = false } = {}) {
     const response = await fetch(`${API_URL}/login`, {

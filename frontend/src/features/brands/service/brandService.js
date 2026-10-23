@@ -1,7 +1,7 @@
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
-const API_URL = "http://localhost:5000/api/brands";
+const API_URL = "/api/brands";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 
@@ -67,7 +67,7 @@ export async function getBrands() {
 
 export async function getBrandById(id) {
     const token = sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/api/brands/${id}`, {
+    const response = await fetch(`/api/brands/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error("Error al obtener marca");
@@ -76,7 +76,7 @@ export async function getBrandById(id) {
 
 export async function updateBrand(id, brandData) {
     const token = sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/api/brands/${id}`, {
+    const response = await fetch(`/api/brands/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",

@@ -4,8 +4,10 @@ import router from "./router";
 import AlertProvider from "../shared/context/AlertProvider";
 import SessionModalProvider from "../shared/context/SessionModalProvider";
 import useIdleTimer from "../shared/hooks/useIdleTimer";
+import { getMyAccess } from "../features/access/services/accessService";
+import { saveAccess } from "../shared/utils/permissions";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "/api/auth";
 const SESSION_CHECK_INTERVAL_MS = 5000;
 
 export default function App() {
@@ -47,6 +49,30 @@ export default function App() {
     }, SESSION_CHECK_INTERVAL_MS);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Los permisos se leen del backend al iniciar sesión, pero un
+  // administrador puede cambiarlos mientras la persona tiene la sesión
+  // abierta. Para no seguir mostrando botones con permisos viejos, se
+  // vuelven a pedir al abrir la app y cada vez que se regresa a la pestaña.
+  useEffect(() => {
+    const refreshAccess = () => {
+      if (!sessionStorage.getItem("token")) return;
+      getMyAccess()
+        .then(saveAccess)
+        .catch((err) => console.error("Error actualizando los permisos:", err));
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshAccess();
+    };
+
+    refreshAccess();
+    window.addEventListener("focus", refreshAccess);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", refreshAccess);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   return (

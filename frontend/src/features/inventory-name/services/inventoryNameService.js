@@ -1,7 +1,7 @@
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servinventoryName_idor Express local
 // En producción debería provenir de variables de entorno
-const API_URL = "http://localhost:5000/api/inventory-names";
+const API_URL = "/api/inventory-names";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 

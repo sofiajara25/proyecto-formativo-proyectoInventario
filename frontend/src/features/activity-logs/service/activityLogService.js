@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/activity-logs";
+const API_URL = "/api/activity-logs";
 
 // Trae la bitácora de actividad (solo el Super Administrador tiene
 // permiso en el backend para esta ruta).

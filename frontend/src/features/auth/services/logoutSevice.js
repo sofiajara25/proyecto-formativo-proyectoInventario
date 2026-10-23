@@ -3,7 +3,7 @@
 import { clearAccess } from "@/shared/utils/permissions";
 import { clearToken, getToken } from "@/shared/utils/tokenStorage";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "/api/auth";
 
 export function logout() {
     const token = getToken();

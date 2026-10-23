@@ -3,23 +3,34 @@
 // features/auth/components/Login.jsx), bajo la clave "access":
 // { userType, isAdmin, permissions: [] }
 //
-// Usamos localStorage (no sessionStorage) para que, igual que el token,
-// el acceso se comparta entre todas las pestañas del mismo sitio.
-// Ver shared/utils/tokenStorage.js para la explicación completa.
+// Usamos sessionStorage, IGUAL QUE EL TOKEN (ver tokenStorage.js): cada
+// pestaña tiene su propia sesión, así que también sus propios permisos.
+// Antes esto estaba en localStorage (compartido entre pestañas): si en
+// una pestaña se entraba como Administrador y en otra como Instructor, la
+// última en iniciar sesión sobrescribía los permisos de la otra, y el
+// Instructor veía botones que no le correspondían (ej. el "+" para crear
+// marcas o categorías).
 
 import { AUTH_CHANGED_EVENT } from "./tokenStorage";
 
 const STORAGE_KEY = "access";
 
+// Limpia el acceso viejo que quedó en localStorage de la versión anterior.
+try {
+    localStorage.removeItem(STORAGE_KEY);
+} catch {
+    // Sin acceso al almacenamiento: no hay nada que limpiar.
+}
+
 // Guarda el resumen de acceso (llamar justo después del login)
 export function saveAccess(access) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(access));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(access));
     window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
 
 // Borra el resumen de acceso (llamar al cerrar sesión)
 export function clearAccess() {
-    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
     window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
 
@@ -27,7 +38,7 @@ export function clearAccess() {
 // antes de este cambio), devuelve un acceso "vacío" por seguridad:
 // sin permisos y sin ser admin, para no mostrar de más por error.
 function getAccess() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(STORAGE_KEY);
 
     if (!raw) {
         return { userType: null, isAdmin: false, isSuperAdmin: false, permissions: [] };

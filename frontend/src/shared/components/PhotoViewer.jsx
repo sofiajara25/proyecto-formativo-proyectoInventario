@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Lightbox from "./Lightbox";
 
-const API_ORIGIN = "http://localhost:5000";
+const API_ORIGIN = "";
 const toAbsoluteUrl = (item) => `${API_ORIGIN}/${item.replace(/^\/+/, "")}`;
 
 // Muestra la(s) foto(s) de un registro (material, préstamo, usuario...).

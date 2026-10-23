@@ -1,6 +1,6 @@
-const GROUPS_API_URL = "http://localhost:5000/api/groups";
-const PERMISSIONS_API_URL = "http://localhost:5000/api/permissions";
-const USER_PERMISSIONS_API_URL = "http://localhost:5000/api/users";
+const GROUPS_API_URL = "/api/groups";
+const PERMISSIONS_API_URL = "/api/permissions";
+const USER_PERMISSIONS_API_URL = "/api/users";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 export async function getGroupsPermissions(group_id) {

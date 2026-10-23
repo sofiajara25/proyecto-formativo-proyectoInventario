@@ -98,7 +98,7 @@ export default function ViewConsumablePage() {
                     {/* Acciones */}
                     <div className="flex justify-end mt-4 gap-4">
                         <Button variant="secondary" onClick={() => navigate(-1)}>Volver</Button>
-                        <Button variant="primary" onClick={() => navigate(`/dashboard/consumibles/${id}/edit`)}>Editar</Button>
+                        <Button variant="primary" onClick={() => navigate(`/dashboard/consumables/${id}/edit`)}>Editar</Button>
                     </div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { returnableMaterialController } from "./returnableMaterial.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, LOAN_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -50,7 +50,8 @@ router.post(
     returnableMaterialController.create
 );
 
-router.get("/", authenticateToken, requirePermission("list_returnable_material"), returnableMaterialController.list);
+// También lo pide el select de materiales del formulario de préstamos.
+router.get("/", authenticateToken, requireAnyPermission(["list_returnable_material", ...LOAN_FORM_PERMISSIONS]), returnableMaterialController.list);
 
 // Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"
 // como si fuera el parámetro :id. Usa el mismo permiso que crear, porque

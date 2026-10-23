@@ -2,7 +2,7 @@ import axios from "axios";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 
-const API_URL = "http://localhost:5000/api/loan";
+const API_URL = "/api/loan";
 
 // Usada al ACTUALIZAR: "photo" puede traer una MEZCLA de fotos que ya
 // existían (strings con la ruta) y fotos nuevas (File). Las que ya existían

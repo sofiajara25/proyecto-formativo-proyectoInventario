@@ -4,7 +4,7 @@ import "ldrs/react/Infinity.css";
 import Lightbox from "./Lightbox";
 
 // Origen del backend donde viven los archivos ya subidos (ej. "uploads/foto.jpg").
-const API_ORIGIN = "http://localhost:5000";
+const API_ORIGIN = "";
 
 // Un elemento de "value" puede ser:
 // - un File recién seleccionado por el usuario (aún no subido), o

@@ -10,7 +10,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { consumableMaterialController } from "./consumableMaterial.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, LOAN_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -50,7 +50,8 @@ router.post(
 router.get(
     "/",
     authenticateToken,
-    requirePermission("list_consumable_material"),
+    // También lo pide el select de materiales del formulario de préstamos.
+    requireAnyPermission(["list_consumable_material", ...LOAN_FORM_PERMISSIONS]),
     consumableMaterialController.list);
 
 // Debe ir ANTES de "/:id" — si no, Express interpreta "next-tool-id"

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/access";
+const API_URL = "/api/access";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 

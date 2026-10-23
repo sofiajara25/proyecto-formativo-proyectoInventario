@@ -37,13 +37,15 @@ export default function ViewReturMaterialPage() {
                     "linear-gradient(to left, var(--color-primary-950), var(--color-tertiary-950))",
                 fontFamily: "var(--main-font)",
             }}
-            onClick={() => navigate("/dashboard/list-devolutivos")}
         >
             <Navbar />
 
+            {/* Clic en el fondo (fuera de la tarjeta) vuelve al listado. Solo
+                aquí y no en el contenedor de toda la página, para que los
+                clics en la Navbar no saquen a la persona del detalle. */}
             <div
                 className="flex flex-1 items-center justify-center px-10 py-8"
-                onClick={() => navigate("/dashboard/list-devolutivos")}
+                onClick={() => navigate("/dashboard/list-devolutivo")}
             >
                 <div
                     className="bg-white rounded-2xl flex flex-col gap-6"

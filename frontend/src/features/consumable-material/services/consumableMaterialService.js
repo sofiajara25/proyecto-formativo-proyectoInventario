@@ -1,7 +1,7 @@
 // URL base del endpoint de usuarios en el backend
 // En desarrollo apunta al servidor Express local
 // En producción debería provenir de variables de entorno
-const API_URL = "http://localhost:5000/api/consumableMaterial";
+const API_URL = "/api/consumableMaterial";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 
@@ -105,7 +105,7 @@ export async function getNextConsumableToolId() {
 
 export async function getConsumables() {
     const token = sessionStorage.getItem("token");
-    const response = await fetch("http://localhost:5000/api/consumableMaterial", {
+    const response = await fetch("/api/consumableMaterial", {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error("Error al obtener materiales de consumo");
@@ -114,7 +114,7 @@ export async function getConsumables() {
 
 export async function getConsumableById(id) {
     const token = sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/api/consumableMaterial/${id}`, {
+    const response = await fetch(`/api/consumableMaterial/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error("Error al obtener material de consumo");

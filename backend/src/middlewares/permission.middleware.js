@@ -50,6 +50,26 @@ export function requirePermission(codename) {
 // indicados. Sirve para datos de apoyo que usan varias pantallas (ej. la
 // lista de usuarios para elegir cuentadantes, que la necesitan quienes
 // crean o editan materiales de consumo o devolutivos).
+// Permisos de quien llena los formularios de material (crear o editar,
+// consumo o devolutivo). Quien los tiene necesita poder ELEGIR marcas,
+// categorías, nombres de inventario y cotizaciones en los selects, aunque
+// no tenga el permiso de "listar" ese catálogo como módulo aparte.
+export const MATERIAL_FORM_PERMISSIONS = [
+    "create_consumable_material",
+    "modify_consumable_material",
+    "create_returnable_material",
+    "modify_returnable_material",
+];
+
+// Igual que MATERIAL_FORM_PERMISSIONS, para los demás formularios: quien
+// puede crear o editar un préstamo necesita ver los materiales y usuarios
+// en los selects; quien registra un retorno necesita ver los préstamos; y
+// quien asigna tareas necesita ver los usuarios. El permiso de "listar" ese
+// módulo es aparte y sigue controlando la pantalla del listado.
+export const LOAN_FORM_PERMISSIONS = ["create_loan", "modify_loan"];
+export const RETURN_FORM_PERMISSIONS = ["create_return", "modify_return"];
+export const TASK_FORM_PERMISSIONS = ["create_task", "modify_task"];
+
 export function requireAnyPermission(codenames) {
     return async (req, res, next) => {
         try {

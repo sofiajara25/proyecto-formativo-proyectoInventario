@@ -1,6 +1,6 @@
 // Consumir Api recuperación de contraseña
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "/api/auth";
 
 // Solicita el envío del código de recuperación al correo
 export async function forgotPassword(userEmail) {

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/groups";
+const API_URL = "/api/groups";
 // import { getToken } from "@/shared/utils/tokenStorage";
 
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { getToken, isAuthenticated } from "../utils/tokenStorage";
 import { triggerSessionEnd } from "../utils/sessionEvents";
 
-const LOGOUT_URL = "http://localhost:5000/api/auth/logout";
+const LOGOUT_URL = "/api/auth/logout";
 
 // Avisa al backend que la sesión terminó, para que la libere de inmediato.
 // Antes, al cerrarse por inactividad solo se borraba el token en el

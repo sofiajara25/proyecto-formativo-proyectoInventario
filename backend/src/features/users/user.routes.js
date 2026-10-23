@@ -10,7 +10,7 @@ import path from "path";
 // solo delega la ejecución al controller.
 import { userController } from "./user.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requireSuperAdmin, requirePermission, requireAnyPermission } from "../../middlewares/permission.middleware.js";
+import { requireSuperAdmin, requirePermission, requireAnyPermission, LOAN_FORM_PERMISSIONS, TASK_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 // Creamos una instancia del router de Express
 const router = Router();
@@ -50,11 +50,12 @@ router.post(
     upload.array("userPhoto"),
     userController.create);
 
-// Obtener todos los usuarios
+// Obtener todos los usuarios. También lo piden los selects de "usuario"
+// de los formularios de préstamos y de tareas.
 router.get(
     "/",
     authenticateToken,
-    requirePermission("list_user"),
+    requireAnyPermission(["list_user", ...LOAN_FORM_PERMISSIONS, ...TASK_FORM_PERMISSIONS]),
     userController.list
 );
 

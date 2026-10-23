@@ -4,7 +4,7 @@ import path from "path";
 
 import { quotationController } from "./quotation.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, MATERIAL_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 const router = Router();
 
@@ -37,7 +37,10 @@ router.post(
     upload.single("pdf"),
     quotationController.create,
 );
-router.get("/", authenticateToken, requirePermission("list_quotation"), quotationController.list);
+// Listado: también lo necesitan los selects de los formularios de
+// material, así que basta con poder listar este catálogo O con poder
+// crear/editar materiales.
+router.get("/", authenticateToken, requireAnyPermission(["list_quotation", ...MATERIAL_FORM_PERMISSIONS]), quotationController.list);
 router.get("/:id", authenticateToken, requirePermission("view_quotation"), quotationController.getById);
 router.patch("/:id/status", authenticateToken, requirePermission("state_quotation"), quotationController.updateStatus);
 

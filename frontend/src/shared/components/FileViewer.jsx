@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { FileText } from "lucide-react";
 
-const API_ORIGIN = "http://localhost:5000";
+const API_ORIGIN = "";
 const toAbsoluteUrl = (item) => `${API_ORIGIN}/${item.replace(/^\/+/, "")}`;
 const isPdf = (path) => /\.pdf$/i.test(path);
 const isImage = (path) => /\.(png|jpe?g|webp|gif)$/i.test(path);

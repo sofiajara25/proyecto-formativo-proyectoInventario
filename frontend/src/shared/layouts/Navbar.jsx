@@ -20,7 +20,7 @@ import { getTasksByUserId, getTasksPendingConfirmation, confirmTask } from "../.
 import { getLoans } from "../../features/loans/services/loanService";
 import { settings as settingsCards } from "../../features/home/settings/data/settings";
 
-const API_ORIGIN = "http://localhost:5000";
+const API_ORIGIN = "";
 
 // Mismos permisos que las tarjetas de "Listas" (ver
 // features/home/lists/components/ListsPage.jsx): si el usuario no tiene

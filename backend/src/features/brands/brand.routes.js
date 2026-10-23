@@ -9,7 +9,7 @@ import { Router } from "express";
 // solo delega la ejecución al controller.
 import { brandController } from "./brand.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission, MATERIAL_FORM_PERMISSIONS } from "../../middlewares/permission.middleware.js";
 
 
 // Creamos una instancia del router de Express
@@ -25,7 +25,10 @@ router.post("/", authenticateToken, requirePermission("create_brand"), brandCont
 // (había una ruta GET "/" duplicada apuntando a brandController.getAll;
 // Express solo ejecutaba la primera, así que la segunda no hacía nada.
 // Se deja una sola.)
-router.get("/", authenticateToken, requirePermission("list_brand"), brandController.list);
+// Listado: también lo necesitan los selects de los formularios de
+// material, así que basta con poder listar este catálogo O con poder
+// crear/editar materiales.
+router.get("/", authenticateToken, requireAnyPermission(["list_brand", ...MATERIAL_FORM_PERMISSIONS]), brandController.list);
 
 // routes/brand.routes.js
 router.get("/:id", authenticateToken, requirePermission("view_brand"), brandController.getById);
