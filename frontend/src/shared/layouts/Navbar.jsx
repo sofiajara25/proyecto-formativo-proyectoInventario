@@ -22,6 +22,33 @@ import { settings as settingsCards } from "../../features/home/settings/data/set
 
 const API_ORIGIN = "";
 
+// Cada cuánto se vuelven a pedir las notificaciones (tareas asignadas,
+// tareas por confirmar y préstamos recientes).
+const NOTIFICATIONS_REFRESH_MS = 30000;
+
+// Ids de las tareas asignadas que la persona ya vio al abrir la campana.
+// Se guardan por usuario en este navegador; si no se pueden leer, todas
+// las tareas cuentan como nuevas (no se pierde ninguna notificación).
+const seenTasksKey = (userId) => `seenTasks:${userId}`;
+
+function readSeenTaskIds(userId) {
+    if (!userId) return [];
+    try {
+        const ids = JSON.parse(localStorage.getItem(seenTasksKey(userId)) || "[]");
+        return Array.isArray(ids) ? ids : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveSeenTaskIds(userId, ids) {
+    try {
+        localStorage.setItem(seenTasksKey(userId), JSON.stringify(ids));
+    } catch {
+        // Sin acceso al almacenamiento: la próxima vez se verán como nuevas.
+    }
+}
+
 // Mismos permisos que las tarjetas de "Listas" (ver
 // features/home/lists/components/ListsPage.jsx): si el usuario no tiene
 // ninguno de estos, esa pantalla le quedaría vacía, así que no tiene
@@ -36,8 +63,11 @@ const LISTS_PERMISSIONS = [
 export default function Navbar() {
     const navigate = useNavigate();
     const isAdmin = checkIsAdmin();
-    const [notifications, setNotifications] = useState([]);
+    const [notifications, setNotifications] = useState([]); // tareas asignadas a mí
+    const [recentLoans, setRecentLoans] = useState([]);
     const [notifLoading, setNotifLoading] = useState(true);
+    const currentUserId = getCurrentUser()?.id;
+    const [seenTaskIds, setSeenTaskIds] = useState(() => readSeenTaskIds(currentUserId));
 
     // Cada enlace del menú se oculta si, con los permisos del usuario,
     // la pantalla a la que lleva quedaría vacía. "Ajustes" también cuenta
@@ -59,11 +89,19 @@ export default function Navbar() {
     // Cuántas cosas nuevas hay para mostrar como "burbuja" sobre la
     // campana, sin que haga falta abrir el dropdown para darse cuenta:
     // tareas por confirmar (para quien creó tareas) + tareas propias
-    // rechazadas (para quien las tiene asignadas).
-    const rejectedCount = !isAdmin
-        ? notifications.filter((task) => task.rejectedAt).length
-        : 0;
-    const badgeCount = pendingConfirmations.length + rejectedCount;
+    // rechazadas + tareas que me asignaron y que todavía no he visto.
+    const rejectedCount = notifications.filter((task) => task.rejectedAt).length;
+    const isNewTask = (task) => !task.rejectedAt && !seenTaskIds.includes(task.id);
+    const newTasksCount = notifications.filter(isNewTask).length;
+    const badgeCount = pendingConfirmations.length + rejectedCount + newTasksCount;
+
+    // Al abrir la campana, las tareas nuevas pasan a "vistas".
+    const markTasksAsSeen = () => {
+        if (!currentUserId || newTasksCount === 0) return;
+        const ids = [...new Set([...seenTaskIds, ...notifications.map((task) => task.id)])];
+        setSeenTaskIds(ids);
+        saveSeenTaskIds(currentUserId, ids);
+    };
 
     const loadPendingConfirmations = () => {
         getTasksPendingConfirmation()
@@ -92,33 +130,39 @@ export default function Navbar() {
         }
     };
 
-    // Notificaciones: a un administrador le muestra los últimos 5
-    // préstamos; a un usuario estándar, sus tareas asignadas. isAdmin()
-    // lee el resumen de acceso guardado en el login (shared/utils/
-    // permissions.js), así que no hace falta pedirlo de nuevo aquí.
+    // Notificaciones: a TODOS les muestra sus tareas asignadas (antes un
+    // Administrador solo veía préstamos, así que si le asignaban una tarea
+    // nunca se enteraba). Además, a un Administrador que pueda ver
+    // préstamos le muestra los últimos 5. Se vuelve a consultar cada
+    // NOTIFICATIONS_REFRESH_MS para que una tarea nueva aparezca sin tener
+    // que recargar la página.
+    const canSeeLoans = isAdmin && hasPermission("list_loan");
+
     useEffect(() => {
         const user = getCurrentUser();
+        if (!user) return;
 
-        const loadNotifications = !user
-            ? Promise.resolve([])
-            : isAdmin
-                ? getLoans().then((loans) => loans.slice(-5).reverse())
-                : getTasksByUserId(user.id).then((tasks) =>
-                    // Ya completadas no son notificación de nada pendiente,
-                    // así que no tiene sentido seguir mostrándolas aquí.
-                    Array.isArray(tasks) ? tasks.filter((t) => t.status !== "Completada") : tasks
-                );
+        const loadNotifications = () => {
+            const tasksPromise = getTasksByUserId(user.id)
+                // Ya completadas no son notificación de nada pendiente,
+                // así que no tiene sentido seguir mostrándolas aquí.
+                .then((tasks) => setNotifications(Array.isArray(tasks) ? tasks.filter((t) => t.status !== "Completada") : []))
+                .catch((err) => console.error("Error cargando tareas asignadas:", err));
 
-        loadNotifications
-            .then((items) => setNotifications(Array.isArray(items) ? items : []))
-            .catch((err) => {
-                console.error("Error cargando notificaciones:", err);
-                setNotifications([]);
-            })
-            .finally(() => setNotifLoading(false));
+            const loansPromise = canSeeLoans
+                ? getLoans()
+                    .then((loans) => setRecentLoans(Array.isArray(loans) ? loans.slice(-5).reverse() : []))
+                    .catch((err) => console.error("Error cargando préstamos recientes:", err))
+                : Promise.resolve();
 
-        if (user) loadPendingConfirmations();
-    }, [isAdmin]);
+            Promise.all([tasksPromise, loansPromise]).finally(() => setNotifLoading(false));
+            loadPendingConfirmations();
+        };
+
+        loadNotifications();
+        const interval = setInterval(loadNotifications, NOTIFICATIONS_REFRESH_MS);
+        return () => clearInterval(interval);
+    }, [canSeeLoans]);
 
     return (
         <nav
@@ -156,7 +200,7 @@ export default function Navbar() {
                         {/* Notificaciones */}
                         <Dropdown>
                             <DropdownTrigger>
-                                <div className="relative">
+                                <div className="relative" onClick={markTasksAsSeen}>
                                     <IconButton ariaLabel="Notificaciones" variant="nav">
                                         <Bell size={24} />
                                     </IconButton>
@@ -174,7 +218,7 @@ export default function Navbar() {
                             <DropdownContent className="w-80 max-h-96 overflow-y-auto">
                                 <div className="px-3 py-2 border-b border-white/10">
                                     <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)", fontWeight: "var(--font-weight-bold)" }}>
-                                        {isAdmin ? "Últimos préstamos" : "Tareas asignadas"}
+                                        Tareas asignadas
                                     </p>
                                 </div>
 
@@ -186,29 +230,22 @@ export default function Navbar() {
 
                                 {!notifLoading && notifications.length === 0 && (
                                     <p className="px-3 py-2" style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)" }}>
-                                        {isAdmin ? "No hay préstamos recientes" : "No tienes tareas asignadas"}
+                                        No tienes tareas asignadas
                                     </p>
                                 )}
 
-                                {!notifLoading && isAdmin && notifications.map((loan) => (
-                                    <div key={loan.loan_id} className="px-3 py-2 border-b border-white/10 last:border-b-0">
-                                        <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)", fontWeight: "var(--font-weight-bold)" }}>
-                                            {loan.product_name}
-                                        </p>
-                                        <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-300)" }}>
-                                            Usuario: {loan.loan_user}
-                                        </p>
-                                        <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-300)" }}>
-                                            Fecha: {formatDate(loan.loan_date)}
-                                        </p>
-                                    </div>
-                                ))}
-
-                                {!notifLoading && !isAdmin && notifications.map((task) => (
+                                {!notifLoading && notifications.map((task) => (
                                     <div key={task.id} className="px-3 py-2 border-b border-white/10 last:border-b-0">
                                         <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)", fontWeight: "var(--font-weight-bold)" }}>
                                             {task.name}
                                         </p>
+                                        {!task.rejectedAt && (
+                                            <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-300)" }}>
+                                                {task.creatorName
+                                                    ? `${task.creatorName} ${task.creatorLastname ?? ""} te asignó esta tarea`
+                                                    : "Te asignaron esta tarea"}
+                                            </p>
+                                        )}
                                         {task.rejectedAt ? (
                                             <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-red-300, #fca5a5)" }}>
                                                 {task.creatorName
@@ -220,6 +257,29 @@ export default function Navbar() {
                                                 Entrega: {formatDate(task.dueDate)}
                                             </p>
                                         )}
+                                    </div>
+                                ))}
+
+                                {/* Últimos préstamos: solo para un Administrador que
+                                    pueda ver préstamos. */}
+                                {canSeeLoans && recentLoans.length > 0 && (
+                                    <div className="px-3 py-2 border-b border-t border-white/10">
+                                        <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)", fontWeight: "var(--font-weight-bold)" }}>
+                                            Últimos préstamos
+                                        </p>
+                                    </div>
+                                )}
+                                {!notifLoading && canSeeLoans && recentLoans.map((loan) => (
+                                    <div key={loan.loan_id} className="px-3 py-2 border-b border-white/10 last:border-b-0">
+                                        <p style={{ fontSize: "var(--fs-xxs)", color: "var(--color-white)", fontWeight: "var(--font-weight-bold)" }}>
+                                            {loan.product_name}
+                                        </p>
+                                        <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-300)" }}>
+                                            Usuario: {loan.loan_user}
+                                        </p>
+                                        <p style={{ fontSize: "var(--fs-xxxs)", color: "var(--color-gray-300)" }}>
+                                            Fecha: {formatDate(loan.loan_date)}
+                                        </p>
                                     </div>
                                 ))}
 
