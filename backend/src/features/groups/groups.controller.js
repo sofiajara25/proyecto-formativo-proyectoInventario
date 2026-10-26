@@ -48,6 +48,25 @@ export const groupsController = {
         }
     },
 
+    async updateName(req, res) {
+        try {
+            const groupId = Number(req.params.groupId);
+            const group = await groupsService.updateName(groupId, req.body.group_name);
+
+            res.status(200).json({
+                message: "Nombre del grupo actualizado correctamente",
+                groupId: group.group_id,
+                groupName: group.group_name,
+            });
+        } catch (error) {
+            console.error(error);
+
+            res.status(error.status ?? 500).json({
+                error: error.status ? error.message : "Error actualizando el nombre del grupo",
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const groups = await groupsService.getAll();

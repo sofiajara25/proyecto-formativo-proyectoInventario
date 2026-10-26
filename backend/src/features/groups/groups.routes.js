@@ -16,6 +16,9 @@ router.post("/", authenticateToken, requireSuperAdmin(), groupsController.create
 
 router.get("/", authenticateToken, groupsController.getAll);
 
+// Renombrar un grupo (por si el nombre quedó mal escrito al crearlo)
+router.put("/:groupId", authenticateToken, requireSuperAdmin(), groupsController.updateName);
+
 router.get(
     "/:groupId/permissions",
     authenticateToken,

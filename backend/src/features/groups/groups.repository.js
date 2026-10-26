@@ -16,6 +16,18 @@ export const groupsRepository = {
     return result.rows[0];
   },
 
+  // Cambiar el nombre de un grupo (por si se escribió mal al crearlo)
+  async updateName(groupId, groupName) {
+    const query = `
+      UPDATE groups
+      SET group_name = $1
+      WHERE group_id = $2
+      RETURNING group_id, group_name, is_active;
+    `;
+    const result = await pool.query(query, [groupName, groupId]);
+    return result.rows[0];
+  },
+
   async getAll() {
     const query = `
       SELECT

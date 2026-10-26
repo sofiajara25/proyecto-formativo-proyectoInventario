@@ -52,6 +52,27 @@ export async function getGroups() {
     return response.json();
 }
 
+// Cambiar el nombre de un grupo (por si quedó mal escrito)
+export async function updateGroupName(groupId, groupName) {
+    const token = sessionStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/${groupId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ group_name: groupName }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Error actualizando el nombre del grupo");
+    }
+
+    return response.json();
+}
+
 export async function updateGroupPermissions(groupId, permissionIds) {
     const token = sessionStorage.getItem("token");
 

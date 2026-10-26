@@ -15,7 +15,7 @@ export const activityLogRepository = {
         params.push(limit, offset);
 
         const query = `
-            SELECT id, user_id, user_name, action, module, entity_id, description, created_at
+            SELECT id, user_id, user_name, user_lastname, action, module, entity_id, description, created_at
             FROM activity_logs
             ${where}
             ORDER BY created_at DESC

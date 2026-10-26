@@ -41,9 +41,10 @@ export const activityLogsColumns = [
         cell: ({ row }) => formatDateTime(row.original.created_at),
     },
     {
-        accessorKey: "user_name",
+        id: "usuario",
         header: "Usuario",
-        cell: ({ row }) => row.original.user_name || "—",
+        accessorFn: (row) =>
+            `${row.user_name || "—"} ${row.user_lastname || "—"}`.trim(),
     },
     {
         accessorKey: "action",

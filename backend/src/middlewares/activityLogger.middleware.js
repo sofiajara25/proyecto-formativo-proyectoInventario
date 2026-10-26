@@ -82,19 +82,22 @@ function guessEntityId(req, responseBody) {
 async function insertLog({ userId, action, module, entityId, description }) {
     try {
         let userName = null;
+        let userLastname = null;
 
         if (userId) {
             const result = await pool.query(
-                "SELECT user_name FROM users WHERE id = $1 LIMIT 1;",
+                "SELECT user_name, user_lastname FROM users WHERE id = $1 LIMIT 1;",
                 [userId]
             );
+
             userName = result.rows[0]?.user_name ?? null;
+            userLastname = result.rows[0]?.user_lastname ?? null;
         }
 
         await pool.query(
-            `INSERT INTO activity_logs (user_id, user_name, action, module, entity_id, description)
-             VALUES ($1, $2, $3, $4, $5, $6);`,
-            [userId ?? null, userName, action, module, entityId, description]
+            `INSERT INTO activity_logs (user_id, user_name, user_lastname,action, module, entity_id, description)
+             VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+            [userId ?? null, userName, userLastname, action, module, entityId, description]
         );
     } catch (err) {
         // Un fallo al escribir el log NUNCA debe tumbar la petición real

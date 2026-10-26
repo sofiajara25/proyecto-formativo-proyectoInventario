@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Select, Button, Input, Modal } from "@/shared";
-import { createGroup, getGroups } from "../services/groupService";
+import { createGroup, getGroups, updateGroupName } from "../services/groupService";
 import { getGroupsPermissions, getUserPermissions } from "../services/permissionService";
 import { getUsers } from "../../users/services/userService";
 import { groupSchema } from "../schemas/groupSchema";
@@ -24,6 +24,12 @@ export default function AccessSidebar({
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Renombrar grupo
+  const [isRenameOpen, setIsRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [renameError, setRenameError] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const [userId, setUserId] = useState("");
   const [groups, setGroups] = useState([]);
@@ -88,6 +94,41 @@ export default function AccessSidebar({
       setIsModalOpen(false);
     }
   };
+  const openRename = () => {
+    const current = groups.find((group) => String(group.group_id) === selectedGroup);
+    setRenameValue(current?.group_name ?? "");
+    setRenameError("");
+    setIsRenameOpen(true);
+  };
+
+  const handleRename = async () => {
+    const result = groupSchema.safeParse({ group_name: renameValue.trim() });
+    if (!result.success) {
+      setRenameError(result.error.issues[0].message);
+      return;
+    }
+
+    setIsRenaming(true);
+    try {
+      const response = await updateGroupName(selectedGroup, result.data.group_name);
+      // Actualizamos la lista y el título sin recargar la página
+      setGroups((prev) =>
+        prev.map((group) =>
+          String(group.group_id) === selectedGroup
+            ? { ...group, group_name: response.groupName }
+            : group,
+        ),
+      );
+      setSelectedGroupName(response.groupName);
+      setIsRenameOpen(false);
+      showAlert("Nombre del grupo actualizado", { type: "success" });
+    } catch (error) {
+      setRenameError(error.message);
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
   let label;
   // 😂 lógica fuera del JSX
   if (isSubmitting) {
@@ -128,6 +169,31 @@ export default function AccessSidebar({
             options={groupOptions}
           />
         </div>
+        {selectedGroup && (
+          <div className="flex justify-center">
+            <Button variant="secondary" size="sm" type="button" onClick={openRename}>
+              Editar nombre
+            </Button>
+          </div>
+        )}
+        <Modal
+          isOpen={isRenameOpen}
+          title="Editar nombre del grupo"
+          onClose={() => setIsRenameOpen(false)}
+          onConfirm={handleRename}
+          confirmText={isRenaming ? "Guardando..." : "Guardar"}
+          cancelText="Cancelar"
+        >
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              className={`w-full border bg-white rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400 ${renameError ? "border-red-400" : ""}`}
+            />
+            {renameError && <p className="text-red-500 text-xs mt-1">{renameError}</p>}
+          </div>
+        </Modal>
       </div>
 
       {/* Card usuario individual */}
